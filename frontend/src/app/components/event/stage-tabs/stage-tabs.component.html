@@ -1,0 +1,13 @@
+<div>
+    <div class="text-700 text-left mb-3 cursor-pointer">
+        <span (click)="toggleNewStage()" class="text-blue-600 font-bold">Add a Stage</span>
+    </div>
+    <div class="text-center">
+        <app-tabs [tabs]="tabs"></app-tabs>
+    </div>
+</div>
+
+<app-add-stage
+    [(visible)]="newStageVisible" 
+    (stageCreated)="addStage($event)">
+</app-add-stage>

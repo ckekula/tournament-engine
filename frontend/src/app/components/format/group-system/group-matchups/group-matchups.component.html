@@ -1,0 +1,36 @@
+<div class="w-full">
+    <app-group-table 
+        [teams]="teams"
+        [loading]="loading"
+        [rounds]="rounds">
+    </app-group-table>
+    
+    <div class="flex align-items-center flex-column lg:justify-content-center lg:flex-row  my-4">
+        <div class="font-medium text-3xl text-900">Matchups</div>
+    </div>
+    <p-table 
+        [value]="rounds"
+        [loading]="loading"
+        styleClass="p-datatable-gridlines p-datatable-striped" 
+        [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+            <tr>
+            <th class="text-left">Team 1</th>
+            <th class="text-center">Score</th>
+            <th class="text-right">Team 2</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-groupRounds>
+            <tr>
+            <td class="text-left">{{getTeamName(groupRounds.team1Id)}}</td>
+            <td class="text-center">{{ groupRounds.team1Score }} - {{ groupRounds.team2Score }}</td>
+            <td class="text-right">{{getTeamName(groupRounds.team2Id)}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="3" class="text-center">No matches scheduled.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

@@ -1,0 +1,53 @@
+<div class="w-full overflow-auto">
+    <div class="bracket-grid">
+      <div *ngIf="!loading">
+        <div class="flex align-items-center flex-column lg:justify-content-center lg:flex-row my-4">
+          <div class="font-medium text-3xl text-900">Standings</div>
+        </div>
+
+        <p-table
+            [value]="teamsStats" 
+            [loading]="loading" 
+            styleClass="p-datatable-gridlines p-datatable-striped" 
+            [tableStyle]="{'min-width': '50rem'}">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Position</th>
+                <th>Team</th>
+                <th>P</th>
+                <th>W</th>
+                <th>D</th>
+                <th>L</th>
+                <th>GF</th>
+                <th>GA</th>
+                <th>GD</th>
+                <th>Pts</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-stats let-i="rowIndex">
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ stats.teamName }}</td>
+                <td>{{ stats.played }}</td>
+                <td>{{ stats.wins }}</td>
+                <td>{{ stats.ties }}</td>
+                <td>{{ stats.losses }}</td>
+                <td>{{ stats.goalsFor }}</td>
+                <td>{{ stats.goalsAgainst }}</td>
+                <td [ngClass]="{'positive': stats.scoreDiff > 0, 'negative': stats.scoreDiff < 0}">
+                  {{ stats.scoreDiff > 0 ? '+' + stats.scoreDiff : stats.scoreDiff }}
+                </td>
+                <td><strong>{{ stats.points }}</strong></td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="10" class="text-center">No team stats available.</td>
+              </tr>
+            </ng-template>
+        </p-table>
+
+    </div>
+  </div>
+  
+  

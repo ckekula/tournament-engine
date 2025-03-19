@@ -1,0 +1,16 @@
+<div class="card">
+    <p-tabs [value]="0">
+        <p-tablist>
+            @for (tab of tabs; track tab.value) {
+                <p-tab class="flex-1 text-center justify-content-center" [value]="tab.value">{{ tab.title }}</p-tab>
+            }
+        </p-tablist>
+        <p-tabpanels>
+            @for (tab of tabs; track tab.value) {
+                <p-tabpanel [value]="tab.value">
+                    <ng-container *ngComponentOutlet="tab.component"></ng-container>
+                </p-tabpanel>
+            }
+        </p-tabpanels>
+    </p-tabs>
+</div>

@@ -1,0 +1,38 @@
+<p-dialog 
+  [(visible)]="visible" 
+  (visibleChange)="visibleChange.emit($event)"
+  header="Create Organization" 
+  [modal]="true" 
+  [style]="{ width: '450px' }">
+  <form [formGroup]="activityForm" (ngSubmit)="submit()">
+    <div class="p-fluid">
+      <div class="p-field mb-4">
+        <label for="name" class="block mb-2">Activity Name</label>
+        <input 
+          id="name" 
+          pInputText 
+          formControlName="name" 
+          placeholder="Enter Activity name"
+          [class.ng-invalid]="activityForm.get('name')?.invalid && activityForm.get('name')?.touched"
+        />
+      </div>
+  
+      <div class="p-field">
+        <button 
+          pButton 
+          type="submit" 
+          label="Create" 
+          [disabled]="activityForm.invalid" 
+          class="p-button-primary">
+        </button>
+        <button 
+          pButton 
+          type="button" 
+          label="Cancel" 
+          (click)="closeDialog()" 
+          class="p-button-secondary ml-2">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>

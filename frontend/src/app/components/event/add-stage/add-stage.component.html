@@ -1,0 +1,51 @@
+<p-dialog 
+  [(visible)]="visible" 
+  (visibleChange)="visibleChange.emit($event)"
+  header="Create Stage" 
+  [modal]="true" 
+  [style]="{ width: '450px' }">
+  <form [formGroup]="stageForm" (ngSubmit)="submit()">
+    <div class="p-fluid">
+      <div class="p-field mb-4">
+        <label for="name" class="block mb-2">Stage Name</label>
+        <input 
+          id="name" 
+          pInputText 
+          formControlName="name" 
+          placeholder="Enter stage name (optional)"
+        />
+      </div>
+  
+      <div class="p-field mb-4">
+        <label for="format" class="block mb-2">Format</label>
+        <p-select
+          id="format"
+          formControlName="format"
+          [options]="formats"
+          placeholder="Select format"
+          [showClear]="true"
+          optionLabel="name"
+          optionValue="value"
+          appendTo="body">
+        </p-select>
+      </div>
+  
+      <div class="p-field">
+        <button 
+          pButton 
+          type="submit" 
+          label="Create" 
+          [disabled]="stageForm.invalid" 
+          class="p-button-primary">
+        </button>
+        <button 
+          pButton 
+          type="button" 
+          label="Cancel" 
+          (click)="closeDialog()" 
+          class="p-button-secondary ml-2">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>
