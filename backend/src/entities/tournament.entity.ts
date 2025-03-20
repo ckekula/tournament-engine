@@ -1,10 +1,9 @@
-import { Entity, Property, PrimaryKey, Unique, OneToMany, ManyToMany, Collection } from '@mikro-orm/core';
+import { Entity, Property, PrimaryKey, Unique } from '@mikro-orm/core';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Organization } from './organization.entity';
 
 @Entity()
 @ObjectType()
-export class User {
+export class Tournament {
   @PrimaryKey()
   @Field(() => ID)
   id: number;
@@ -24,14 +23,6 @@ export class User {
 
   @Property({ hidden: true })
   password: string;
-
-  @Field(() => [Organization], { nullable: true })
-  @OneToMany({ mappedBy: "owner" })
-  ownedOrganizations = new Collection<Organization>(this);
-
-  @Field(() => [Organization], { nullable: true })
-  @ManyToMany(() => Organization)
-  adminOrganizations = new Collection<Organization>(this);
 
   @Property()
   @Field()

@@ -5,17 +5,21 @@ import { User } from '../../entities/user.entity';
 import { CreateUserInput } from './dto/createUser.input';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { NotFoundException, ConflictException } from '@nestjs/common';
+import { Organization } from 'src/entities/organization.entity';
+import { Collection } from '@mikro-orm/core';
 
 describe('UserResolver', () => {
   let resolver: UserResolver;
   let mockUserService;
 
-  const mockUser: User = {
+  const mockUser: Partial<User> = {
     id: 123,
     firstname: 'John',
     lastname: 'Doe',
     email: 'john@example.com',
     password: 'hashedPassword',
+    ownedOrganizations: new Collection<Organization>(this),
+    adminOrganizations: new Collection<Organization>(this),
     createdAt: new Date(),
     updatedAt: new Date(),
   };
