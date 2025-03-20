@@ -1,7 +1,7 @@
 import { InMemoryCache } from '@apollo/client/core';
 
 const client = {
-    uri: 'http://localhost:8088/api/v1/graphql',
+    uri: process.env['PUBLIC_GRAPHQL_URL'],
     cache: new InMemoryCache(),
     ssrMode: false
 };

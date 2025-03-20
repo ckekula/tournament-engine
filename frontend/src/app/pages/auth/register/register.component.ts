@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
-import {AuthenticationService} from '../../../services/services/authentication.service';
+import {AuthService} from '../../../services/auth.service';
 import {RegistrationRequest} from '../../../services/models/registration-request';
 import {CheckboxModule} from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
