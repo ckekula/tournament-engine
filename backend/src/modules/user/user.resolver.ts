@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { User } from '../../entities/user.entity';
 import { CreateUserInput } from './dto/createUser.input';
 import { UpdateUserInput } from './dto/updateUser.input';
-import { UserResponse } from './dto/user.response';
+import { UserResponse } from './dto/user-response';
 import { ValidationPipe } from '@nestjs/common';
 
 @Resolver(() => User)

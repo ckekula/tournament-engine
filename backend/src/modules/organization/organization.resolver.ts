@@ -3,7 +3,7 @@ import { OrganizationService } from './organization.service';
 import { Organization } from 'src/entities/organization.entity';
 import { CreateOrganizationInput } from './dto/createOrganization.input';
 import { UpdateOrganizationInput } from './dto/updateOrganization.input';
-import { OrganizationResponse } from './dto/organization.response';
+import { OrganizationResponse } from './dto/organization-response';
 import { ValidationPipe } from '@nestjs/common';
 
 @Resolver(() => Organization)

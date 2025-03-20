@@ -25,6 +25,10 @@ export class User {
   @Property({ hidden: true })
   password: string;
 
+  @Property({ type: 'array', default: ['user'] })
+  @Field(() => [String])
+  roles: string[];
+
   @Field(() => [Organization], { nullable: true })
   @OneToMany({ mappedBy: "owner" })
   ownedOrganizations = new Collection<Organization>(this);
@@ -33,11 +37,11 @@ export class User {
   @ManyToMany(() => Organization)
   adminOrganizations = new Collection<Organization>(this);
 
-  @Property()
+  @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   @Field()
   createdAt: Date = new Date();
 
-  @Property({ onUpdate: () => new Date() })
+  @Property({ defaultRaw: 'CURRENT_TIMESTAMP', onUpdate: () => new Date() })
   @Field()
   updatedAt: Date = new Date();
 }

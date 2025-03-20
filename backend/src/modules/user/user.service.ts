@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -35,6 +35,21 @@ export class UserService {
         throw error;
       }
       throw new InternalServerErrorException(`Failed to fetch user with ID ${id}`);
+    }
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({ email });
+      if (!user) {
+        throw new NotFoundException(`User with email ${email} not found`);
+      }
+      return user;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to fetch user with email ${email}`);
     }
   }
 
@@ -116,6 +131,29 @@ export class UserService {
         throw error;
       }
       throw new InternalServerErrorException(`Failed to delete user with ID ${id}`);
+    }
+  }
+
+  async changePassword(id: number, currentPassword: string, newPassword: string): Promise<boolean> {
+    try {
+      const user = await this.findOne(id);
+      
+      // Verify current password
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
+      
+      // Hash and update new password
+      user.password = await bcrypt.hash(newPassword, 10);
+      await this.entityManager.flush();
+      
+      return true;
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to change password');
     }
   }
 }
