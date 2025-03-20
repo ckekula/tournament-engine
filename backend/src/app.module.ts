@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import config from 'src/mikro-orm.config';
+import config from 'config/mikro-orm.config';
 import { UserModule } from './modules/user/user.module';
 
 @Module({

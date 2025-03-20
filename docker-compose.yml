@@ -1,0 +1,25 @@
+services:
+
+  postgres:
+    container_name: postgres-sql-tms
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: tms
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - nest-app
+    restart: unless-stopped
+
+networks:
+  nest-app:
+    driver: bridge
+
+volumes:
+  postgres:
+    driver: local
