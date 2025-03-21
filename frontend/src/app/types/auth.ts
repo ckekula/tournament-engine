@@ -4,9 +4,10 @@ export interface LoginInput {
 }
 
 export interface RegisterInput {
+  firstname: string;
+  lastname: string;
   email: string;
   password: string;
-  username: string;
 }
 
 export interface AuthResponse {
@@ -17,7 +18,8 @@ export interface AuthResponse {
 export interface User {
   id: number;
   email: string;
-  username: string;
+  firstname: string;
+  lastname: string;
   createdAt: Date;
   updatedAt: Date;
 }

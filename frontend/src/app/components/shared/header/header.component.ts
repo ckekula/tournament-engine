@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { AuthStateService } from '../../../services/auth-state.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -20,12 +20,12 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private authState: AuthStateService
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    this.authState.getCurrentUser().subscribe(user => {
-      this.isAuthenticated = !!user;
+    this.authService.isAuthenticated$.subscribe((authStatus) => {
+      this.isAuthenticated = authStatus;
     });
   }
   
@@ -34,7 +34,7 @@ export class HeaderComponent implements OnInit {
   }
 
   logout(): void {
-    this.authState.clearAuthState();
+    this.authService.logout();
     this.router.navigate(['/']);
   }
 }

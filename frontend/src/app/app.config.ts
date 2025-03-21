@@ -7,11 +7,12 @@ import { provideApollo } from 'apollo-angular';
 import client from './apollo-client';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Lara from '@primeng/themes/lara';
 import { CustomePreset } from './customPreset';
+import { authInterceptorProviders } from './services/auth/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    authInterceptorProviders,
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes), 
     provideClientHydration(),
