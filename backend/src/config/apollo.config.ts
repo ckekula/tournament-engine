@@ -1,9 +1,9 @@
 import { ApolloDriver } from "@nestjs/apollo";
 
-const apolloConfig = {
+const config = {
     driver: ApolloDriver,
     autoSchemaFile: true,
     playground: true,
 }
 
-export default apolloConfig;
+export default config;

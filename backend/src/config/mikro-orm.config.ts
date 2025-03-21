@@ -3,18 +3,19 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { User } from 'src/entities/user.entity';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Organization } from 'src/entities/organization.entity';
+import { ConfigService } from '@nestjs/config';
 
-const microOrmConfig: Options = {
-  host: process.env['DB_HOST'],
-  port: parseInt(process.env['DB_PORT']),
-  user: process.env['DB_USER'],
-  password: process.env['DB_PASSWORD'],
-  dbName: process.env['DB_NAME'],
+const microOrmConfig = (config: ConfigService): Options => ({
+  host: config.get('DB_HOST'),
+  port: config.get('DB_PORT'),
+  user: config.get('DB_USER'),
+  password: config.get('DB_PASSWORD'),
+  dbName: config.get('DB_NAME'),
   entities: [User, Organization],
   ensureDatabase: true,
   debug: true,
   driver: PostgreSqlDriver,
   metadataProvider: TsMorphMetadataProvider,
-};
+});
 
 export default microOrmConfig;
