@@ -9,6 +9,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { CustomePreset } from './customPreset';
 import { authInterceptorProviders } from './services/auth/auth.interceptor';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,6 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes), 
     provideClientHydration(),
     provideHttpClient(withFetch()), 
+    provideHttpClientTesting(),
     provideApollo(() => client),
     provideAnimationsAsync(),
     providePrimeNG({

@@ -1,15 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import { AuthResponse, LoginInput, RegisterInput, User } from '../../types/auth';
+import { environment } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL: string = `${process.env['API_URL']}/auth`;
+  private readonly API_URL: string = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'current_user';
   
@@ -18,19 +20,32 @@ export class AuthService {
   
   private isAuthenticatedSubject: BehaviorSubject<boolean>;
   public isAuthenticated$: Observable<boolean>;
+  
+  private isBrowser: boolean;
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
   ) {
-    // Initialize authentication state from local storage
-    const storedUser = localStorage.getItem(this.USER_KEY);
+    this.isBrowser = isPlatformBrowser(platformId);
+    
+    // Initialize with null/false values
+    let storedUser = null;
+    let hasToken = false;
+    
+    // Check if we're in browser environment before accessing localStorage
+    if (this.isBrowser) {
+      storedUser = this.getItemFromStorage(this.USER_KEY);
+      hasToken = !!this.getItemFromStorage(this.TOKEN_KEY);
+    }
+    
     this.currentUserSubject = new BehaviorSubject<User | null>(
       storedUser ? JSON.parse(storedUser) : null
     );
     this.currentUser$ = this.currentUserSubject.asObservable();
     
-    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(!!localStorage.getItem(this.TOKEN_KEY));
+    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(hasToken);
     this.isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
   }
 
@@ -75,7 +90,7 @@ export class AuthService {
         tap(user => {
           // Update stored user info if profile is fetched
           this.currentUserSubject.next(user);
-          localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+          this.setItemInStorage(this.USER_KEY, JSON.stringify(user));
         }),
         catchError(error => {
           console.error('Get profile error', error);
@@ -86,8 +101,8 @@ export class AuthService {
 
   logout(): void {
     // Clear authentication data
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    this.removeItemFromStorage(this.TOKEN_KEY);
+    this.removeItemFromStorage(this.USER_KEY);
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
     
@@ -107,16 +122,36 @@ export class AuthService {
 
   // Get the JWT token
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return this.getItemFromStorage(this.TOKEN_KEY);
   }
 
   // Handle successful authentication
   private handleAuthSuccess(response: AuthResponse): void {
     if (response && response.accessToken) {
-      localStorage.setItem(this.TOKEN_KEY, response.accessToken);
-      localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+      this.setItemInStorage(this.TOKEN_KEY, response.accessToken);
+      this.setItemInStorage(this.USER_KEY, JSON.stringify(response.user));
       this.currentUserSubject.next(response.user);
       this.isAuthenticatedSubject.next(true);
+    }
+  }
+
+  // Safe localStorage methods
+  private getItemFromStorage(key: string): string | null {
+    if (this.isBrowser) {
+      return localStorage.getItem(key);
+    }
+    return null;
+  }
+
+  private setItemInStorage(key: string, value: string): void {
+    if (this.isBrowser) {
+      localStorage.setItem(key, value);
+    }
+  }
+
+  private removeItemFromStorage(key: string): void {
+    if (this.isBrowser) {
+      localStorage.removeItem(key);
     }
   }
 }
