@@ -67,6 +67,14 @@ export class OrganizationService {
     }
   }
 
+  async findByUser(userId: number): Promise<Organization[]> {
+    try {
+      return await this.organizationRepository.find({ owner: userId }, { populate: ['owner', 'admins'] });
+    } catch (error) {
+      throw new InternalServerErrorException(`Failed to fetch organizations for user with ID ${userId}`);
+    }
+  }
+
   async create(createOrganizationInput: CreateOrganizationInput): Promise<Organization> {
     const { slug, name, ownerId, adminIds } = createOrganizationInput;
 

@@ -138,6 +138,17 @@ describe('OrganizationService', () => {
     });
   });
 
+  describe('findByUser', () => {
+    it('should return an array of organizations for a user', async () => {
+      mockOrganizationRepository.findAll.mockResolvedValue([mockOrganization]);
+      
+      const result = await service.findByUser(123);
+      
+      expect(result).toEqual([mockOrganization]);
+      expect(mockOrganizationRepository.findAll).toHaveBeenCalledWith({ owner: { id: 123 } }, { populate: ['owner', 'admins'] });
+    });
+  });
+
   describe('create', () => {
     const createOrganizationInput: CreateOrganizationInput = {
       slug: 'test-org',

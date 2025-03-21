@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength, Matches, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, Matches } from 'class-validator';
 
 export class RegisterInput {
   @IsNotEmpty({ message: 'First name is required' })
@@ -17,7 +17,4 @@ export class RegisterInput {
     message: 'Password must contain uppercase, lowercase, number/special character',
   })
   password: string;
-
-  @IsOptional()
-  phoneNumber?: string;
 }

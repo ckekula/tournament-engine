@@ -25,6 +25,11 @@ export class OrganizationResolver {
     return this.organizationService.findBySlug(slug);
   }
 
+  @Query(() => [Organization], { name: 'organizationsByUser' })
+  async findByUser(@Args('userId', { type: () => ID }) userId: number): Promise<Organization[]> {
+    return this.organizationService.findByUser(userId);
+  }
+
   @Mutation(() => OrganizationResponse)
   async createOrganization(
     @Args('createOrganizationInput', new ValidationPipe()) createOrganizationInput: CreateOrganizationInput,

@@ -95,6 +95,16 @@ describe('OrganizationResolver', () => {
     });
   });
 
+  describe('findByUser', () => {
+    it('should return an array of organizations for a user', async () => {
+      const organizations = [mockOrganization];
+      mockOrganizationService.findByUser.mockResolvedValue(organizations);
+
+      expect(await resolver.findByUser(123)).toBe(organizations);
+      expect(mockOrganizationService.findByUser).toHaveBeenCalledWith(123);
+    });
+  })
+
   describe('createOrganization', () => {
     it('should create and return an organization', async () => {
       const createOrganizationInput: CreateOrganizationInput = {
