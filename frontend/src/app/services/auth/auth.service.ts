@@ -11,7 +11,7 @@ import { environment } from '../../environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL: string = `${environment.apiUrl}/auth`;
+  private readonly API_URL: string = `${environment.apiUrl}`;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'current_user';
   
@@ -63,9 +63,10 @@ export class AuthService {
   register(registerInput: RegisterInput): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.API_URL}/register`, registerInput)
       .pipe(
-        tap(response => this.handleAuthSuccess(response)),
+        tap(response => {
+          this.handleAuthSuccess(response);
+        }),
         catchError(error => {
-          console.error('Registration error', error);
           return throwError(() => new Error(error.error?.message || 'Registration failed'));
         })
       );

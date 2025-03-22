@@ -1,5 +1,5 @@
 export const environment = {
     production: false,
-    graphqlUrl: 'PUBLIC_GRAPHQL_URL',
-    apiUrl: 'API_URL'
+    graphqlUrl: 'http://localhost:4000/graphql',
+    apiUrl: 'http://localhost:4000'
 };

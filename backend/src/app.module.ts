@@ -3,7 +3,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriverConfig } from '@nestjs/apollo';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import microOrmConfig from 'src/config/mikro-orm.config';
-import apolloConfig from 'src/config/apollo.config';
+import apolloConfig from 'src/apollo.config';
 import { UserModule } from './modules/user/user.module';
 import { OrganizationModule } from './modules/organization/organization.module';
 import { ThrottlerModule } from '@nestjs/throttler';
