@@ -9,6 +9,8 @@ import { OrganizationModule } from './modules/organization/organization.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import throttlerConfig from 'src/config/throttler.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
+import { SchemaSyncService } from './schema-sync.service';
 
 @Module({
   imports: [
@@ -20,8 +22,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>(apolloConfig),
     ThrottlerModule.forRoot(throttlerConfig),
+    AuthModule,
     UserModule,
     OrganizationModule
   ],
+  providers: [SchemaSyncService],
 })
 export class AppModule {}
