@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriverConfig } from '@nestjs/apollo';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SchemaSyncService } from './schema-sync.service';
 import microOrmConfig from 'src/config/mikro-orm.config';
-import apolloConfig from 'src/apollo.config';
+import throttlerConfig from 'src/config/throttler.config';
 import { UserModule } from './modules/user/user.module';
 import { OrganizationModule } from './modules/organization/organization.module';
-import { ThrottlerModule } from '@nestjs/throttler';
-import throttlerConfig from 'src/config/throttler.config';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
-import { SchemaSyncService } from './schema-sync.service';
 
 @Module({
   imports: [
@@ -20,7 +19,11 @@ import { SchemaSyncService } from './schema-sync.service';
       inject: [ConfigService],
       useFactory: microOrmConfig,
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>(apolloConfig),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: true,
+      playground: true,
+    }),
     ThrottlerModule.forRoot(throttlerConfig),
     AuthModule,
     UserModule,

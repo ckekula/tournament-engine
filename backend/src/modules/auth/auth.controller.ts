@@ -21,6 +21,7 @@ export class AuthController {
   @Public()
   @Post('register')
   async register(@Body() registerInput: RegisterInput): Promise<AuthResponse> {
+    console.log('Register request received:', registerInput);
     return this.authService.register(registerInput);
   }
 

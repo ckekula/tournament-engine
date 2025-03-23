@@ -1,12 +1,12 @@
-<div class="flex align-items-center justify-content-center min-h-screen">
+<div>
   <app-header />
 
-  <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+  <div class="surface-card p-4 my-6 shadow-2 border-round w-full lg:w-6">
     <div class="text-center mb-5">
       <img src="assets/images/user.svg" alt="User Icon" height="50" class="mb-3">
       <div class="text-900 text-3xl font-medium mb-3">Hello there!</div>
       <span class="text-600 font-medium line-height-3">Already have an account?</span>
-      <a routerLink="/login" class="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Continue where you left off!</a>
+      <span (click)="navigateTo('/login')" class="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Create one today!</span>
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onRegister()">

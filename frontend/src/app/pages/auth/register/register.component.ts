@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -34,7 +34,7 @@ import { Subject } from 'rxjs';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
   registerForm!: FormGroup;
   errorMessages: string[] = [];
   isLoading = false;
@@ -60,37 +60,29 @@ export class RegisterComponent {
 
   onRegister(): void {
     if (this.registerForm.invalid) {
-      console.log('Form is invalid');
       this.registerForm.markAllAsTouched();
       return;
     }
 
-    console.log('Form is valid, proceeding with registration');
     this.isLoading = true;
     this.errorMessages = [];
 
     const registerData: RegisterInput = this.registerForm.value;
-    console.log('Register data:', registerData);
 
     this.authService.register(registerData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          console.log('Registration successful');
-          // No need to log in again - the user is already logged in after registration
-          this.isLoading = false; // Make sure to reset loading state here
-          this.router.navigate(['/profile']);
+        next: () => {
+          this.isLoading = false;
+          this.router.navigate(['/account']);
         },
         error: (error) => {
-          console.error('Registration error:', error);
           this.handleRegistrationError(error);
         }
-        // Remove the complete callback since we handle isLoading in next and error
       });
   }
 
   private handleRegistrationError(error: any): void {
-    console.error('Registration failed:', error);
     this.errorMessages.push(error?.message || 'Registration failed. Please try again.');
     this.isLoading = false;
   }
@@ -98,6 +90,10 @@ export class RegisterComponent {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  navigateTo(url: string): void {
+    this.router.navigate([url]);
   }
 
   get firstname() { return this.registerForm.get('firstname'); }

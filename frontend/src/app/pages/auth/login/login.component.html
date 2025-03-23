@@ -1,43 +1,64 @@
-<div class="flex align-items-center justify-content-center min-h-screen">
+<div>
   <app-header/>
 
-  <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+  <div class="surface-card p-4 my-6 shadow-2 border-round w-full lg:w-6">
     <div class="text-center mb-5">
       <img src="assets/images/user.svg" alt="Image" height="50" class="mb-3">
       <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
       <span class="text-600 font-medium line-height-3">Don't have an account?</span>
-      <a [href="/login" class="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Create one today!</a>
+      <span (click)="navigateTo('/register')" class="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Create one today!</span>
     </div>
 
-    <div>
-      <label for="email" class="block text-900 font-medium mb-2">Email</label>
-      <input id="email" 
-              type="text" 
-              placeholder="Email address" 
-              pInputText 
-              class="w-full mb-3"
-              [(ngModel)]="loginInput.email"
-              name="email">
-    
-      <label for="password" class="block text-900 font-medium mb-2">Password</label>
-      <input id="password" 
-              type="password" 
-              placeholder="Password" 
-              pInputText 
-              class="w-full mb-3"
-              [(ngModel)]="loginInput.password"
-              name="password">
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <div class="mb-3">
+        <label for="email" class="block text-900 font-medium mb-2">Email</label>
+        <input id="email" 
+                type="text" 
+                placeholder="example@mail.com" 
+                pInputText 
+                class="w-full mb-3"
+                aria-label="email"
+                formControlName="email">
+        <small *ngIf="email?.invalid && email?.touched" class="p-error block mt-1">
+          <span *ngIf="email?.errors?.['required']">Email is required</span>
+          <span *ngIf="email?.errors?.['email']">Please enter a valid email address</span>
+        </small>
+      </div>
+
+      <div>
+        <label for="password" class="block text-900 font-medium mb-2">Password</label>
+        <input id="password" 
+                type="password" 
+                placeholder="Password" 
+                pInputText 
+                class="w-full mb-3"
+                formControlName="password">
+        <small *ngIf="password?.invalid && password?.touched" class="p-error block mt-1">
+          <span *ngIf="password?.errors?.['required']">Password is required</span>
+          <span *ngIf="password?.errors?.['minlength']">Password must be at least 8 characters</span>
+        </small>
+      </div>
 
       <div class="flex align-items-center justify-content-between mb-6">
         <div class="flex align-items-center">
-          <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
-          <label for="rememberme1" class="text-900">Remember me</label>
+          <p-checkbox inputId="rememberMe" [binary]="true" styleClass="mr-2"></p-checkbox>
+          <label for="rememberMe" class="text-900">Remember me</label>
         </div>
         <a class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">Forgot password?</a>
       </div>
 
-      <button (click)="login()" [disabled]="isLoading" pButton pRipple label="Sign In" icon="pi pi-user" class="w-full"></button>
-    </div>
+      <p-message *ngFor="let error of errorMessages" severity="error" [text]="error" styleClass="w-full mb-3"></p-message>
+
+      <button type="submit" 
+              pButton 
+              pRipple 
+              [label]="isLoading ? 'Signing in...' : 'Sign in'" 
+              icon="pi pi-user" 
+              [disabled]="isLoading" 
+              class="w-full">
+        <p-progressSpinner *ngIf="isLoading" [style]="{width: '20px', height: '20px'}" styleClass="ml-2" strokeWidth="4"></p-progressSpinner>
+      </button>
+    </form>
   </div>
   
   <app-footer/>

@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthResponse, LoginInput, RegisterInput, User } from '../../types/auth';
@@ -11,7 +11,7 @@ import { environment } from '../../environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL: string = `${environment.apiUrl}/auth`;
+  private readonly AUTH_API_URL: string = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'current_user';
   
@@ -50,43 +50,40 @@ export class AuthService {
   }
 
   login(loginInput: LoginInput): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, loginInput)
+    return this.http.post<AuthResponse>(`${this.AUTH_API_URL}/login`, loginInput)
       .pipe(
         tap(response => this.handleAuthSuccess(response)),
         catchError(error => {
-          console.error('Login error', error);
           return throwError(() => new Error(error.error?.message || 'Login failed'));
         })
       );
   }
 
   register(registerInput: RegisterInput): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/register`, registerInput)
-      .pipe(
-        tap(response => {
-          this.handleAuthSuccess(response);
-        }),
-        catchError(error => {
-          return throwError(() => new Error(error.error?.message || 'Registration failed'));
-        })
-      );
+    return this.http.post<AuthResponse>(`${this.AUTH_API_URL}/register`, registerInput)
+    .pipe(
+      tap(response => {
+        this.handleAuthSuccess(response);
+      }),
+      catchError(error => {
+        return throwError(() => new Error(error.error?.message || 'Registration failed'));
+      })
+    );
   }
 
   refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/refresh-token`, {})
+    return this.http.post<AuthResponse>(`${this.AUTH_API_URL}/refresh-token`, {})
       .pipe(
         tap(response => this.handleAuthSuccess(response)),
         catchError(error => {
-          console.error('Token refresh error', error);
-          // If token refresh fails, log the user out
           this.logout();
-          return throwError(() => new Error('Your session has expired. Please log in again.'));
+          return throwError(() => new Error('Your session has expired. Please log in again.', error));
         })
       );
   }
 
   getProfile(): Observable<User> {
-    return this.http.get<User>(`${this.API_URL}/profile`)
+    return this.http.get<User>(`${this.AUTH_API_URL}/profile`)
       .pipe(
         tap(user => {
           // Update stored user info if profile is fetched
@@ -94,7 +91,6 @@ export class AuthService {
           this.setItemInStorage(this.USER_KEY, JSON.stringify(user));
         }),
         catchError(error => {
-          console.error('Get profile error', error);
           return throwError(() => new Error(error.error?.message || 'Failed to fetch profile'));
         })
       );

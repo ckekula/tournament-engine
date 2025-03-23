@@ -16,7 +16,7 @@
           [class.ng-invalid]="organizationForm.get('name')?.invalid && organizationForm.get('name')?.touched"
         />
         @if (organizationForm.get('name')?.invalid && organizationForm.get('name')?.touched) {
-          <small class="p-error block">
+          <small class="block text-red-500">
             @if (organizationForm.get('name')?.errors?.['required']) {
               Organization name is required
             } @else if (organizationForm.get('name')?.errors?.['minlength']) {

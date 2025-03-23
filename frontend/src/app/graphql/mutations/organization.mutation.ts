@@ -9,7 +9,6 @@ export const CREATE_ORGANIZATION = gql`
         id
         name
         slug
-        description
       }
     }
   }
@@ -24,7 +23,6 @@ export const UPDATE_ORGANIZATION = gql`
         id
         name
         slug
-        description
       }
     }
   }
