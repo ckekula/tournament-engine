@@ -19,9 +19,9 @@ export class CreateOrganizationInput {
   name: string;
   
   @Field({ nullable: true })
-  @IsOptional()
+  @IsNotEmpty({ message: 'Owner ID is required' })
   @IsNumber()
-  ownerId?: number;
+  ownerId: number;
 
   @Field(() => [Number], { nullable: true })
   @IsOptional()

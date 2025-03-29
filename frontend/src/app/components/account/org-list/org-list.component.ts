@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { Organization } from '../../../types/models';
+import { Organization } from '../../../types/organization';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AddOrgComponent } from '../add-org/add-org.component';
