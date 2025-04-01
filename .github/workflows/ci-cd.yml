@@ -21,13 +21,13 @@ jobs:
 
       # Build and push frontend
       - name: Build Frontend
-        run: docker build -t $FRONTEND_IMAGE:$GITHUB_SHA -f frontend/Dockerfile .
+        run: docker build -t $FRONTEND_IMAGE:$GITHUB_SHA -f frontend/Dockerfile frontend/
       - name: Push Frontend
         run: docker push $FRONTEND_IMAGE:$GITHUB_SHA
 
       # Build and push backend
       - name: Build Backend
-        run: docker build -t $BACKEND_IMAGE:$GITHUB_SHA -f backend/Dockerfile .
+        run: docker build -t $BACKEND_IMAGE:$GITHUB_SHA -f backend/Dockerfile backend/
       - name: Push Backend
         run: docker push $BACKEND_IMAGE:$GITHUB_SHA
 
