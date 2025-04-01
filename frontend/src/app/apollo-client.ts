@@ -1,9 +1,10 @@
 import { InMemoryCache } from '@apollo/client/core';
+import { environment } from './environment';
 
-const client = {
-    uri: 'http://localhost:8088/api/v1/graphql',
+const apolloClient = {
+    uri: environment.graphqlUrl,
     cache: new InMemoryCache(),
     ssrMode: false
 };
 
-export default client;
+export default apolloClient;
