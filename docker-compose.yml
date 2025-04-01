@@ -1,25 +1,40 @@
 services:
-
-  postgres:
-    container_name: postgres-sql-tms
-    image: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      PGDATA: /var/lib/postgresql/data
-      POSTGRES_DB: tms
-    volumes:
-      - postgres:/data/postgres
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nest-backend
+    env_file:
+      - ./backend/.env
     ports:
-      - "5432:5432"
+      - 4000:4000
     networks:
-      - nest-app
-    restart: unless-stopped
+      - tuna-app
+    # restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: angular-frontend
+    env_file:
+      - ./frontend/.env
+    ports:
+      - 4200:4200
+    networks:
+      - tuna-app
+    # restart: unless-stopped
+    # depends_on:
+    #   - backend
 
 networks:
-  nest-app:
+  tuna-app:
     driver: bridge
 
 volumes:
-  postgres:
-    driver: local
+  db_data:

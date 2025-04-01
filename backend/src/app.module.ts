@@ -10,6 +10,7 @@ import throttlerConfig from 'src/config/throttler.config';
 import { UserModule } from './modules/user/user.module';
 import { OrganizationModule } from './modules/organization/organization.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './modules/auth/auth.module';
     MikroOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
+      driver: PostgreSqlDriver,
       useFactory: microOrmConfig,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({

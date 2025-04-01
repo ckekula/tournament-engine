@@ -6,14 +6,18 @@ import { Organization } from 'src/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
 
 const microOrmConfig = (config: ConfigService): Options => ({
-  host: config.get('DB_HOST'),
-  port: config.get('DB_PORT'),
-  user: config.get('DB_USER'),
-  password: config.get('DB_PASSWORD'),
-  dbName: config.get('DB_NAME'),
+  clientUrl: config.get('DATABASE_URL'),
   entities: [User, Organization],
   ensureDatabase: true,
-  debug: true,
+  debug: ['query', 'discovery', 'schema'],
+  driverOptions: {
+    connection: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    },
+    connectTimeout: 30000,
+  },
   driver: PostgreSqlDriver,
   metadataProvider: TsMorphMetadataProvider,
 });
