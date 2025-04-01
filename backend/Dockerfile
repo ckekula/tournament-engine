@@ -13,6 +13,5 @@ COPY package*.json package-lock.json ./
 RUN npm install --production
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/tsconfig.json ./tsconfig.json
-COPY .env ./.env
 EXPOSE 4000
 CMD ["npm", "run", "start:prod"]
