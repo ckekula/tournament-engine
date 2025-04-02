@@ -53,9 +53,7 @@ jobs:
 
       - name: Get Jenkins IP
         run: |
-          echo "::stop-commands::getjenkinsip"
-          JENKINS_IP=$(terraform output -raw jenkins_ip)
-          echo "::getjenkinsip::"
+          JENKINS_IP=$(terraform output -raw jenkins_ip | sed 's/::debug::.*//')
           echo "JENKINS_IP=$JENKINS_IP" >> $GITHUB_ENV
           echo "Jenkins IP: $JENKINS_IP"
 
