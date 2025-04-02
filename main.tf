@@ -41,6 +41,7 @@ resource "aws_instance" "jenkins" {
       "sudo apt update",
       "sudo apt install -y ansible",
       "sudo mkdir -p /home/ubuntu/jenkins_config",
+      "sudo mkdir -p /home/ubuntu/ansible",
       "ls -la /home/ubuntu",
       # Configure SSH to not require host verification for localhost
       "mkdir -p ~/.ssh",
