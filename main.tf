@@ -15,7 +15,7 @@ data "aws_security_group" "jenkins_sg" {
 resource "aws_instance" "jenkins" {
   ami                    = "ami-0e35ddab05955cf57"  # Ubuntu Server 24.04 LTS
   instance_type          = "t2.micro"  # Free tier
-  vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
+  vpc_security_group_ids = [data.aws_security_group.jenkins_sg.id]
   key_name               = "jenkins-key"  # Create this key pair in AWS console
 
   tags = {
