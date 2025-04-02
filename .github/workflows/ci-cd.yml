@@ -53,7 +53,9 @@ jobs:
 
       - name: Get Jenkins IP
         run: |
-          JENKINS_IP=$(terraform output -raw jenkins_ip | awk '{print $1}')
+          echo "::stop-commands::getjenkinsip"
+          JENKINS_IP=$(terraform output -raw jenkins_ip)
+          echo "::getjenkinsip::"
           echo "JENKINS_IP=$JENKINS_IP" >> $GITHUB_ENV
           echo "Jenkins IP: $JENKINS_IP"
 
@@ -88,7 +90,7 @@ jobs:
         run: |
           sleep 60
           echo "Verifying deployment..."
-          if curl -s http://$JENKINS_IP; then
+          if curl -s http://${{ secrets.PRODUCTION_EC2_IP }}; then
             echo "Deployment successful!"
           else
             echo "Deployment verification failed"
