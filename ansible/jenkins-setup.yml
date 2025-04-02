@@ -1,0 +1,133 @@
+---
+- name: Setup Jenkins in Docker
+  hosts: localhost
+  become: yes
+  vars:
+    jenkins_admin_password: admin # use vault for production
+    jenkins_home: /var/jenkins_home
+    docker_compose_version: "2.22.0"
+    github_sha: "{{ lookup('env', 'GITHUB_SHA') | default('latest', true) }}"
+    dockerhub_username: "{{ lookup('env', 'DOCKERHUB_USERNAME') }}"
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-x86_64"
+        dest: /usr/local/bin/docker-compose
+        mode: "0755"
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Create Jenkins directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      with_items:
+        - /var/jenkins_home
+        - /var/jenkins_home/casc_configs
+
+    - name: Copy Jenkins Docker Compose file
+      copy:
+        src: files/docker-compose.yml
+        dest: /home/ubuntu/docker-compose.yml
+
+    - name: Copy deployment docker-compose file
+      copy:
+        src: files/deploy-compose.yml
+        dest: /home/ubuntu/deploy-compose.yml
+
+    - name: Copy Jenkinsfile
+      copy:
+        src: files/Jenkinsfile
+        dest: /home/ubuntu/Jenkinsfile
+
+    - name: Copy Jenkins configuration
+      copy:
+        src: files/jenkins.yaml
+        dest: /home/ubuntu/jenkins_config/jenkins.yaml
+
+    - name: Start Jenkins container
+      command: docker-compose up -d
+      args:
+        chdir: /home/ubuntu
+
+    - name: Wait for Jenkins to start
+      wait_for:
+        port: 8080
+        delay: 10
+        timeout: 300
+
+    - name: Install Jenkins plugins
+      command: >
+        docker exec jenkins curl -s -X POST 
+        -u admin:admin 
+        --data-urlencode "script=
+        import jenkins.model.*
+        import java.util.logging.Logger
+        def instance = Jenkins.getInstance()
+        def pm = instance.getPluginManager()
+        def uc = instance.getUpdateCenter()
+        def plugins = [
+          'workflow-aggregator',
+          'git',
+          'docker-workflow',
+          'pipeline-stage-view',
+          'configuration-as-code',
+          'job-dsl'
+        ]
+        plugins.each { plugin ->
+          if (!pm.getPlugin(plugin)) {
+            def plugin = uc.getPlugin(plugin)
+            if (plugin) {
+              plugin.deploy()
+              logger.info('Installing ' + plugin.getDisplayName())
+            }
+          }
+        }
+        instance.save()
+        " http://localhost:8080/scriptText
+      ignore_errors: yes
+
+    - name: Create Jenkins job
+      copy:
+        src: /home/ubuntu/Jenkinsfile
+        dest: /var/jenkins_home/casc_configs/Jenkinsfile
