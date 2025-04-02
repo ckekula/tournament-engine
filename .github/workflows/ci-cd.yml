@@ -52,13 +52,15 @@ jobs:
         timeout-minutes: 15
 
       - name: Get Jenkins IP
+        id: get-jenkins-ip
         run: |
           JENKINS_IP=$(terraform output -raw jenkins_ip | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+')
-          echo "JENKINS_IP=$JENKINS_IP" >> $GITHUB_ENV
           echo "Jenkins IP: $JENKINS_IP"
+          echo "JENKINS_IP=$JENKINS_IP" >> "$GITHUB_OUTPUT"
 
       - name: Wait for Jenkins to be ready
         run: |
+          JENKINS_IP=${{ steps.get-jenkins-ip.outputs.JENKINS_IP }}
           echo "Waiting for Jenkins to be ready at http://$JENKINS_IP:8080"
           attempts=0
           max_attempts=30
