@@ -101,7 +101,6 @@ jobs:
 
   destroy:
     needs: cd
-    if: always
     runs-on: ubuntu-latest
     steps:
       # Destroy Jenkins after deployment
