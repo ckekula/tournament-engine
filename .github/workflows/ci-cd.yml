@@ -64,7 +64,7 @@ jobs:
           JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           echo "Waiting for Jenkins to be ready at http://$JENKINS_IP:8080"
           attempts=0
-          max_attempts=30
+          max_attempts=60
           while [ $attempts -lt $max_attempts ]; do
             if curl -s -I http://$JENKINS_IP:8080/api/json | grep "200 OK"; then
               echo "Jenkins is ready!"
