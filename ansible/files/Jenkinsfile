@@ -9,23 +9,38 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
+                // Copy deployment files to production server
                 sh '''
-                    export DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME}"
-                    export FRONTEND_TAG=${params.FRONTEND_TAG}
-                    export BACKEND_TAG=${params.BACKEND_TAG}
+                    scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
                     
-                    cd /home/ubuntu
-                    docker-compose -f deploy-compose.yml down || true
-                    docker-compose -f deploy-compose.yml up -d
+                    # SSH to production and deploy
+                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} "
+                        export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+                        export FRONTEND_TAG=${params.FRONTEND_TAG}
+                        export BACKEND_TAG=${params.BACKEND_TAG}
+                        
+                        # Ensure docker is installed on production
+                        if ! command -v docker &> /dev/null; then
+                            sudo apt update
+                            sudo apt install -y docker.io docker-compose
+                            sudo usermod -aG docker ubuntu
+                        fi
+                        
+                        # Deploy the application
+                        sudo docker-compose -f deploy-compose.yml down || true
+                        sudo docker-compose -f deploy-compose.yml up -d
+                    "
                 '''
             }
         }
         
         stage('Verify') {
             steps {
-                sh 'sleep 30'  // Give services time to start
-                sh 'curl -f http://localhost:80 || exit 1'  // Check frontend
-                sh 'curl -f http://localhost:4000/health || exit 1'  // Check backend health endpoint
+                sh '''
+                    sleep 30  # Give services time to start
+                    curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
+                    curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
+                '''
             }
         }
     }
