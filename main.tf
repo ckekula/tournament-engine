@@ -8,7 +8,7 @@ variable "dockerhub_username" {
 }
 
 # Reference existing security group by name or ID
-data "aws_security_group" "existing_jenkins_sg" {
+data "aws_security_group" "jenkins_sg" {
   name = "jenkins-sg"  # should be created manually
 }
 
