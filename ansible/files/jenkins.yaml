@@ -1,0 +1,40 @@
+jenkins:
+  systemMessage: "Jenkins configured automatically by Ansible"
+  numExecutors: 2
+
+security:
+  realm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: admin
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "dockerhub"
+              username: "${DOCKERHUB_USERNAME}"
+              password: "somesecret" # replace with secret in production
+
+jobs:
+  - script: >
+      pipelineJob('deploy') {
+        definition {
+          cps {
+            script(readFileFromWorkspace('/var/jenkins_home/casc_configs/Jenkinsfile'))
+            sandbox()
+          }
+        }
+        parameters {
+          stringParam('FRONTEND_TAG', 'latest', 'Frontend Docker image tag')
+          stringParam('BACKEND_TAG', 'latest', 'Backend Docker image tag')
+        }
+      }
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"

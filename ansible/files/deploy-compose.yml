@@ -1,0 +1,14 @@
+services:
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/devops-frontend:${FRONTEND_TAG}
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - backend
+
+  backend:
+    image: ${DOCKERHUB_USERNAME}/devops-backend:${BACKEND_TAG}
+    ports:
+      - "4000:4000"
+    restart: always
