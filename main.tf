@@ -40,11 +40,17 @@ resource "aws_instance" "jenkins" {
     inline = [
       "sudo apt update",
       "sudo apt install -y ansible",
-      "cd /home/ubuntu",
       "sudo mkdir -p /home/ubuntu/jenkins_config",
+      "ls -la /home/ubuntu",
+      # Configure SSH to not require host verification for localhost
+      "mkdir -p ~/.ssh",
+      "echo 'StrictHostKeyChecking no' > ~/.ssh/config",
+      "chmod 600 ~/.ssh/config",
+      # Export environment variables
       "export DOCKERHUB_USERNAME=${var.dockerhub_username}",
+      # Run ansible playbook
       "cd /home/ubuntu/ansible",
-      "ansible-playbook -i localhost, jenkins-setup.yml"
+      "ansible-playbook -i 'localhost,' -c local jenkins-setup.yml",
     ]
 
     connection {
