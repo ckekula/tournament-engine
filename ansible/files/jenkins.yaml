@@ -32,6 +32,7 @@ jobs:
         parameters {
           stringParam('FRONTEND_TAG', 'latest', 'Frontend Docker image tag')
           stringParam('BACKEND_TAG', 'latest', 'Backend Docker image tag')
+          stringParam('PRODUCTION_IP', '', 'Production server IP address')
         }
       }
 

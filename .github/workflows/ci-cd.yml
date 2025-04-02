@@ -64,18 +64,38 @@ jobs:
           JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           echo "Waiting for Jenkins to be ready at http://$JENKINS_IP:8080"
           attempts=0
-          max_attempts=60
+          max_attempts=180
+
           while [ $attempts -lt $max_attempts ]; do
-            if curl -s -I http://$JENKINS_IP:8080/api/json | grep "200 OK"; then
-              echo "Jenkins is ready!"
-              break
+            echo "Attempt $attempts/$max_attempts - Testing connection..."
+            
+            # First check if we can connect to the port
+            timeout 5 bash -c "</dev/tcp/$JENKINS_IP/8080" && echo "Port 8080 is open" || echo "Port 8080 is not open yet"
+            
+            # Then try to access the API
+            if curl -s -I http://$JENKINS_IP:8080/api/json -u admin:admin | grep "200 OK"; then
+              echo "Jenkins API is responding!"
+              
+              # Also check if the job exists
+              if curl -s http://$JENKINS_IP:8080/job/deploy/api/json -u admin:admin | grep "deploy"; then
+                echo "Deploy job is ready!"
+                break
+              else
+                echo "Deploy job not found yet..."
+              fi
             fi
+            
             attempts=$((attempts+1))
-            echo "Attempt $attempts/$max_attempts - Jenkins not ready yet, waiting 10 seconds..."
+            echo "Jenkins not fully ready yet, waiting 10 seconds..."
             sleep 10
           done
+
           if [ $attempts -eq $max_attempts ]; then
             echo "Timed out waiting for Jenkins to be ready"
+            # Add extensive debugging
+            ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "sudo docker ps || echo 'Docker not running'"
+            ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "sudo systemctl status jenkins || echo 'Jenkins service not found'"
+            ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "netstat -tulpn | grep 8080 || echo 'Nothing listening on 8080'"
             exit 1
           fi
 

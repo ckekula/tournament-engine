@@ -69,7 +69,7 @@
       copy:
         src: /home/ubuntu/ansible/files/docker-compose.yml
         dest: /home/ubuntu/docker-compose.yml
-        remote_src: yes  # This tells Ansible the file is already on the remote host
+        remote_src: yes # This tells Ansible the file is already on the remote host
 
     - name: Copy deployment docker-compose file
       copy:
@@ -129,7 +129,6 @@
         }
         instance.save()
         " http://localhost:8080/scriptText
-      ignore_errors: yes
 
     - name: Copy production SSH key
       copy:
