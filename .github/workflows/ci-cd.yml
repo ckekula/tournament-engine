@@ -54,13 +54,14 @@ jobs:
       - name: Get Jenkins IP
         id: get-jenkins-ip
         run: |
-          JENKINS_IP=$(terraform output -raw jenkins_ip | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+')
+          terraform output -raw jenkins_ip > jenkins_ip.txt
+          JENKINS_IP=$(cat jenkins_ip.txt | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+')
           echo "Jenkins IP: $JENKINS_IP"
-          echo "JENKINS_IP=$JENKINS_IP" >> "$GITHUB_OUTPUT"
+          echo "::set-output name=jenkins_ip::$JENKINS_IP"
 
       - name: Wait for Jenkins to be ready
         run: |
-          JENKINS_IP=${{ steps.get-jenkins-ip.outputs.JENKINS_IP }}
+          JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           echo "Waiting for Jenkins to be ready at http://$JENKINS_IP:8080"
           attempts=0
           max_attempts=30
