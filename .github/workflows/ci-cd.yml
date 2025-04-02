@@ -15,17 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Login to Docker Hub
       - name: Login to Docker Hub
         run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
-      # Build and push frontend
       - name: Build Frontend
         run: docker build -t $FRONTEND_IMAGE:$GITHUB_SHA -f frontend/Dockerfile frontend/
       - name: Push Frontend
         run: docker push $FRONTEND_IMAGE:$GITHUB_SHA
 
-      # Build and push backend
       - name: Build Backend
         run: docker build -t $BACKEND_IMAGE:$GITHUB_SHA -f backend/Dockerfile backend/
       - name: Push Backend
@@ -37,7 +34,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Create Jenkins SSH key from GitHub secret
       - name: Create Jenkins SSH key
         run: |
           echo "${{ secrets.JENKINS_SSH_KEY }}" > jenkins-key.pem
@@ -45,8 +41,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v2
 
-      # Initialize Terraform and Deploy Jenkins
-      - id: terraform_init
+      - name: Initialize Terraform and Deploy Jenkins
         run: terraform init && terraform apply -auto-approve
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -56,11 +51,14 @@ jobs:
           TF_VAR_github_sha: ${{ github.sha }}
         timeout-minutes: 15
 
-      # Get Jenkins IP
-      - run: echo "JENKINS_IP=$(terraform output -raw jenkins_ip)" >> $GITHUB_ENV
+      - name: Get Jenkins IP
+        run: |
+          JENKINS_IP=$(terraform output -raw jenkins_ip)
+          echo "JENKINS_IP=$JENKINS_IP" >> $GITHUB_ENV
+          echo "Jenkins IP: $JENKINS_IP"
 
-      # Wait for Jenkins to be ready
-      - run: |
+      - name: Wait for Jenkins to be ready
+        run: |
           echo "Waiting for Jenkins to be ready at http://$JENKINS_IP:8080"
           attempts=0
           max_attempts=30
@@ -78,8 +76,7 @@ jobs:
             exit 1
           fi
 
-      # Trigger Jenkins deployment job
-      - name: Trigger Jenkins Deployment
+      - name: Trigger Jenkins deployment job
         run: |
           curl -X POST "http://$JENKINS_IP:8080/job/deploy/buildWithParameters" \
             --user admin:admin \
@@ -87,8 +84,7 @@ jobs:
             --data-urlencode BACKEND_TAG=$GITHUB_SHA \
             --data-urlencode PRODUCTION_IP=${{ secrets.PRODUCTION_EC2_IP }}
 
-      # Wait for deployment to complete
-      - name: Wait for Deployment
+      - name: Wait for Deployment to complete
         run: |
           sleep 60
           echo "Verifying deployment..."
@@ -100,12 +96,10 @@ jobs:
           fi
 
   destroy:
-    needs: cd
     runs-on: ubuntu-latest
     steps:
-      # Destroy Jenkins after deployment
-      - name: Destroy Jenkins
-        if: always() # Run even if previous steps failed
+      - name: Destroy Jenkins after deployment
+        if: always()
         run: terraform destroy -auto-approve
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
