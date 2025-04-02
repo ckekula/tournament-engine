@@ -64,7 +64,8 @@ resource "aws_instance" "jenkins" {
       "cd /home/ubuntu",
       "sudo mkdir -p /home/ubuntu/jenkins_config",
       "export DOCKERHUB_USERNAME=${var.dockerhub_username}",
-      "ansible-playbook -i localhost, ansible/jenkins-setup.yml"
+      "cd /home/ubuntu/ansible",
+      "ansible-playbook -i localhost, jenkins-setup.yml"
     ]
 
     connection {
