@@ -67,23 +67,27 @@
 
     - name: Copy Jenkins Docker Compose file
       copy:
-        src: files/docker-compose.yml
+        src: /home/ubuntu/ansible/files/docker-compose.yml
         dest: /home/ubuntu/docker-compose.yml
+        remote_src: yes  # This tells Ansible the file is already on the remote host
 
     - name: Copy deployment docker-compose file
       copy:
-        src: files/deploy-compose.yml
+        src: /home/ubuntu/ansible/files/deploy-compose.yml
         dest: /home/ubuntu/deploy-compose.yml
+        remote_src: yes
 
     - name: Copy Jenkinsfile
       copy:
-        src: files/Jenkinsfile
+        src: /home/ubuntu/ansible/files/Jenkinsfile
         dest: /home/ubuntu/Jenkinsfile
+        remote_src: yes
 
     - name: Copy Jenkins configuration
       copy:
-        src: files/jenkins.yaml
+        src: /home/ubuntu/ansible/files/jenkins.yaml
         dest: /home/ubuntu/jenkins_config/jenkins.yaml
+        remote_src: yes
 
     - name: Start Jenkins container
       command: docker-compose up -d
