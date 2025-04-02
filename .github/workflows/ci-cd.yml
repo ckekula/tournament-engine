@@ -74,12 +74,14 @@ jobs:
             exit 1
           fi
 
-      # Trigger Jenkins job with frontend/backend tags
-      - run: |
-          curl -X POST "http://$JENKINS_IP:8080/job/deploy/build/buildWithParameters" \
+      # Trigger Jenkins deployment job
+      - name: Trigger Jenkins Deployment
+        run: |
+          curl -X POST "http://$JENKINS_IP:8080/job/deploy/buildWithParameters" \
             --user admin:admin \
             --data-urlencode FRONTEND_TAG=$GITHUB_SHA \
-            --data-urlencode BACKEND_TAG=$GITHUB_SHA
+            --data-urlencode BACKEND_TAG=$GITHUB_SHA \
+            --data-urlencode PRODUCTION_IP=${{ secrets.PRODUCTION_EC2_IP }}
 
       # Wait for deployment to complete
       - name: Wait for Deployment

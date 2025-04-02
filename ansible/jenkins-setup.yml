@@ -127,6 +127,14 @@
         " http://localhost:8080/scriptText
       ignore_errors: yes
 
+    - name: Copy production SSH key
+      copy:
+        content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
+        dest: /var/jenkins_home/production-key.pem
+        mode: "0600"
+        owner: root
+        group: root
+
     - name: Create Jenkins job
       copy:
         src: /home/ubuntu/Jenkinsfile
