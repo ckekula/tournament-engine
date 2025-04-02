@@ -64,8 +64,8 @@ resource "aws_instance" "jenkins" {
 
   # Copy Ansible files to the instance
   provisioner "file" {
-    source      = "ansible/"
-    destination = "/home/ubuntu"
+    source      = "ansible/files/"
+    destination = "/home/ubuntu/ansible/files/"
     
     connection {
       type        = "ssh"

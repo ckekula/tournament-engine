@@ -34,8 +34,6 @@ jobs:
   cd:
     needs: ci
     runs-on: ubuntu-latest
-    outputs:
-      should_destroy: ${{ steps.init-and-apply.outputs.success }}
     steps:
       - uses: actions/checkout@v4
 
@@ -103,7 +101,7 @@ jobs:
 
   destroy:
     needs: cd
-    if: needs.cd.outputs.should_destroy == 'true'
+    if: always
     runs-on: ubuntu-latest
     steps:
       # Destroy Jenkins after deployment
