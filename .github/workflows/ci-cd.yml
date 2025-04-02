@@ -101,6 +101,7 @@ jobs:
   destroy:
     needs: cd
     if: needs.cd.outputs.should_destroy == 'true'
+    runs-on: ubuntu-latest
     steps:
       # Destroy Jenkins after deployment
       - name: Destroy Jenkins
