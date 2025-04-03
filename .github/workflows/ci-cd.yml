@@ -55,9 +55,9 @@ jobs:
         id: get-jenkins-ip
         run: |
           terraform output -raw jenkins_ip > jenkins_ip.txt
-          JENKINS_IP=$(cat jenkins_ip.txt | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+')
+          JENKINS_IP=$(cat jenkins_ip.txt)
           echo "Jenkins IP: $JENKINS_IP"
-          echo "::set-output name=jenkins_ip::$JENKINS_IP"
+          echo "jenkins_ip=$JENKINS_IP" >> $GITHUB_OUTPUT
 
       - name: Wait for Jenkins to be ready
         run: |
@@ -90,11 +90,13 @@ jobs:
 
       - name: Trigger Jenkins deployment job
         run: |
+          JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
+          echo "Triggering job on Jenkins at http://$JENKINS_IP:8080"
           curl -X POST "http://$JENKINS_IP:8080/job/deploy/buildWithParameters" \
             --user admin:admin \
-            --data-urlencode FRONTEND_TAG=$GITHUB_SHA \
-            --data-urlencode BACKEND_TAG=$GITHUB_SHA \
-            --data-urlencode PRODUCTION_IP=${{ secrets.PRODUCTION_EC2_IP }}
+            --data-urlencode "FRONTEND_TAG=$GITHUB_SHA" \
+            --data-urlencode "BACKEND_TAG=$GITHUB_SHA" \
+            --data-urlencode "PRODUCTION_IP=${{ secrets.PRODUCTION_EC2_IP }}"
 
       - name: Wait for Deployment to complete
         run: |
@@ -107,36 +109,22 @@ jobs:
             exit 1
           fi
 
-      - name: Debug Jenkins logs
-        if: failure()
-        run: |
-          JENKINS_IP=$(cat jenkins_ip.txt)
-          echo "Jenkins logs:"
-          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "sudo docker logs jenkins --tail 100"
-
-      - name: Test Jenkins from inside EC2
-        if: failure()
-        run: |
-          JENKINS_IP=$(cat jenkins_ip.txt)
-          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "curl -v http://localhost:8080/ || echo 'Failed to connect locally'"
-
       - name: Manual verification
         if: failure()
         run: |
           JENKINS_IP=$(cat jenkins_ip.txt)
-          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "
-            echo 'Checking if Jenkins home exists and has content...'
-            ls -la /var/jenkins_home/
-            
-            echo 'Checking Docker container status...'
-            docker ps -a
-            
-            echo 'Checking Jenkins process inside container...'
-            docker exec jenkins ps aux | grep jenkins
-            
-            echo 'Checking what ports are listening inside container...'
-            docker exec jenkins cat /proc/net/tcp | grep ':1F90' # Hex for 8080
-          "
+          echo "IP from file: $JENKINS_IP"
+          echo "Testing connection:"
+          curl -v http://$JENKINS_IP:8080/ || echo "Failed to connect"
+
+          echo "Checking if job exists:"
+          curl -v http://$JENKINS_IP:8080/job/deploy/api/json --user admin:admin || echo "Job not found"
+
+          echo "Container status:"
+          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "docker ps"
+
+          echo "Jenkins logs:"
+          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "docker logs jenkins | tail -n 50"
 
   destroy:
     runs-on: ubuntu-latest
