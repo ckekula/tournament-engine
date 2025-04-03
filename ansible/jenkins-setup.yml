@@ -139,22 +139,11 @@
       wait_for:
         port: 8080
         delay: 10
-        timeout: 60 # Wait up to 60 seconds
+        timeout: 30 # Wait 30 seconds
       register: jenkins_ready
       until: jenkins_ready is success
       retries: 3
       delay: 10
-
-    - name: Disable CSRF protection in Jenkins
-      command: >
-        docker exec jenkins curl -s -X POST 
-        -u admin:{{ jenkins_admin_password }} 
-        --data-urlencode "script=
-        import jenkins.model.Jenkins
-        def jenkins = Jenkins.instance
-        jenkins.setCrumbIssuer(null)
-        jenkins.save()
-        " http://localhost:8080/scriptText
 
     - name: Copy production SSH key
       copy:

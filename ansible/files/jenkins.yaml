@@ -9,7 +9,7 @@ security:
       users:
         - id: admin
           password: admin
-  # crumbIssuer: null
+  crumbIssuer: null
 
 credentials:
   system:
