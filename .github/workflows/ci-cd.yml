@@ -90,13 +90,17 @@ jobs:
           JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           echo "Triggering deployment on Jenkins at: http://$JENKINS_IP:8080"
 
-          # Fetch the Jenkins crumb (CSRF token)
-          CRUMB=$(curl -s --user "admin:admin" "http://$JENKINS_IP:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,':',//crumb)")
+          # Fetch the Jenkins crumb (CSRF token) and store both parts separately
+          CRUMB_RESPONSE=$(curl -s --user "admin:admin" "http://$JENKINS_IP:8080/crumbIssuer/api/json")
+          CRUMB_FIELD=$(echo $CRUMB_RESPONSE | jq -r .crumbRequestField)
+          CRUMB_VALUE=$(echo $CRUMB_RESPONSE | jq -r .crumb)
+
+          echo "Using crumb: $CRUMB_FIELD:$CRUMB_VALUE"
 
           # Trigger the job with the crumb in headers
           curl -X POST "http://$JENKINS_IP:8080/job/deploy/buildWithParameters" \
             --user "admin:admin" \
-            --header "$CRUMB" \
+            -H "$CRUMB_FIELD: $CRUMB_VALUE" \
             --data-urlencode "FRONTEND_TAG=$GITHUB_SHA" \
             --data-urlencode "BACKEND_TAG=$GITHUB_SHA" \
             --data-urlencode "PRODUCTION_IP=${{ secrets.PRODUCTION_EC2_IP }}"

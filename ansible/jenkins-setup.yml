@@ -19,6 +19,7 @@
           - gnupg
           - lsb-release
           - python3-pip
+          - jq
         state: present
         update_cache: yes
 
