@@ -130,6 +130,22 @@
         instance.save()
         " http://localhost:8080/scriptText
 
+    - name: Restart Jenkins to apply JCasC
+      command: docker restart jenkins
+      async: 10
+      poll: 0
+
+    - name: Disable CSRF protection in Jenkins
+      command: >
+        docker exec jenkins curl -s -X POST 
+        -u admin:{{ jenkins_admin_password }} 
+        --data-urlencode "script=
+        import jenkins.model.Jenkins
+        def jenkins = Jenkins.instance
+        jenkins.setCrumbIssuer(null)
+        jenkins.save()
+        " http://localhost:8080/scriptText
+
     - name: Copy production SSH key
       copy:
         content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
