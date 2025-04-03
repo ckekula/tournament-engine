@@ -52,13 +52,12 @@ jobs:
         timeout-minutes: 15
 
       - name: Get Jenkins IP
-        id: terraform
+        id: get-jenkins-ip
         run: |
-          echo "jenkins_ip=$(terraform output -raw jenkins_ip)" >> $GITHUB_OUTPUT
-
-      - name: Use the IP
-        run: |
-          echo "Jenkins IP: ${{ steps.terraform.outputs.jenkins_ip }}"
+          terraform output -raw jenkins_ip > jenkins_ip.txt
+          JENKINS_IP=$(cat jenkins_ip.txt | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+')
+          echo "Jenkins IP: $JENKINS_IP"
+          echo "::set-output name=jenkins_ip::$JENKINS_IP"
 
       - name: Wait for Jenkins to be ready
         run: |
@@ -106,37 +105,6 @@ jobs:
             echo "Deployment verification failed"
             exit 1
           fi
-
-      - name: Debug Jenkins logs
-        if: failure()
-        run: |
-          JENKINS_IP=$(cat jenkins_ip.txt)
-          echo "Jenkins logs:"
-          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "sudo docker logs jenkins --tail 100"
-
-      - name: Test Jenkins from inside EC2
-        if: failure()
-        run: |
-          JENKINS_IP=$(cat jenkins_ip.txt)
-          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "curl -v http://localhost:8080/ || echo 'Failed to connect locally'"
-
-      - name: Manual verification
-        if: failure()
-        run: |
-          JENKINS_IP=$(cat jenkins_ip.txt)
-          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "
-            echo 'Checking if Jenkins home exists and has content...'
-            ls -la /var/jenkins_home/
-            
-            echo 'Checking Docker container status...'
-            docker ps -a
-            
-            echo 'Checking Jenkins process inside container...'
-            docker exec jenkins ps aux | grep jenkins
-            
-            echo 'Checking what ports are listening inside container...'
-            docker exec jenkins cat /proc/net/tcp | grep ':1F90' # Hex for 8080
-          "
 
   destroy:
     runs-on: ubuntu-latest
