@@ -156,5 +156,5 @@
 
     - name: Create Jenkins job
       copy:
-        src: /home/ubuntu/Jenkinsfile
+        src: /home/ubuntu/ansible/files/Jenkinsfile
         dest: /var/jenkins_home/casc_configs/Jenkinsfile
