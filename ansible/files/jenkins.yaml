@@ -24,9 +24,14 @@ jobs:
   - script: >
       pipelineJob('deploy') {
         definition {
-          cps {
-            script(readFileFromWorkspace('/var/jenkins_home/casc_configs/Jenkinsfile'))
-            sandbox()
+          cpsScm {
+            scm {
+              git {
+                remote { url '/var/jenkins_home/casc_configs/Jenkinsfile' }
+                branch '*/main'
+              }
+            }
+            scriptPath 'Jenkinsfile'
           }
         }
         parameters {
