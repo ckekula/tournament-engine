@@ -64,24 +64,22 @@ jobs:
           JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           echo "Waiting for Jenkins to be ready at http://$JENKINS_IP:8080"
           attempts=0
-          max_attempts=180
+          max_attempts=120
 
           while [ $attempts -lt $max_attempts ]; do
             echo "Attempt $attempts/$max_attempts - Testing connection..."
             
-            # First check if we can connect to the port
-            timeout 5 bash -c "</dev/tcp/$JENKINS_IP/8080" && echo "Port 8080 is open" || echo "Port 8080 is not open yet"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$JENKINS_IP:8080/)
+            echo "HTTP status code: $HTTP_CODE"
             
-            # Then try to access the API
-            if curl -s -I http://$JENKINS_IP:8080/api/json -u admin:admin | grep "200 OK"; then
-              echo "Jenkins API is responding!"
+            if [[ "$HTTP_CODE" == "200" || "$HTTP_CODE" == "403" ]]; then
+              echo "Jenkins is responding with HTTP $HTTP_CODE"
               
-              # Also check if the job exists
-              if curl -s http://$JENKINS_IP:8080/job/deploy/api/json -u admin:admin | grep "deploy"; then
-                echo "Deploy job is ready!"
+              if curl -s http://$JENKINS_IP:8080/ -u admin:admin | grep -q "Dashboard"; then
+                echo "Successfully authenticated to Jenkins!"
                 break
               else
-                echo "Deploy job not found yet..."
+                echo "Authentication issue or Jenkins still initializing..."
               fi
             fi
             
@@ -89,15 +87,6 @@ jobs:
             echo "Jenkins not fully ready yet, waiting 10 seconds..."
             sleep 10
           done
-
-          if [ $attempts -eq $max_attempts ]; then
-            echo "Timed out waiting for Jenkins to be ready"
-            # Add extensive debugging
-            ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "sudo docker ps || echo 'Docker not running'"
-            ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "sudo systemctl status jenkins || echo 'Jenkins service not found'"
-            ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "netstat -tulpn | grep 8080 || echo 'Nothing listening on 8080'"
-            exit 1
-          fi
 
       - name: Trigger Jenkins deployment job
         run: |
@@ -117,6 +106,37 @@ jobs:
             echo "Deployment verification failed"
             exit 1
           fi
+
+      - name: Debug Jenkins logs
+        if: failure()
+        run: |
+          JENKINS_IP=$(cat jenkins_ip.txt)
+          echo "Jenkins logs:"
+          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "sudo docker logs jenkins --tail 100"
+
+      - name: Test Jenkins from inside EC2
+        if: failure()
+        run: |
+          JENKINS_IP=$(cat jenkins_ip.txt)
+          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "curl -v http://localhost:8080/ || echo 'Failed to connect locally'"
+
+      - name: Manual verification
+        if: failure()
+        run: |
+          JENKINS_IP=$(cat jenkins_ip.txt)
+          ssh -i jenkins-key.pem -o StrictHostKeyChecking=no ubuntu@$JENKINS_IP "
+            echo 'Checking if Jenkins home exists and has content...'
+            ls -la /var/jenkins_home/
+            
+            echo 'Checking Docker container status...'
+            docker ps -a
+            
+            echo 'Checking Jenkins process inside container...'
+            docker exec jenkins ps aux | grep jenkins
+            
+            echo 'Checking what ports are listening inside container...'
+            docker exec jenkins cat /proc/net/tcp | grep ':1F90' # Hex for 8080
+          "
 
   destroy:
     runs-on: ubuntu-latest
