@@ -52,51 +52,49 @@ jobs:
         timeout-minutes: 15
 
       - name: Get Jenkins IP
-        id: get-jenkins-ip
+        id: terraform
         run: |
-          terraform output -raw jenkins_ip > jenkins_ip.txt
-          JENKINS_IP=$(cat jenkins_ip.txt | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+')
-          echo "Jenkins IP: $JENKINS_IP"
-          cat <<EOF >> $GITHUB_OUTPUT
-          jenkins_ip=$JENKINS_IP
-          EOF
+          echo "jenkins_ip=$(terraform output -raw jenkins_ip)" >> $GITHUB_OUTPUT
+
+      - name: Use the IP
+        run: |
+          echo "Jenkins IP: ${{ steps.terraform.outputs.jenkins_ip }}"
 
       - name: Wait for Jenkins to be ready
         run: |
           JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           echo "Waiting for Jenkins to be ready at http://$JENKINS_IP:8080"
-          attempts=0
-          max_attempts=60
 
+          attempts=0
+          max_attempts=30
           while [ $attempts -lt $max_attempts ]; do
-            echo "Attempt $attempts/$max_attempts - Testing connection..."
-            
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$JENKINS_IP:8080/)
-            echo "HTTP status code: $HTTP_CODE"
+            echo "Attempt $attempts/$max_attempts - HTTP status code: $HTTP_CODE"
             
             if [[ "$HTTP_CODE" == "200" || "$HTTP_CODE" == "403" ]]; then
-              echo "Jenkins is responding with HTTP $HTTP_CODE"
-              
-              if curl -s http://$JENKINS_IP:8080/ -u admin:admin | grep -q "Dashboard"; then
-                echo "Successfully authenticated to Jenkins!"
-                break
-              else
-                echo "Authentication issue or Jenkins still initializing..."
-              fi
+              echo "Jenkins is responding! Ready to proceed."
+              break
             fi
             
             attempts=$((attempts+1))
-            echo "Jenkins not fully ready yet, waiting 10 seconds..."
+            echo "Waiting 10 seconds..."
             sleep 10
           done
 
+          if [ $attempts -eq $max_attempts ]; then
+            echo "Timed out waiting for Jenkins to respond"
+            exit 1
+          fi
+
       - name: Trigger Jenkins deployment job
         run: |
+          JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
+          echo "Triggering deployment on Jenkins at: http://$JENKINS_IP:8080"
           curl -X POST "http://$JENKINS_IP:8080/job/deploy/buildWithParameters" \
             --user admin:admin \
-            --data-urlencode FRONTEND_TAG=$GITHUB_SHA \
-            --data-urlencode BACKEND_TAG=$GITHUB_SHA \
-            --data-urlencode PRODUCTION_IP=${{ secrets.PRODUCTION_EC2_IP }}
+            --data-urlencode "FRONTEND_TAG=$GITHUB_SHA" \
+            --data-urlencode "BACKEND_TAG=$GITHUB_SHA" \
+            --data-urlencode "PRODUCTION_IP=${{ secrets.PRODUCTION_EC2_IP }}"
 
       - name: Wait for Deployment to complete
         run: |
