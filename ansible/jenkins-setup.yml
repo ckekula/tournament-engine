@@ -65,6 +65,9 @@
       with_items:
         - /var/jenkins_home
         - /var/jenkins_home/casc_configs
+        - /var/jenkins_home/jobs
+        - /var/jenkins_home/jobs/deploy
+        - /var/jenkins_home/jobs/deploy/workspace
 
     - name: Copy Jenkins Docker Compose file
       copy:
@@ -88,6 +91,61 @@
       copy:
         src: /home/ubuntu/ansible/files/jenkins.yaml
         dest: /home/ubuntu/jenkins_config/jenkins.yaml
+        remote_src: yes
+
+    # Create Jenkins job directly
+    - name: Create job config directory
+      file:
+        path: /var/jenkins_home/jobs/deploy
+        state: directory
+        mode: "0755"
+
+    - name: Create config.xml for deploy job
+      copy:
+        content: |
+          <?xml version='1.1' encoding='UTF-8'?>
+          <flow-definition plugin="workflow-job@2.40">
+            <actions/>
+            <description></description>
+            <keepDependencies>false</keepDependencies>
+            <properties>
+              <hudson.model.ParametersDefinitionProperty>
+                <parameterDefinitions>
+                  <hudson.model.StringParameterDefinition>
+                    <name>FRONTEND_TAG</name>
+                    <description>Frontend Docker image tag</description>
+                    <defaultValue>latest</defaultValue>
+                    <trim>false</trim>
+                  </hudson.model.StringParameterDefinition>
+                  <hudson.model.StringParameterDefinition>
+                    <name>BACKEND_TAG</name>
+                    <description>Backend Docker image tag</description>
+                    <defaultValue>latest</defaultValue>
+                    <trim>false</trim>
+                  </hudson.model.StringParameterDefinition>
+                  <hudson.model.StringParameterDefinition>
+                    <name>PRODUCTION_IP</name>
+                    <description>Production server IP address</description>
+                    <defaultValue></defaultValue>
+                    <trim>false</trim>
+                  </hudson.model.StringParameterDefinition>
+                </parameterDefinitions>
+              </hudson.model.ParametersDefinitionProperty>
+            </properties>
+            <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.90">
+              <script>{{ lookup('file', '/home/ubuntu/ansible/files/Jenkinsfile') }}</script>
+              <sandbox>true</sandbox>
+            </definition>
+            <triggers/>
+            <disabled>false</disabled>
+          </flow-definition>
+        dest: /var/jenkins_home/jobs/deploy/config.xml
+        mode: "0644"
+
+    - name: Copy Jenkinsfile to job workspace
+      copy:
+        src: /home/ubuntu/ansible/files/Jenkinsfile
+        dest: /var/jenkins_home/jobs/deploy/workspace/Jenkinsfile
         remote_src: yes
 
     - name: Start Jenkins container
@@ -154,7 +212,12 @@
         owner: root
         group: root
 
-    - name: Create Jenkins job
-      copy:
-        src: /home/ubuntu/ansible/files/Jenkinsfile
-        dest: /var/jenkins_home/casc_configs/Jenkinsfile
+    - name: Reload Jenkins configuration
+      command: >
+        docker exec jenkins curl -s -X POST 
+        -u admin:admin 
+        --data-urlencode "script=
+        import jenkins.model.Jenkins;
+        Jenkins.getInstance().reload();
+        " http://localhost:8080/scriptText
+      ignore_errors: yes

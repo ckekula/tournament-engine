@@ -20,27 +20,6 @@ credentials:
               username: "${DOCKERHUB_USERNAME}"
               password: "somesecret" # replace with secret in production
 
-jobs:
-  - script: >
-      pipelineJob('deploy') {
-        definition {
-          cpsScm {
-            scm {
-              git {
-                remote { url '/var/jenkins_home/casc_configs/Jenkinsfile' }
-                branch '*/main'
-              }
-            }
-            scriptPath 'Jenkinsfile'
-          }
-        }
-        parameters {
-          stringParam('FRONTEND_TAG', 'latest', 'Frontend Docker image tag')
-          stringParam('BACKEND_TAG', 'latest', 'Backend Docker image tag')
-          stringParam('PRODUCTION_IP', '', 'Production server IP address')
-        }
-      }
-
 unclassified:
   location:
     url: "http://localhost:8080/"
