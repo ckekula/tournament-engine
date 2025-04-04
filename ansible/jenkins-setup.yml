@@ -1,255 +1,184 @@
 ---
-- name: Setup Jenkins in Docker
+- name: Setup Jenkins
   hosts: localhost
   become: yes
-  vars:
-    jenkins_admin_password: admin # use vault for production
-    jenkins_home: /var/jenkins_home
-    docker_compose_version: "2.22.0"
-    github_sha: "{{ lookup('env', 'GITHUB_SHA') | default('latest', true) }}"
-    dockerhub_username: "{{ lookup('env', 'DOCKERHUB_USERNAME') }}"
-
   tasks:
-    - name: Install required packages
+    - name: Install prerequisites
       apt:
         name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg
-          - lsb-release
-          - python3-pip
-          - jq
+          - openjdk-11-jdk
+          - docker.io
+          - docker-compose
         state: present
         update_cache: yes
 
-    - name: Add Docker GPG key
+    - name: Add Jenkins repository key
       apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
         state: present
 
-    - name: Add Docker repository
+    - name: Add Jenkins repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        repo: deb https://pkg.jenkins.io/debian-stable binary/
         state: present
 
-    - name: Install Docker
+    - name: Install Jenkins
       apt:
-        name: docker-ce
+        name: jenkins
         state: present
-        update_cache: yes
 
-    - name: Ensure Docker service is running
+    - name: Enable and start Docker service
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Install Docker Compose
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-x86_64"
-        dest: /usr/local/bin/docker-compose
-        mode: "0755"
-
-    - name: Add ubuntu user to docker group
+    - name: Add jenkins user to docker group
       user:
-        name: ubuntu
+        name: jenkins
         groups: docker
         append: yes
 
-    - name: Create Jenkins directories
+    - name: Create Jenkins init.groovy.d directory
       file:
-        path: "{{ item }}"
+        path: /var/lib/jenkins/init.groovy.d
         state: directory
+        owner: jenkins
+        group: jenkins
+
+    - name: Wait for Jenkins to start up
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    - name: Create .ssh directory for jenkins
+      file:
+        path: /var/jenkins_home
+        state: directory
+        owner: jenkins
+        group: jenkins
         mode: "0755"
-      with_items:
-        - /var/jenkins_home
-        - /var/jenkins_home/casc_configs
-        - /home/ubuntu/jenkins_config
-
-    - name: Copy Jenkins Docker Compose file
-      copy:
-        src: /home/ubuntu/ansible/files/docker-compose.yml
-        dest: /home/ubuntu/docker-compose.yml
-        remote_src: yes # file is already on the remote host
-
-    - name: Copy deployment docker-compose file
-      copy:
-        src: /home/ubuntu/ansible/files/deploy-compose.yml
-        dest: /home/ubuntu/deploy-compose.yml
-        remote_src: yes
-
-    - name: Copy Jenkins configuration
-      copy:
-        src: /home/ubuntu/ansible/files/jenkins.yaml
-        dest: /home/ubuntu/jenkins_config/jenkins.yaml
-        remote_src: yes
-
-    - name: Start Jenkins container
-      command: docker-compose up -d
-      args:
-        chdir: /home/ubuntu
-
-    - name: Wait for Jenkins to start
-      wait_for:
-        port: 8080
-        delay: 10
-        timeout: 300
-
-    # Install plugins before configuring jobs
-    - name: Install Jenkins plugins
-      command: >
-        docker exec jenkins curl -s -X POST 
-        -u admin:admin 
-        --data-urlencode "script=
-        import jenkins.model.*
-        import java.util.logging.Logger
-        def instance = Jenkins.getInstance()
-        def pm = instance.getPluginManager()
-        def uc = instance.getUpdateCenter()
-        def plugins = [
-          'workflow-aggregator',
-          'git',
-          'docker-workflow',
-          'pipeline-stage-view',
-          'configuration-as-code',
-          'job-dsl'
-        ]
-        plugins.each { plugin ->
-          if (!pm.getPlugin(plugin)) {
-            def plugin = uc.getPlugin(plugin)
-            if (plugin) {
-              plugin.deploy()
-              logger.info('Installing ' + plugin.getDisplayName())
-            }
-          }
-        }
-        instance.save()
-        " http://localhost:8080/scriptText
-      register: plugin_install
-      retries: 3
-      delay: 15
-      until: plugin_install.rc == 0
 
     - name: Copy production SSH key
       copy:
         content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
         dest: /var/jenkins_home/production-key.pem
+        owner: jenkins
+        group: jenkins
         mode: "0600"
 
-    - name: Restart Jenkins to apply plugin changes
-      command: docker restart jenkins
-      async: 10
-      poll: 0
+    - name: Create deploy-compose.yml for deployment
+      copy:
+        src: files/docker-compose.yml
+        dest: /home/ubuntu/deploy-compose.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: "0644"
 
-    - name: Wait for Jenkins after restart
+    - name: Copy Jenkinsfile
+      copy:
+        src: files/Jenkinsfile
+        dest: /var/lib/jenkins/Jenkinsfile
+        owner: jenkins
+        group: jenkins
+        mode: "0644"
+
+    - name: Wait for Jenkins to generate initial admin password
       wait_for:
-        port: 8080
-        delay: 15
-        timeout: 60
-      register: jenkins_ready
-      until: jenkins_ready is success
+        path: /var/lib/jenkins/secrets/initialAdminPassword
+        delay: 30
+        timeout: 300
+
+    - name: Get Jenkins admin password
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: jenkins_admin_password
+      changed_when: false
+
+    - name: Download Jenkins CLI
+      get_url:
+        url: http://localhost:8080/jnlpJars/jenkins-cli.jar
+        dest: /tmp/jenkins-cli.jar
+        mode: "0440"
       retries: 5
       delay: 10
 
-    - name: Wait for Jenkins to be fully ready (API check)
-      uri:
-        url: http://localhost:8080/api/json
-        user: admin
-        password: admin
-        status_code: 200
-      register: jenkins_api_ready
-      retries: 10
-      delay: 10
-      until: jenkins_api_ready is success
+    - name: Install Jenkins plugins
+      shell: >
+        java -jar /tmp/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_admin_password.stdout }} 
+        install-plugin workflow-aggregator git docker-workflow pipeline-stage-view
+      register: plugin_result
+      failed_when: plugin_result.rc != 0 and "already installed" not in plugin_result.stderr
+      changed_when: plugin_result.rc == 0
 
-    # Create the deploy job using the Groovy script
-    - name: Create deployment job
-      command: >
-        docker exec jenkins curl -s -X POST 
-        -u admin:admin 
-        --data-urlencode "script=
-        import jenkins.model.Jenkins
-        import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
-        import org.jenkinsci.plugins.workflow.job.WorkflowJob
-        import hudson.model.ParametersDefinitionProperty
-        import hudson.model.StringParameterDefinition
+    - name: Create Jenkins job
+      blockinfile:
+        path: /tmp/jenkins-job.xml
+        create: yes
+        block: |
+          <?xml version='1.1' encoding='UTF-8'?>
+          <flow-definition plugin="workflow-job@2.40">
+            <description>Deployment Pipeline</description>
+            <keepDependencies>false</keepDependencies>
+            <properties>
+              <hudson.model.ParametersDefinitionProperty>
+                <parameterDefinitions>
+                  <hudson.model.StringParameterDefinition>
+                    <name>FRONTEND_TAG</name>
+                    <defaultValue>{{ lookup('env', 'GITHUB_SHA') }}</defaultValue>
+                    <description>Frontend Docker image tag</description>
+                  </hudson.model.StringParameterDefinition>
+                  <hudson.model.StringParameterDefinition>
+                    <name>BACKEND_TAG</name>
+                    <defaultValue>{{ lookup('env', 'GITHUB_SHA') }}</defaultValue>
+                    <description>Backend Docker image tag</description>
+                  </hudson.model.StringParameterDefinition>
+                  <hudson.model.StringParameterDefinition>
+                    <name>PRODUCTION_IP</name>
+                    <defaultValue>{{ lookup('env', 'PRODUCTION_IP') | default('') }}</defaultValue>
+                    <description>Production server IP</description>
+                  </hudson.model.StringParameterDefinition>
+                </parameterDefinitions>
+              </hudson.model.ParametersDefinitionProperty>
+            </properties>
+            <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.90">
+              <script>{{ lookup('file', '/var/lib/jenkins/Jenkinsfile') }}</script>
+              <sandbox>true</sandbox>
+            </definition>
+            <triggers/>
+            <disabled>false</disabled>
+          </flow-definition>
 
-        // Create job
-        def jenkins = Jenkins.instance
-        def jobName = 'deploy'
-        def job = jenkins.getItem(jobName) ?: jenkins.createProject(WorkflowJob.class, jobName)
+    - name: Create Jenkins job using CLI
+      shell: >
+        java -jar /tmp/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_admin_password.stdout }} 
+        create-job deployment < /tmp/jenkins-job.xml
+      args:
+        executable: /bin/bash
+      register: job_result
+      failed_when: job_result.rc != 0 and "already exists" not in job_result.stderr
+      changed_when: job_result.rc == 0
 
-        // Define job parameters
-        def params = new ParametersDefinitionProperty([
-          new StringParameterDefinition('FRONTEND_TAG', 'latest', 'Frontend Docker image tag'),
-          new StringParameterDefinition('BACKEND_TAG', 'latest', 'Backend Docker image tag'),
-          new StringParameterDefinition('PRODUCTION_IP', '', 'Production server IP')
-        ])
+    - name: Set environment variable for Jenkins job
+      lineinfile:
+        path: /etc/default/jenkins
+        line: 'DOCKERHUB_USERNAME={{ lookup("env", "DOCKERHUB_USERNAME") }}'
+        create: yes
 
-        // Define pipeline script
-        def pipelineScript = '''
-        pipeline {
-          agent any
-          
-          parameters {
-              string(name: 'FRONTEND_TAG', defaultValue: 'latest', description: 'Frontend Docker image tag')
-              string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend Docker image tag')
-              string(name: 'PRODUCTION_IP', defaultValue: '', description: 'Production server IP')
-          }
-          
-          stages {
-              stage('Deploy') {
-                  steps {
-                      // Copy deployment files to production server
-                      sh '''
-                          scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
-                          
-                          # SSH to production and deploy
-                          ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} \"
-                              export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
-                              export FRONTEND_TAG=${params.FRONTEND_TAG}
-                              export BACKEND_TAG=${params.BACKEND_TAG}
-                              
-                              # Ensure docker is installed on production
-                              if ! command -v docker &> /dev/null; then
-                                  sudo apt update
-                                  sudo apt install -y docker.io docker-compose
-                                  sudo usermod -aG docker ubuntu
-                              fi
-                              
-                              # Deploy the application
-                              sudo docker-compose -f deploy-compose.yml down || true
-                              sudo docker-compose -f deploy-compose.yml up -d
-                          \"
-                      '''
-                  }
-              }
-              
-              stage('Verify') {
-                  steps {
-                      sh '''
-                          sleep 30  # Give services time to start
-                          curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
-                          curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
-                      '''
-                  }
-              }
-          }
-        }
-        '''
+    - name: Restart Jenkins to apply changes
+      service:
+        name: jenkins
+        state: restarted
 
-        // Set job properties
-        job.setDefinition(new CpsFlowDefinition(pipelineScript, true))
-        job.addProperty(params)
+    - name: Set readable Jenkins admin password
+      copy:
+        content: "{{ jenkins_admin_password.stdout }}"
+        dest: /home/ubuntu/jenkins_admin_password.txt
+        mode: "0600"
 
-        // Save job
-        job.save()
-        jenkins.reload()
-
-        return 'Deploy job created/updated successfully'
-        " http://localhost:8080/scriptText
-      register: job_creation
-      retries: 3
-      delay: 10
-      until: job_creation.rc == 0
+    - name: Print Jenkins credentials
+      debug:
+        msg:
+          - "Jenkins is available at http://{{ ansible_host }}:8080"
+          - "Admin username: admin"
+          - "Admin password: {{ jenkins_admin_password.stdout }}"
