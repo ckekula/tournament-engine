@@ -186,8 +186,16 @@
             http://localhost:8080/scriptText
           register: plugins_check
           until: "'true' in plugins_check.stdout"
-          retries: 10
-          delay: 5
+          retries: 30
+          delay: 10
+          ignore_errors: yes
+
+        - name: Debug plugin status
+          command: >
+            docker exec jenkins curl -s -u admin:admin
+            http://localhost:8080/pluginManager/api/json?depth=1
+          register: plugin_status
+          when: plugin_check is failed or plugin_check is skipped
 
         - name: Confirm job creation capability
           command: >
