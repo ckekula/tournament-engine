@@ -6,7 +6,7 @@
     - name: Install prerequisites
       apt:
         name:
-          - openjdk-11-jdk
+          - openjdk-17-jdk
           - docker.io
           - docker-compose
         state: present
@@ -52,6 +52,12 @@
         owner: jenkins
         group: jenkins
         recurse: yes
+
+    - name: Wait for Jenkins to start up
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
 
     - name: Create .ssh directory for jenkins
       file:
