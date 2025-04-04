@@ -65,9 +65,7 @@
       with_items:
         - /var/jenkins_home
         - /var/jenkins_home/casc_configs
-        - /var/jenkins_home/jobs
-        - /var/jenkins_home/jobs/deploy
-        - /var/jenkins_home/jobs/deploy/workspace
+        - /home/ubuntu/jenkins_config
 
     - name: Copy Jenkins Docker Compose file
       copy:
@@ -80,15 +78,6 @@
         src: /home/ubuntu/ansible/files/deploy-compose.yml
         dest: /home/ubuntu/deploy-compose.yml
         remote_src: yes
-
-    - name: Copy job config XML
-      copy:
-        src: /home/ubuntu/ansible/files/config.xml
-        dest: /var/jenkins_home/jobs/deploy/config.xml
-        remote_src: yes
-
-    - name: Reload Jenkins configuration
-      command: docker exec jenkins curl -X POST http://localhost:8080/reload -u admin:admin
 
     - name: Copy Jenkins configuration
       copy:
@@ -142,15 +131,13 @@
       delay: 15
       until: plugin_install.rc == 0
 
-    # Configure JCasC after plugins are installed
-    - name: Copy Jenkins configuration
+    - name: Copy production SSH key
       copy:
-        src: /home/ubuntu/ansible/files/jenkins.yaml
-        dest: /var/jenkins_home/jenkins.yaml
-        remote_src: yes
-        mode: "0644"
+        content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
+        dest: /var/jenkins_home/production-key.pem
+        mode: "0600"
 
-    - name: Apply JCasC configuration
+    - name: Restart Jenkins to apply plugin changes
       command: docker restart jenkins
       async: 10
       poll: 0
@@ -165,39 +152,103 @@
       retries: 5
       delay: 10
 
-    # setup the job
-    - name: Ensure Jenkins jobs directory exists
-      file:
-        path: /var/jenkins_home/jobs/deploy
-        state: directory
-        owner: jenkins
-        group: jenkins
-        mode: "0755"
+    # Create the deploy job using the Groovy script
+    - name: Create deployment job
+      command: >
+        docker exec jenkins curl -s -X POST 
+        -u admin:admin 
+        --data-urlencode "script=
+        import jenkins.model.Jenkins
+        import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
+        import org.jenkinsci.plugins.workflow.job.WorkflowJob
+        import hudson.model.ParametersDefinitionProperty
+        import hudson.model.StringParameterDefinition
 
-    # Final reload and verification
-    - name: Reload Jenkins configuration
-      command: docker exec jenkins curl -X POST http://localhost:8080/reload -u admin:admin
-      register: reload_result
+        // Create job
+        def jenkins = Jenkins.instance
+        def jobName = 'deploy'
+        def job = jenkins.getItem(jobName) ?: jenkins.createProject(WorkflowJob.class, jobName)
+
+        // Define job parameters
+        def params = new ParametersDefinitionProperty([
+          new StringParameterDefinition('FRONTEND_TAG', 'latest', 'Frontend Docker image tag'),
+          new StringParameterDefinition('BACKEND_TAG', 'latest', 'Backend Docker image tag'),
+          new StringParameterDefinition('PRODUCTION_IP', '', 'Production server IP')
+        ])
+
+        // Define pipeline script
+        def pipelineScript = '''
+        pipeline {
+          agent any
+          
+          parameters {
+              string(name: 'FRONTEND_TAG', defaultValue: 'latest', description: 'Frontend Docker image tag')
+              string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend Docker image tag')
+              string(name: 'PRODUCTION_IP', defaultValue: '', description: 'Production server IP')
+          }
+          
+          stages {
+              stage('Deploy') {
+                  steps {
+                      // Copy deployment files to production server
+                      sh '''
+                          scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
+                          
+                          # SSH to production and deploy
+                          ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} \"
+                              export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+                              export FRONTEND_TAG=${params.FRONTEND_TAG}
+                              export BACKEND_TAG=${params.BACKEND_TAG}
+                              
+                              # Ensure docker is installed on production
+                              if ! command -v docker &> /dev/null; then
+                                  sudo apt update
+                                  sudo apt install -y docker.io docker-compose
+                                  sudo usermod -aG docker ubuntu
+                              fi
+                              
+                              # Deploy the application
+                              sudo docker-compose -f deploy-compose.yml down || true
+                              sudo docker-compose -f deploy-compose.yml up -d
+                          \"
+                      '''
+                  }
+              }
+              
+              stage('Verify') {
+                  steps {
+                      sh '''
+                          sleep 30  # Give services time to start
+                          curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
+                          curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
+                      '''
+                  }
+              }
+          }
+        }
+        '''
+
+        // Set job properties
+        job.setDefinition(new CpsFlowDefinition(pipelineScript, true))
+        job.addProperty(params)
+
+        // Save job
+        job.save()
+        jenkins.reload()
+
+        return 'Deploy job created/updated successfully'
+        " http://localhost:8080/scriptText
+      register: job_creation
       retries: 3
       delay: 10
-      until: reload_result.rc == 0
+      until: job_creation.rc == 0
 
-    - name: Verify job exists
-      uri:
-        url: http://localhost:8080/job/deploy/api/json
-        user: admin
-        password: admin
-        status_code: 200
-        validate_certs: no
-      register: job_check
-      retries: 5
-      delay: 10
-      until: job_check.status == 200
-
-    - name: Copy production SSH key
-      copy:
-        content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
-        dest: /var/jenkins_home/production-key.pem
-        mode: "0600"
-        owner: jenkins
-        group: jenkins
+    - name: Verify job was created
+      command: >
+        docker exec jenkins curl -s
+        -u admin:admin
+        http://localhost:8080/job/deploy/api/json
+      register: job_verification
+      retries: 3
+      delay: 5
+      until: job_verification.rc == 0
