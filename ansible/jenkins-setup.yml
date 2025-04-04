@@ -12,10 +12,6 @@
         state: present
         update_cache: yes
 
-    - name: Set Java 11 as default
-      command: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
-      when: "'openjdk-11-jdk' in ansible_facts.packages"
-
     - name: Add Jenkins repository key
       apt_key:
         url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
@@ -49,6 +45,13 @@
         state: directory
         owner: jenkins
         group: jenkins
+
+    - name: Ensure Jenkins has ownership of its home directory
+      file:
+        path: /var/lib/jenkins
+        owner: jenkins
+        group: jenkins
+        recurse: yes
 
     - name: Wait for Jenkins to start up
       service:
