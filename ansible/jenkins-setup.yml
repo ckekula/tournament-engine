@@ -110,6 +110,10 @@
         delay: 10
         timeout: 300
 
+    - name: Correct file ownership in container
+      command: >
+        docker exec jenkins chown -R jenkins:jenkins /var/jenkins_home
+        
     # Install plugins FIRST before configuring jobs
     - name: Install Jenkins plugins
       command: >
