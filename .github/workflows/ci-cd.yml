@@ -54,9 +54,10 @@ jobs:
       - name: Get Jenkins IP
         id: get-jenkins-ip
         run: |
-          JENKINS_IP=$(terraform output -raw jenkins_ip)
+          terraform output -raw jenkins_ip > jenkins_ip.txt
+          JENKINS_IP=$(cat jenkins_ip.txt | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+')
           echo "Jenkins IP: $JENKINS_IP"
-          echo "jenkins_ip=$JENKINS_IP" >> $GITHUB_OUTPUT
+          echo "::set-output name=jenkins_ip::$JENKINS_IP"
 
       - name: Wait for Jenkins to be ready
         run: |

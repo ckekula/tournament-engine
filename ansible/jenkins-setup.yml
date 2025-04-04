@@ -12,6 +12,10 @@
         state: present
         update_cache: yes
 
+    - name: Set Java 11 as default
+      command: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
+      when: "'openjdk-11-jdk' in ansible_facts.packages"
+
     - name: Add Jenkins repository key
       apt_key:
         url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
