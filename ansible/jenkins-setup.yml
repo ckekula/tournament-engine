@@ -83,12 +83,9 @@
 
     - name: Copy job config XML
       copy:
-        src: files/config.xml
+        src: home/ubuntu/ansible/files/config.xml
         dest: /var/jenkins_home/jobs/deploy/config.xml
         remote_src: yes
-        owner: jenkins
-        group: jenkins
-        mode: "0644"
 
     - name: Reload Jenkins configuration
       command: docker exec jenkins curl -X POST http://localhost:8080/reload -u admin:admin
