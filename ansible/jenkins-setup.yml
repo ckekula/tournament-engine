@@ -163,96 +163,34 @@
       delay: 10
       until: jenkins_api_ready is success
 
-    # Create the deploy job using the Groovy script
-    - name: Create deployment job
+    - name: Create minimal deploy job (test)
       command: >
-        docker exec jenkins curl -s -X POST 
-        -u admin:admin 
+        docker exec jenkins curl -X POST -u admin:admin 
         --data-urlencode "script=
-        import jenkins.model.Jenkins
-        import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
-        import org.jenkinsci.plugins.workflow.job.WorkflowJob
-        import hudson.model.ParametersDefinitionProperty
-        import hudson.model.StringParameterDefinition
-
-        // Create job
+        import jenkins.model.*
         def jenkins = Jenkins.instance
-        def jobName = 'deploy'
-        def job = jenkins.getItem(jobName) ?: jenkins.createProject(WorkflowJob.class, jobName)
-
-        // Define job parameters
-        def params = new ParametersDefinitionProperty([
-          new StringParameterDefinition('FRONTEND_TAG', 'latest', 'Frontend Docker image tag'),
-          new StringParameterDefinition('BACKEND_TAG', 'latest', 'Backend Docker image tag'),
-          new StringParameterDefinition('PRODUCTION_IP', '', 'Production server IP')
-        ])
-
-        // Define pipeline script
-        def pipelineScript = '''
-        pipeline {
-          agent any
-          
-          parameters {
-              string(name: 'FRONTEND_TAG', defaultValue: 'latest', description: 'Frontend Docker image tag')
-              string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend Docker image tag')
-              string(name: 'PRODUCTION_IP', defaultValue: '', description: 'Production server IP')
-          }
-          
-          stages {
-              stage('Deploy') {
+        if(!jenkins.getItem('deploy')) {
+          def job = jenkins.createProject(org.jenkinsci.plugins.workflow.job.WorkflowJob, 'deploy')
+          job.setDefinition(new org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition('''
+            pipeline {
+              agent any
+              stages {
+                stage('Test') {
                   steps {
-                      // Copy deployment files to production server
-                      sh '''
-                          scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
-                          
-                          # SSH to production and deploy
-                          ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} \"
-                              export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
-                              export FRONTEND_TAG=${params.FRONTEND_TAG}
-                              export BACKEND_TAG=${params.BACKEND_TAG}
-                              
-                              # Ensure docker is installed on production
-                              if ! command -v docker &> /dev/null; then
-                                  sudo apt update
-                                  sudo apt install -y docker.io docker-compose
-                                  sudo usermod -aG docker ubuntu
-                              fi
-                              
-                              # Deploy the application
-                              sudo docker-compose -f deploy-compose.yml down || true
-                              sudo docker-compose -f deploy-compose.yml up -d
-                          \"
-                      '''
+                    echo 'Hello World'
                   }
+                }
               }
-              
-              stage('Verify') {
-                  steps {
-                      sh '''
-                          sleep 30  # Give services time to start
-                          curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
-                          curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
-                      '''
-                  }
-              }
-          }
+            }
+          ''', true))
+          job.save()
+          println 'Job created successfully'
+        } else {
+          println 'Job already exists'
         }
-        '''
-
-        // Set job properties
-        job.setDefinition(new CpsFlowDefinition(pipelineScript, true))
-        job.addProperty(params)
-
-        // Save job
-        job.save()
-        jenkins.reload()
-
-        return 'Deploy job created/updated successfully'
         " http://localhost:8080/scriptText
-      register: job_creation
-      retries: 3
-      delay: 10
-      until: job_creation.rc == 0
+      register: job_test
+      failed_when: "'Failed' in job_test.stderr"
 
     - name: Verify job was created
       command: >
