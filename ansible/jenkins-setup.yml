@@ -22,6 +22,13 @@
         repo: deb https://pkg.jenkins.io/debian-stable binary/
         state: present
 
+    - name: Create Jenkins Java options file to disable CSRF
+      copy:
+        dest: /etc/default/jenkins
+        content: |
+          JAVA_ARGS="-Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true"
+        mode: "0644"
+
     - name: Install Jenkins
       apt:
         name: jenkins
@@ -117,13 +124,6 @@
       register: plugin_result
       failed_when: plugin_result.rc != 0 and "already installed" not in plugin_result.stderr
       changed_when: plugin_result.rc == 0
-
-    - name: Disable CSRF protection in Jenkins configuration
-      lineinfile:
-        path: /etc/default/jenkins
-        regexp: "^JAVA_OPTS="
-        line: 'JAVA_OPTS="-Djava.awt.headless=true -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true"'
-        backrefs: yes
 
     - name: Restart Jenkins after plugin installation
       service:

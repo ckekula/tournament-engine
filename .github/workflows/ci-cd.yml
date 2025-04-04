@@ -88,10 +88,9 @@ jobs:
           PRODUCTION_IP=${{ secrets.PRODUCTION_IP }}
 
           echo "Triggering Jenkins job..."
-          CRUMB=$(curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/crumbIssuer/api/xml?xpath=concat\(//crumbRequestField,%22:%22,//crumb\))
+          # No need for CRUMB with CSRF disabled
 
           curl -X POST http://$JENKINS_IP:8080/job/deployment/buildWithParameters \
-            -H "$CRUMB" \
             -u admin:$JENKINS_ADMIN_PASSWORD \
             --data-urlencode "FRONTEND_TAG=$GITHUB_SHA" \
             --data-urlencode "BACKEND_TAG=$GITHUB_SHA" \
