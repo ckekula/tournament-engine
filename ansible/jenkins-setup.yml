@@ -65,13 +65,15 @@
       with_items:
         - /var/jenkins_home
         - /var/jenkins_home/casc_configs
-        - /home/ubuntu/jenkins_config
+        - /var/jenkins_home/jobs
+        - /var/jenkins_home/jobs/deploy
+        - /var/jenkins_home/jobs/deploy/workspace
 
     - name: Copy Jenkins Docker Compose file
       copy:
         src: /home/ubuntu/ansible/files/docker-compose.yml
         dest: /home/ubuntu/docker-compose.yml
-        remote_src: yes # This tells Ansible the file is already on the remote host
+        remote_src: yes # file is already on the remote host
 
     - name: Copy deployment docker-compose file
       copy:
@@ -82,7 +84,7 @@
     - name: Copy Jenkinsfile
       copy:
         src: /home/ubuntu/ansible/files/Jenkinsfile
-        dest: /home/ubuntu/Jenkinsfile
+        dest: /var/jenkins_home/jobs/deploy/workspace/Jenkinsfile
         remote_src: yes
 
     - name: Copy Jenkins configuration
@@ -132,130 +134,6 @@
         instance.save()
         " http://localhost:8080/scriptText
 
-    - name: Wait for plugins to install
-      pause:
-        seconds: 10
-
-    - name: Create deploy job using Jenkins Script Console
-      command: >
-        docker exec jenkins curl -s -X POST
-        -u admin:admin
-        --data-urlencode "script=
-        import jenkins.model.Jenkins
-        import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
-        import org.jenkinsci.plugins.workflow.job.WorkflowJob
-        import hudson.model.StringParameterDefinition
-        import hudson.model.ParametersDefinitionProperty
-
-        // Get Jenkins instance
-        def jenkins = Jenkins.getInstance()
-
-        // Create the job if it doesn't exist, otherwise update it
-        def job = jenkins.getItem('deploy')
-        if (job == null) {
-            job = jenkins.createProject(WorkflowJob.class, 'deploy')
-        }
-
-        // Add job parameters
-        def paramsList = new ArrayList<StringParameterDefinition>()
-        paramsList.add(new StringParameterDefinition('FRONTEND_TAG', 'latest', 'Frontend Docker image tag'))
-        paramsList.add(new StringParameterDefinition('BACKEND_TAG', 'latest', 'Backend Docker image tag'))
-        paramsList.add(new StringParameterDefinition('PRODUCTION_IP', '', 'Production server IP address'))
-        def params = new ParametersDefinitionProperty(paramsList)
-        job.addProperty(params)
-
-        // Read Jenkinsfile content (mounted from the host)
-        def jenkinsfile = new File('/var/jenkins_home/Jenkinsfile')
-        if (!jenkinsfile.exists()) {
-            // Create a simple placeholder Jenkinsfile if it doesn't exist
-            jenkinsfile = new File('/tmp/Jenkinsfile')
-            jenkinsfile.text = '''
-            pipeline {
-              agent any
-              
-              parameters {
-                  string(name: 'FRONTEND_TAG', defaultValue: 'latest', description: 'Frontend Docker image tag')
-                  string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend Docker image tag')
-              }
-              
-              stages {
-                  stage('Deploy') {
-                      steps {
-                          // Copy deployment files to production server
-                          sh '''
-                              scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
-                              
-                              # SSH to production and deploy
-                              ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} "
-                                  export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
-                                  export FRONTEND_TAG=${params.FRONTEND_TAG}
-                                  export BACKEND_TAG=${params.BACKEND_TAG}
-                                  
-                                  # Ensure docker is installed on production
-                                  if ! command -v docker &> /dev/null; then
-                                      sudo apt update
-                                      sudo apt install -y docker.io docker-compose
-                                      sudo usermod -aG docker ubuntu
-                                  fi
-                                  
-                                  # Deploy the application
-                                  sudo docker-compose -f deploy-compose.yml down || true
-                                  sudo docker-compose -f deploy-compose.yml up -d
-                              "
-                          '''
-                      }
-                  }
-                  
-                  stage('Verify') {
-                      steps {
-                          sh '''
-                              sleep 30  # Give services time to start
-                              curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
-                              curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
-                          '''
-                      }
-                  }
-              }
-          }
-            '''
-        }
-
-        // Set the job definition
-        def flowDefinition = new CpsFlowDefinition(jenkinsfile.text, true)
-        job.setDefinition(flowDefinition)
-        job.save()
-
-        return 'Job created/updated successfully'
-        " http://localhost:8080/scriptText
-
-    - name: Copy Jenkinsfile to Jenkins container
-      command: docker cp /home/ubuntu/Jenkinsfile jenkins:/var/jenkins_home/Jenkinsfile
-
-    - name: Update job with actual Jenkinsfile
-      command: >
-        docker exec jenkins curl -s -X POST
-        -u admin:admin
-        --data-urlencode "script=
-        import jenkins.model.Jenkins
-        import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
-
-        // Get Jenkins instance
-        def jenkins = Jenkins.getInstance()
-
-        // Get the job
-        def job = jenkins.getItem('deploy')
-
-        // Read Jenkinsfile content
-        def jenkinsfile = new File('/var/jenkins_home/Jenkinsfile')
-
-        // Update the job definition
-        def flowDefinition = new CpsFlowDefinition(jenkinsfile.text, true)
-        job.setDefinition(flowDefinition)
-        job.save()
-
-        return 'Job updated with actual Jenkinsfile'
-        " http://localhost:8080/scriptText
-
     - name: Restart Jenkins to apply JCasC
       command: docker restart jenkins
       async: 10
@@ -278,3 +156,27 @@
         mode: "0600"
         owner: root
         group: root
+
+    - name: Create Jenkins job
+      copy:
+        src: /home/ubuntu/ansible/files/Jenkinsfile
+        dest: /var/jenkins_home/casc_configs/Jenkinsfile
+
+    - name: Create deploy job using Job DSL
+      uri:
+        url: "http://localhost:8080/job/deploy/config.xml"
+        method: POST
+        user: admin
+        password: "{{ jenkins_admin_password }}"
+        body: |
+          <flow-definition plugin="workflow-job@2.41">
+            <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.82">
+              <script>{{ lookup('file', '/home/ubuntu/ansible/files/Jenkinsfile') }}</script>
+              <sandbox>true</sandbox>
+            </definition>
+            <triggers/>
+            <disabled>false</disabled>
+          </flow-definition>
+        body_format: xml
+        status_code: 200
+        force_basic_auth: yes

@@ -4,6 +4,7 @@ pipeline {
     parameters {
         string(name: 'FRONTEND_TAG', defaultValue: 'latest', description: 'Frontend Docker image tag')
         string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend Docker image tag')
+        string(name: 'PRODUCTION_IP', defaultValue: '', description: 'Production server IP')
     }
     
     stages {
