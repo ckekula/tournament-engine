@@ -81,11 +81,17 @@
         dest: /home/ubuntu/deploy-compose.yml
         remote_src: yes
 
-    - name: Copy Jenkinsfile
+    - name: Copy job config XML
       copy:
-        src: /home/ubuntu/ansible/files/Jenkinsfile
-        dest: /var/jenkins_home/jobs/deploy/workspace/Jenkinsfile
+        src: files/deploy-config.xml
+        dest: /var/jenkins_home/jobs/deploy/config.xml
         remote_src: yes
+        owner: jenkins
+        group: jenkins
+        mode: "0644"
+
+    - name: Reload Jenkins configuration
+      command: docker exec jenkins curl -X POST http://localhost:8080/reload -u admin:admin
 
     - name: Copy Jenkins configuration
       copy:
@@ -157,26 +163,37 @@
         owner: root
         group: root
 
-    - name: Create Jenkins job
-      copy:
-        src: /home/ubuntu/ansible/files/Jenkinsfile
-        dest: /var/jenkins_home/casc_configs/Jenkinsfile
+    - name: Ensure Jenkins jobs directory exists
+      file:
+        path: /var/jenkins_home/jobs/deploy
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: "0755"
 
-    - name: Create deploy job using Job DSL
+    - name: Copy job config.xml
+      copy:
+        src: /home/ubuntu/ansible/files/deploy-config.xml
+        dest: /var/jenkins_home/jobs/deploy/config.xml
+        remote_src: yes
+        owner: jenkins
+        group: jenkins
+        mode: "0644"
+
+    - name: Reload Jenkins configuration
+      command: docker exec jenkins curl -X POST http://localhost:8080/reload -u admin:admin
+      register: reload_result
+      failed_when: reload_result.rc != 0
+      changed_when: "'200' in reload_result.stdout"
+
+    - name: Verify job exists
       uri:
-        url: "http://localhost:8080/job/deploy/config.xml"
-        method: POST
+        url: http://localhost:8080/job/deploy/api/json
         user: admin
-        password: "{{ jenkins_admin_password }}"
-        body: |
-          <flow-definition plugin="workflow-job@2.41">
-            <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.82">
-              <script>{{ lookup('file', '/home/ubuntu/ansible/files/Jenkinsfile') }}</script>
-              <sandbox>true</sandbox>
-            </definition>
-            <triggers/>
-            <disabled>false</disabled>
-          </flow-definition>
-        body_format: xml
+        password: admin
         status_code: 200
-        force_basic_auth: yes
+        validate_certs: no
+      register: job_check
+      retries: 5
+      delay: 10
+      until: job_check.status == 200
