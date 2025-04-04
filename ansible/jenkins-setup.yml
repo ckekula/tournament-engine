@@ -151,8 +151,6 @@
         src: /home/ubuntu/ansible/files/jenkins.yaml
         dest: /var/jenkins_home/jenkins.yaml
         remote_src: yes
-        owner: jenkins
-        group: jenkins
         mode: "0644"
 
     - name: Apply JCasC configuration
