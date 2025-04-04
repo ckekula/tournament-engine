@@ -110,6 +110,7 @@
         delay: 10
         timeout: 300
 
+    # Install plugins FIRST before configuring jobs
     - name: Install Jenkins plugins
       command: >
         docker exec jenkins curl -s -X POST 
@@ -139,30 +140,37 @@
         }
         instance.save()
         " http://localhost:8080/scriptText
+      register: plugin_install
+      retries: 3
+      delay: 15
+      until: plugin_install.rc == 0
 
-    - name: Restart Jenkins to apply JCasC
+    # Configure JCasC AFTER plugins are installed
+    - name: Copy Jenkins configuration
+      copy:
+        src: /home/ubuntu/ansible/files/jenkins.yaml
+        dest: /var/jenkins_home/jenkins.yaml
+        remote_src: yes
+        owner: jenkins
+        group: jenkins
+        mode: "0644"
+
+    - name: Apply JCasC configuration
       command: docker restart jenkins
       async: 10
       poll: 0
 
-    - name: Wait for Jenkins to be reachable after restart
+    - name: Wait for Jenkins after restart
       wait_for:
         port: 8080
         delay: 10
-        timeout: 30 # Wait 30 seconds
+        timeout: 60
       register: jenkins_ready
       until: jenkins_ready is success
-      retries: 3
+      retries: 5
       delay: 10
 
-    - name: Copy production SSH key
-      copy:
-        content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
-        dest: /var/jenkins_home/production-key.pem
-        mode: "0600"
-        owner: root
-        group: root
-
+    # Now setup the job
     - name: Ensure Jenkins jobs directory exists
       file:
         path: /var/jenkins_home/jobs/deploy
@@ -171,11 +179,22 @@
         group: jenkins
         mode: "0755"
 
+    - name: Copy job config XML
+      copy:
+        src: /home/ubuntu/ansible/files/config.xml
+        dest: /var/jenkins_home/jobs/deploy/config.xml
+        remote_src: yes
+        owner: jenkins
+        group: jenkins
+        mode: "0644"
+
+    # Final reload and verification
     - name: Reload Jenkins configuration
       command: docker exec jenkins curl -X POST http://localhost:8080/reload -u admin:admin
       register: reload_result
-      failed_when: reload_result.rc != 0
-      changed_when: "'200' in reload_result.stdout"
+      retries: 3
+      delay: 10
+      until: reload_result.rc == 0
 
     - name: Verify job exists
       uri:
@@ -188,3 +207,11 @@
       retries: 5
       delay: 10
       until: job_check.status == 200
+
+    - name: Copy production SSH key
+      copy:
+        content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
+        dest: /var/jenkins_home/production-key.pem
+        mode: "0600"
+        owner: jenkins
+        group: jenkins
