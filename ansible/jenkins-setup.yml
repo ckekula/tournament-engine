@@ -119,10 +119,9 @@
       changed_when: plugin_result.rc == 0
 
     - name: Create Jenkins job
-      blockinfile:
-        path: /tmp/jenkins-job.xml
-        create: yes
-        block: |
+      copy:
+        dest: /tmp/jenkins-job.xml
+        content: |
           <?xml version='1.1' encoding='UTF-8'?>
           <flow-definition plugin="workflow-job@2.40">
             <description>Deployment Pipeline</description>
@@ -156,6 +155,15 @@
             <disabled>false</disabled>
           </flow-definition>
 
+    - name: Verify Jenkins job XML
+      command: cat /tmp/jenkins-job.xml
+      register: xml_content
+      changed_when: false
+
+    - name: Debug XML content
+      debug:
+        var: xml_content.stdout
+
     - name: Create Jenkins job using CLI
       shell: >
         java -jar /tmp/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_admin_password.stdout }} 
@@ -176,6 +184,12 @@
       service:
         name: jenkins
         state: restarted
+
+    - name: Wait for Jenkins to be ready after restart
+      wait_for:
+        port: 8080
+        delay: 10
+        timeout: 120
 
     - name: Set readable Jenkins admin password
       copy:
