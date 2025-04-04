@@ -113,7 +113,7 @@
     - name: Install Jenkins plugins
       shell: >
         java -jar /tmp/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_admin_password.stdout }} 
-        install-plugin workflow-aggregator git docker-workflow pipeline-stage-view
+        install-plugin workflow-aggregator git docker-workflow pipeline-stage-view workflow-job
       register: plugin_result
       failed_when: plugin_result.rc != 0 and "already installed" not in plugin_result.stderr
       changed_when: plugin_result.rc == 0
