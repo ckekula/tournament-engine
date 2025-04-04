@@ -118,6 +118,17 @@
       failed_when: plugin_result.rc != 0 and "already installed" not in plugin_result.stderr
       changed_when: plugin_result.rc == 0
 
+    - name: Restart Jenkins after plugin installation
+      service:
+        name: jenkins
+        state: restarted
+
+    - name: Wait for Jenkins to be ready after restart
+      wait_for:
+        port: 8080
+        delay: 10
+        timeout: 300
+
     - name: Create Jenkins job
       copy:
         dest: /tmp/jenkins-job.xml
