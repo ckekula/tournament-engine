@@ -118,6 +118,13 @@
       failed_when: plugin_result.rc != 0 and "already installed" not in plugin_result.stderr
       changed_when: plugin_result.rc == 0
 
+    - name: Disable CSRF protection in Jenkins configuration
+      lineinfile:
+        path: /etc/default/jenkins
+        regexp: "^JAVA_OPTS="
+        line: 'JAVA_OPTS="-Djava.awt.headless=true -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true"'
+        backrefs: yes
+
     - name: Restart Jenkins after plugin installation
       service:
         name: jenkins
