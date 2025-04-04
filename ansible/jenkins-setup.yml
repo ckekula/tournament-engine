@@ -57,6 +57,13 @@
         groups: docker
         append: yes
 
+    - name: Ensure jenkins user and group exist
+      user:
+        name: jenkins
+        uid: 1000
+        group: jenkins
+        system: yes
+
     - name: Create Jenkins directories
       file:
         path: "{{ item }}"
@@ -113,7 +120,7 @@
     - name: Correct file ownership in container
       command: >
         docker exec jenkins chown -R jenkins:jenkins /var/jenkins_home
-        
+
     # Install plugins FIRST before configuring jobs
     - name: Install Jenkins plugins
       command: >
