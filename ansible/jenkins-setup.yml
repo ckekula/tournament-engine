@@ -207,6 +207,8 @@
         content: "{{ jenkins_admin_password.stdout }}"
         dest: /home/ubuntu/jenkins_admin_password.txt
         mode: "0600"
+        owner: ubuntu
+        group: ubuntu
 
     - name: Print Jenkins credentials
       debug:
