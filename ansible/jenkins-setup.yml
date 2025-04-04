@@ -142,18 +142,17 @@
       async: 10
       poll: 0
 
-    - name: Wait for Jenkins after restart (basic connectivity)
+    - name: Wait for Jenkins after restart
       wait_for:
         port: 8080
-        delay: 10
+        delay: 15
         timeout: 60
       register: jenkins_ready
       until: jenkins_ready is success
       retries: 5
       delay: 10
 
-    # More comprehensive check for Jenkins readiness
-    - name: Wait for Jenkins to be fully ready
+    - name: Wait for Jenkins to be fully ready (API check)
       uri:
         url: http://localhost:8080/api/json
         user: admin
@@ -164,158 +163,93 @@
       delay: 10
       until: jenkins_api_ready is success
 
-    - name: Validate Jenkins full readiness
-      block:
-        - name: Check API availability
-          uri:
-            url: http://localhost:8080/api/json
-            user: admin
-            password: admin
-            status_code: 200
-          register: api_check
-          until: api_check.status == 200
-          retries: 30
-          delay: 5
-
-        - name: Confirm job creation capability
-          command: >
-            docker exec jenkins curl -s -X POST -u admin:admin
-            --data-urlencode "script=
-            import jenkins.model.*
-            try {
-              Jenkins.instance.createProject(Class.forName('org.jenkinsci.plugins.workflow.job.WorkflowJob'), 'test-readiness').delete()
-              return 'ready'
-            } catch(e) { return e.toString() }"
-            http://localhost:8080/scriptText
-          register: job_test
-          until: "'ready' in job_test.stdout"
-          retries: 5
-          delay: 10
-          ignore_errors: yes
-
-    # Wait a bit more
-    - name: Additional delay for Jenkins stability
-      pause:
-        seconds: 30
-
-    - name: Create a seed job that will create our deploy job
+    # Create the deploy job using the Groovy script
+    - name: Create deployment job
       command: >
         docker exec jenkins curl -s -X POST 
         -u admin:admin 
         --data-urlencode "script=
         import jenkins.model.Jenkins
-        import hudson.model.FreeStyleProject
-        import hudson.model.FreeStyleBuild
-        import hudson.tasks.Shell
-        import javaposse.jobdsl.plugin.*
+        import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition
+        import org.jenkinsci.plugins.workflow.job.WorkflowJob
+        import hudson.model.ParametersDefinitionProperty
+        import hudson.model.StringParameterDefinition
 
+        // Create job
         def jenkins = Jenkins.instance
-        def seedJobName = 'seed-job'
-        def seedJob = jenkins.getItem(seedJobName) ?: jenkins.createProject(FreeStyleProject.class, seedJobName)
+        def jobName = 'deploy'
+        def job = jenkins.getItem(jobName) ?: jenkins.createProject(WorkflowJob.class, jobName)
 
-        def jobDslScript = '''
-        job('deploy') {
+        // Define job parameters
+        def params = new ParametersDefinitionProperty([
+          new StringParameterDefinition('FRONTEND_TAG', 'latest', 'Frontend Docker image tag'),
+          new StringParameterDefinition('BACKEND_TAG', 'latest', 'Backend Docker image tag'),
+          new StringParameterDefinition('PRODUCTION_IP', '', 'Production server IP')
+        ])
+
+        // Define pipeline script
+        def pipelineScript = '''
+        pipeline {
+          agent any
+          
           parameters {
-            stringParam('FRONTEND_TAG', 'latest', 'Frontend Docker image tag')
-            stringParam('BACKEND_TAG', 'latest', 'Backend Docker image tag')
-            stringParam('PRODUCTION_IP', '', 'Production server IP')
+              string(name: 'FRONTEND_TAG', defaultValue: 'latest', description: 'Frontend Docker image tag')
+              string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend Docker image tag')
+              string(name: 'PRODUCTION_IP', defaultValue: '', description: 'Production server IP')
           }
           
-          definition {
-            cps {
-              script('''
-                pipeline {
-                  agent any
-                  
-                  parameters {
-                      string(name: 'FRONTEND_TAG', defaultValue: 'latest', description: 'Frontend Docker image tag')
-                      string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend Docker image tag')
-                      string(name: 'PRODUCTION_IP', defaultValue: '', description: 'Production server IP')
+          stages {
+              stage('Deploy') {
+                  steps {
+                      // Copy deployment files to production server
+                      sh '''
+                          scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
+                          
+                          # SSH to production and deploy
+                          ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} \"
+                              export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+                              export FRONTEND_TAG=${params.FRONTEND_TAG}
+                              export BACKEND_TAG=${params.BACKEND_TAG}
+                              
+                              # Ensure docker is installed on production
+                              if ! command -v docker &> /dev/null; then
+                                  sudo apt update
+                                  sudo apt install -y docker.io docker-compose
+                                  sudo usermod -aG docker ubuntu
+                              fi
+                              
+                              # Deploy the application
+                              sudo docker-compose -f deploy-compose.yml down || true
+                              sudo docker-compose -f deploy-compose.yml up -d
+                          \"
+                      '''
                   }
-                  
-                  stages {
-                      stage('Deploy') {
-                          steps {
-                              sh """
-                                  scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@\${params.PRODUCTION_IP}:/home/ubuntu/
-                                  
-                                  ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@\${params.PRODUCTION_IP} \\"
-                                      export DOCKERHUB_USERNAME=\${DOCKERHUB_USERNAME}
-                                      export FRONTEND_TAG=\${params.FRONTEND_TAG}
-                                      export BACKEND_TAG=\${params.BACKEND_TAG}
-                                      
-                                      if ! command -v docker &> /dev/null; then
-                                          sudo apt update
-                                          sudo apt install -y docker.io docker-compose
-                                          sudo usermod -aG docker ubuntu
-                                      fi
-                                      
-                                      sudo docker-compose -f deploy-compose.yml down || true
-                                      sudo docker-compose -f deploy-compose.yml up -d
-                                  \\"
-                              """
-                          }
-                      }
-                      
-                      stage('Verify') {
-                          steps {
-                              sh """
-                                  sleep 30
-                                  curl -f http://\${params.PRODUCTION_IP} || exit 1
-                                  curl -f http://\${params.PRODUCTION_IP}:4000/health || exit 1
-                              """
-                          }
-                      }
+              }
+              
+              stage('Verify') {
+                  steps {
+                      sh '''
+                          sleep 30  # Give services time to start
+                          curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
+                          curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
+                      '''
                   }
-                }
-              ''')
-              sandbox(true)
-            }
+              }
           }
         }
         '''
 
-        // Add a build step that executes the Job DSL script
-        seedJob.getBuildersList().clear()
-        def dslBuilder = new ExecuteDslScripts()
-        dslBuilder.setScriptText(jobDslScript)
-        dslBuilder.setUseScriptText(true)
-        dslBuilder.setSandbox(true)
-        seedJob.getBuildersList().add(dslBuilder)
+        // Set job properties
+        job.setDefinition(new CpsFlowDefinition(pipelineScript, true))
+        job.addProperty(params)
 
-        seedJob.save()
+        // Save job
+        job.save()
+        jenkins.reload()
 
-        // Trigger a build of the seed job
-        def build = seedJob.scheduleBuild2(0).get()
-        while(build.isBuilding()) {
-          Thread.sleep(100)
-        }
-
-        // Check if deployment job was created
-        def deployJob = jenkins.getItem('deploy')
-        return deployJob != null ? 'Deploy job created successfully' : 'Failed to create deploy job'
+        return 'Deploy job created/updated successfully'
         " http://localhost:8080/scriptText
-      register: seed_job_execution
+      register: job_creation
       retries: 3
       delay: 10
-      until: seed_job_execution.rc == 0
-
-    - name: Display job creation result
-      debug:
-        var: seed_job_execution.stdout
-
-    - name: Verify deploy job exists
-      uri:
-        url: http://localhost:8080/job/deploy/api/json
-        user: admin
-        password: admin
-        status_code: 200
-      register: deploy_job_check
-      retries: 5
-      delay: 5
-      until: deploy_job_check.status == 200
-      ignore_errors: yes
-
-    - name: Debug job verification
-      debug:
-        var: job_verification.status
+      until: job_creation.rc == 0
