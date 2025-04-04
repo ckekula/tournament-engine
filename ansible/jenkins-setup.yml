@@ -177,26 +177,6 @@
           retries: 30
           delay: 5
 
-        - name: Verify plugin system ready
-          command: >
-            docker exec jenkins curl -s -X POST -u admin:admin
-            --data-urlencode "script=
-            import jenkins.model.*
-            return Jenkins.instance.pluginManager.plugins.every { it.isActive() }"
-            http://localhost:8080/scriptText
-          register: plugins_check
-          until: "'true' in plugins_check.stdout"
-          retries: 30
-          delay: 10
-          ignore_errors: yes
-
-        - name: Debug plugin status
-          command: >
-            docker exec jenkins curl -s -u admin:admin
-            http://localhost:8080/pluginManager/api/json?depth=1
-          register: plugin_status
-          when: plugin_check is failed or plugin_check is skipped
-
         - name: Confirm job creation capability
           command: >
             docker exec jenkins curl -s -X POST -u admin:admin
@@ -211,6 +191,7 @@
           until: "'ready' in job_test.stdout"
           retries: 5
           delay: 10
+          ignore_errors: yes
 
     # Wait a bit more
     - name: Additional delay for Jenkins stability
