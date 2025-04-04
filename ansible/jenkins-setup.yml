@@ -164,19 +164,47 @@
       delay: 10
       until: jenkins_api_ready is success
 
-    # Additional check to ensure Jenkins is not in setup mode
-    - name: Check Jenkins readiness via script console
-      command: >
-        docker exec jenkins curl -s -X POST 
-        -u admin:admin 
-        --data-urlencode "script=return 'Jenkins is fully initialized'" 
-        http://localhost:8080/scriptText
-      register: jenkins_script_ready
-      retries: 15
-      delay: 10
-      until: jenkins_script_ready.stdout == 'Jenkins is fully initialized'
+    - name: Validate Jenkins full readiness
+      block:
+        - name: Check API availability
+          uri:
+            url: http://localhost:8080/api/json
+            user: admin
+            password: admin
+            status_code: 200
+          register: api_check
+          until: api_check.status == 200
+          retries: 30
+          delay: 5
 
-    # Wait a bit more just to be safe (sometimes Jenkins needs extra time)
+        - name: Verify plugin system ready
+          command: >
+            docker exec jenkins curl -s -X POST -u admin:admin
+            --data-urlencode "script=
+            import jenkins.model.*
+            return Jenkins.instance.pluginManager.plugins.every { it.isActive() }"
+            http://localhost:8080/scriptText
+          register: plugins_check
+          until: "'true' in plugins_check.stdout"
+          retries: 10
+          delay: 5
+
+        - name: Confirm job creation capability
+          command: >
+            docker exec jenkins curl -s -X POST -u admin:admin
+            --data-urlencode "script=
+            import jenkins.model.*
+            try {
+              Jenkins.instance.createProject(Class.forName('org.jenkinsci.plugins.workflow.job.WorkflowJob'), 'test-readiness').delete()
+              return 'ready'
+            } catch(e) { return e.toString() }"
+            http://localhost:8080/scriptText
+          register: job_test
+          until: "'ready' in job_test.stdout"
+          retries: 5
+          delay: 10
+
+    # Wait a bit more
     - name: Additional delay for Jenkins stability
       pause:
         seconds: 30
