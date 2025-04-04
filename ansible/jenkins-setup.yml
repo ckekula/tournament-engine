@@ -173,7 +173,7 @@
 
     - name: Copy job config.xml
       copy:
-        src: /home/ubuntu/ansible/files/deploy-config.xml
+        src: /home/ubuntu/ansible/files/config.xml
         dest: /var/jenkins_home/jobs/deploy/config.xml
         remote_src: yes
         owner: jenkins
