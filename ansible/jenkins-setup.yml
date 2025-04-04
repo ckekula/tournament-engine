@@ -57,13 +57,6 @@
         groups: docker
         append: yes
 
-    - name: Ensure jenkins user and group exist
-      user:
-        name: jenkins
-        uid: 1000
-        group: jenkins
-        system: yes
-
     - name: Create Jenkins directories
       file:
         path: "{{ item }}"
@@ -117,11 +110,7 @@
         delay: 10
         timeout: 300
 
-    - name: Correct file ownership in container
-      command: >
-        docker exec jenkins chown -R jenkins:jenkins /var/jenkins_home
-
-    # Install plugins FIRST before configuring jobs
+    # Install plugins before configuring jobs
     - name: Install Jenkins plugins
       command: >
         docker exec jenkins curl -s -X POST 
@@ -156,7 +145,7 @@
       delay: 15
       until: plugin_install.rc == 0
 
-    # Configure JCasC AFTER plugins are installed
+    # Configure JCasC after plugins are installed
     - name: Copy Jenkins configuration
       copy:
         src: /home/ubuntu/ansible/files/jenkins.yaml
@@ -179,7 +168,7 @@
       retries: 5
       delay: 10
 
-    # Now setup the job
+    # setup the job
     - name: Ensure Jenkins jobs directory exists
       file:
         path: /var/jenkins_home/jobs/deploy
@@ -187,15 +176,6 @@
         owner: jenkins
         group: jenkins
         mode: "0755"
-
-    - name: Copy job config XML
-      copy:
-        src: /home/ubuntu/ansible/files/config.xml
-        dest: /var/jenkins_home/jobs/deploy/config.xml
-        remote_src: yes
-        owner: jenkins
-        group: jenkins
-        mode: "0644"
 
     # Final reload and verification
     - name: Reload Jenkins configuration
