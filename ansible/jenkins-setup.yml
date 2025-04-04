@@ -131,24 +131,24 @@
                 <parameterDefinitions>
                   <hudson.model.StringParameterDefinition>
                     <name>FRONTEND_TAG</name>
-                    <defaultValue>{{ lookup('env', 'GITHUB_SHA') }}</defaultValue>
+                    <defaultValue>{{ lookup('env', 'GITHUB_SHA') | replace('&', '&amp;') }}</defaultValue>
                     <description>Frontend Docker image tag</description>
                   </hudson.model.StringParameterDefinition>
                   <hudson.model.StringParameterDefinition>
                     <name>BACKEND_TAG</name>
-                    <defaultValue>{{ lookup('env', 'GITHUB_SHA') }}</defaultValue>
+                    <defaultValue>{{ lookup('env', 'GITHUB_SHA') | replace('&', '&amp;') }}</defaultValue>
                     <description>Backend Docker image tag</description>
                   </hudson.model.StringParameterDefinition>
                   <hudson.model.StringParameterDefinition>
                     <name>PRODUCTION_IP</name>
-                    <defaultValue>{{ lookup('env', 'PRODUCTION_IP') | default('') }}</defaultValue>
+                    <defaultValue>{{ lookup('env', 'PRODUCTION_IP') | default('') | replace('&', '&amp;') }}</defaultValue>
                     <description>Production server IP</description>
                   </hudson.model.StringParameterDefinition>
                 </parameterDefinitions>
               </hudson.model.ParametersDefinitionProperty>
             </properties>
             <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.90">
-              <script>{{ lookup('file', '/var/lib/jenkins/Jenkinsfile') }}</script>
+              <script>{{ lookup('file', '/var/lib/jenkins/Jenkinsfile') | replace('&', '&amp;') }}</script>
               <sandbox>true</sandbox>
             </definition>
             <triggers/>
