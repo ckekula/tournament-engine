@@ -82,14 +82,6 @@
         group: jenkins
         mode: "0600"
 
-    - name: Create deploy-compose.yml for deployment
-      copy:
-        src: files/docker-compose.yml
-        dest: /home/ubuntu/deploy-compose.yml
-        owner: ubuntu
-        group: ubuntu
-        mode: "0644"
-
     - name: Copy Jenkinsfile
       copy:
         src: files/Jenkinsfile
@@ -108,6 +100,24 @@
       shell: cat /var/lib/jenkins/secrets/initialAdminPassword
       register: jenkins_admin_password
       changed_when: false
+
+    - name: Setup environment variables for Jenkins
+      blockinfile:
+        path: /etc/default/jenkins
+        block: |
+          DOCKERHUB_USERNAME="{{ lookup('env', 'DOCKERHUB_USERNAME') }}"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK FOR ENVIRONMENT VARS"
+        create: yes
+        mode: "0644"
+
+    - name: Create Jenkins env file
+      copy:
+        dest: /var/lib/jenkins/jenkins.env
+        content: |
+          DOCKERHUB_USERNAME="{{ lookup('env', 'DOCKERHUB_USERNAME') }}"
+        owner: jenkins
+        group: jenkins
+        mode: "0644"
 
     - name: Download Jenkins CLI
       get_url:
@@ -173,15 +183,6 @@
             <disabled>false</disabled>
           </flow-definition>
 
-    - name: Verify Jenkins job XML
-      command: cat /tmp/jenkins-job.xml
-      register: xml_content
-      changed_when: false
-
-    - name: Debug XML content
-      debug:
-        var: xml_content.stdout
-
     - name: Create Jenkins job using CLI
       shell: >
         java -jar /tmp/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_admin_password.stdout }} 
@@ -191,12 +192,6 @@
       register: job_result
       failed_when: job_result.rc != 0 and "already exists" not in job_result.stderr
       changed_when: job_result.rc == 0
-
-    - name: Set environment variable for Jenkins job
-      lineinfile:
-        path: /etc/default/jenkins
-        line: 'DOCKERHUB_USERNAME={{ lookup("env", "DOCKERHUB_USERNAME") }}'
-        create: yes
 
     - name: Restart Jenkins to apply changes
       service:
