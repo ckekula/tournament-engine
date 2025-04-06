@@ -11,31 +11,8 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
+                // Copy deployment files to production server
                 sh '''
-                    echo "Creating deployment file"
-                    cat > deploy-compose.yml << 'EOL'
-services:
-  frontend:
-    image: ${DOCKERHUB_USERNAME}/devops-frontend:${FRONTEND_TAG}
-    ports:
-      - "80:80"
-    restart: always
-    depends_on:
-      - backend
-    network: "tuna-app"
-
-  backend:
-    image: ${DOCKERHUB_USERNAME}/devops-backend:${BACKEND_TAG}
-    ports:
-      - "4000:4000"
-    restart: always
-    network: "tuna-app"
-  
-networks:
-    tuna-app:
-        driver: bridge
-EOL
-                    
                     echo "Copying deployment file to production server"
                     if [ -z "${PRODUCTION_IP}" ]; then
                         echo "Error: PRODUCTION_IP is not set"
@@ -47,16 +24,14 @@ EOL
                     echo "FRONTEND_TAG: ${FRONTEND_TAG}"
                     echo "BACKEND_TAG: ${BACKEND_TAG}"
                     echo "PRODUCTION_IP: ${PRODUCTION_IP}"
-                    
-                    # Copy deployment files to production server
-                    scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem deploy-compose.yml ubuntu@${PRODUCTION_IP}:/home/ubuntu/
+
+                    scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
                     
                     # SSH to production and deploy
-                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${PRODUCTION_IP} "
-                        # Create .env file with values
-                        echo 'DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}' > .env
-                        echo 'FRONTEND_TAG=${FRONTEND_TAG}' >> .env
-                        echo 'BACKEND_TAG=${BACKEND_TAG}' >> .env
+                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} "
+                        export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+                        export FRONTEND_TAG=${params.FRONTEND_TAG}
+                        export BACKEND_TAG=${params.BACKEND_TAG}
                         
                         # Ensure docker is installed on production
                         if ! command -v docker &> /dev/null; then
@@ -83,8 +58,8 @@ EOL
                     fi
                     
                     sleep 30  # Give services time to start
-                    curl -f http://${PRODUCTION_IP} || echo "Frontend not responding"
-                    curl -f http://${PRODUCTION_IP}:4000/health || echo "Backend health endpoint not responding"
+                    curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
+                    curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
                 '''
             }
         }
