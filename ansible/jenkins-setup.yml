@@ -84,7 +84,7 @@
 
     - name: Copy Jenkinsfile
       copy:
-        src: files/Jenkinsfile
+        src: Jenkinsfile
         dest: /var/lib/jenkins/Jenkinsfile
         owner: jenkins
         group: jenkins
@@ -174,7 +174,7 @@
                   </hudson.model.StringParameterDefinition>
                   <hudson.model.StringParameterDefinition>
                     <name>DOCKERHUB_USERNAME</name>
-                    <defaultValue>{{ lookup('env', 'DOCKERHUB_USERNAME') }}</defaultValue>
+                    <defaultValue>{{ lookup('env', 'DOCKERHUB_USERNAME') | default('') | replace('&', '&amp;') }}</defaultValue>
                     <description>Docker Hub Username</description>
                   </hudson.model.StringParameterDefinition>
                 </parameterDefinitions>
@@ -187,6 +187,15 @@
             <triggers/>
             <disabled>false</disabled>
           </flow-definition>
+
+    - name: Verify Jenkins job XML
+      command: cat /tmp/jenkins-job.xml
+      register: xml_content
+      changed_when: false
+
+    - name: Debug XML content
+      debug:
+        var: xml_content.stdout
 
     - name: Create Jenkins job using CLI
       shell: >
