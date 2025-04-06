@@ -111,21 +111,26 @@ jobs:
           BUILD_NUMBER=$(curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/lastBuild/api/json | grep -o '"number":[0-9]*' | grep -o '[0-9]*')
           echo "Jenkins build number: $BUILD_NUMBER"
 
-          # Poll until the job completes
-          for i in {1..30}; do
-            RESULT=$(curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/api/json | grep -o '"result":"[A-Z]*' | cut -d '"' -f 4)
-            echo "Build status: $RESULT"
+          # Get console output
+          echo "Getting console output for build #$BUILD_NUMBER:"
+          curl -v -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText | head -n 50 || echo "Failed to get console output"
+
             if [ "$RESULT" = "SUCCESS" ]; then
               echo "Deployment successful!"
               break
             elif [ "$RESULT" = "FAILURE" ]; then
-              echo "Deployment failed!"
+              echo "Deployment failed! Getting console output:"
+              curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText | tail -n 100
               exit 1
             elif [ "$RESULT" = "ABORTED" ]; then
               echo "Deployment was aborted!"
               exit 1
             else
               echo "Deployment still in progress, waiting... (attempt $i/30)"
+              if [ $i -eq 15 ]; then
+                echo "Showing build console output at halfway point:"
+                curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText | tail -n 50
+              fi
               sleep 20
             fi
           done
