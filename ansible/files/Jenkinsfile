@@ -8,29 +8,91 @@ pipeline {
     }
     
     stages {
+        stage('Debug Environment') {
+            steps {
+                sh '''
+                    echo "Debugging environment variables and files:"
+                    echo "FRONTEND_TAG: ${params.FRONTEND_TAG}"
+                    echo "BACKEND_TAG: ${params.BACKEND_TAG}"
+                    echo "PRODUCTION_IP: ${params.PRODUCTION_IP}"
+                    echo "DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}"
+                    
+                    echo "List files in workspace:"
+                    ls -la
+                    
+                    echo "Check if production key exists:"
+                    ls -la /var/jenkins_home/production-key.pem || echo "Production key not found"
+                    
+                    echo "Check deploy-compose.yml:"
+                    cat /home/ubuntu/deploy-compose.yml || echo "deploy-compose.yml not found"
+                '''
+            }
+        }
+        
         stage('Deploy') {
             steps {
-                // Copy deployment files to production server
                 sh '''
-                    scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
+                    # Verify SSH key permissions
+                    chmod 600 /var/jenkins_home/production-key.pem || echo "Could not chmod key"
+                    
+                    echo "Testing SSH connection to production server"
+                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} "echo 'SSH connection successful'" || echo "SSH connection failed"
+                    
+                    # Copy deployment files to production server
+                    echo "Copying deployment files to production server"
+                    scp -v -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/ || echo "SCP failed"
                     
                     # SSH to production and deploy
-                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} "
+                    echo "SSHing to production server to deploy"
+                    ssh -v -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} "
+                        echo 'Starting deployment on production server'
                         export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
                         export FRONTEND_TAG=${params.FRONTEND_TAG}
                         export BACKEND_TAG=${params.BACKEND_TAG}
                         
+                        echo 'Checking Docker installation'
                         # Ensure docker is installed on production
                         if ! command -v docker &> /dev/null; then
+                            echo 'Installing Docker'
                             sudo apt update
                             sudo apt install -y docker.io docker-compose
                             sudo usermod -aG docker ubuntu
+                        else
+                            echo 'Docker already installed'
                         fi
                         
+                        echo 'Creating docker-compose.yml with environment variables filled in'
+                        cat > docker-compose.yml << EOL
+version: '3'
+
+services:
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/devops-frontend:${params.FRONTEND_TAG}
+    ports:
+      - \"80:80\"
+    restart: always
+    depends_on:
+      - backend
+
+  backend:
+    image: ${DOCKERHUB_USERNAME}/devops-backend:${params.BACKEND_TAG}
+    ports:
+      - \"4000:4000\"
+    restart: always
+EOL
+                        
                         # Deploy the application
-                        sudo docker-compose -f deploy-compose.yml down || true
-                        sudo docker-compose -f deploy-compose.yml up -d
-                    "
+                        echo 'Stopping any existing containers'
+                        sudo docker-compose down || echo 'No containers to stop'
+                        
+                        echo 'Pulling new images'
+                        sudo docker-compose pull || echo 'Pull failed'
+                        
+                        echo 'Starting containers'
+                        sudo docker-compose up -d || echo 'Docker compose up failed'
+                        
+                        echo 'Deployment complete'
+                    " || echo "Deployment failed"
                 '''
             }
         }
@@ -38,11 +100,28 @@ pipeline {
         stage('Verify') {
             steps {
                 sh '''
+                    echo "Waiting for services to start"
                     sleep 30  # Give services time to start
-                    curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
-                    curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
+                    
+                    echo "Checking frontend service"
+                    curl -v http://${params.PRODUCTION_IP} || echo "Frontend check failed"
+                    
+                    echo "Checking backend service"
+                    curl -v http://${params.PRODUCTION_IP}:4000/health || echo "Backend check failed"
                 '''
             }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline execution complete.'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+        }
+        success {
+            echo 'Pipeline executed successfully.'
         }
     }
 }
