@@ -85,7 +85,7 @@
     - name: Create deploy-compose.yml for deployment
       copy:
         src: files/docker-compose.yml
-        dest: /home/ubuntu/deploy-compose.yml
+        dest: /var/lib/jenkins/deploy-compose.yml
         owner: jenkins
         group: jenkins
         mode: "0644"
