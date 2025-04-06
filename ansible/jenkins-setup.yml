@@ -86,8 +86,8 @@
       copy:
         src: files/docker-compose.yml
         dest: /home/ubuntu/deploy-compose.yml
-        owner: ubuntu
-        group: ubuntu
+        owner: jenkins
+        group: jenkins
         mode: "0644"
 
     - name: Copy Jenkinsfile
