@@ -68,7 +68,7 @@
 
     - name: Create .ssh directory for jenkins
       file:
-        path: /var/jenkins_home
+        path: /var/lib/jenkins
         state: directory
         owner: jenkins
         group: jenkins
@@ -77,7 +77,7 @@
     - name: Copy production SSH key
       copy:
         content: "{{ lookup('env', 'PRODUCTION_SSH_KEY') }}"
-        dest: /var/jenkins_home/production-key.pem
+        dest: /var/lib/jenkins/production-key.pem
         owner: jenkins
         group: jenkins
         mode: "0600"

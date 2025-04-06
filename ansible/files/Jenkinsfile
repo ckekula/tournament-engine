@@ -32,10 +32,10 @@ pipeline {
                     echo "BACKEND_TAG: $BACKEND_TAG"
                     echo "PRODUCTION_IP: $PRODUCTION_IP"
                     
-                    scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@$PRODUCTION_IP:/home/ubuntu/
+                    scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@$PRODUCTION_IP:/home/ubuntu/
                     
                     # SSH to production and deploy
-                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@$PRODUCTION_IP "
+                    ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/production-key.pem ubuntu@$PRODUCTION_IP "
                         export DOCKERHUB_USERNAME='$DOCKERHUB_USERNAME'
                         export FRONTEND_TAG='$FRONTEND_TAG'
                         export BACKEND_TAG='$BACKEND_TAG'
