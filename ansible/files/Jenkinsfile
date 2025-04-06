@@ -31,7 +31,7 @@ services:
     restart: always
     network: "tuna-app"
   
-  networks:
+networks:
     tuna-app:
         driver: bridge
 EOL
