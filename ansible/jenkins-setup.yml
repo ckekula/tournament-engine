@@ -84,7 +84,7 @@
 
     - name: Copy Jenkinsfile
       copy:
-        src: files/Jenkinsfile
+        src: Jenkinsfile
         dest: /var/lib/jenkins/Jenkinsfile
         owner: jenkins
         group: jenkins
@@ -171,6 +171,11 @@
                     <name>PRODUCTION_IP</name>
                     <defaultValue>{{ lookup('env', 'PRODUCTION_IP') | default('') | replace('&', '&amp;') }}</defaultValue>
                     <description>Production server IP</description>
+                  </hudson.model.StringParameterDefinition>
+                  <hudson.model.StringParameterDefinition>
+                    <name>DOCKERHUB_USERNAME</name>
+                    <defaultValue>{{ lookup('env', 'DOCKERHUB_USERNAME') }}</defaultValue>
+                    <description>Docker Hub Username</description>
                   </hudson.model.StringParameterDefinition>
                 </parameterDefinitions>
               </hudson.model.ParametersDefinitionProperty>
