@@ -84,7 +84,7 @@
 
     - name: Copy Jenkinsfile
       copy:
-        src: Jenkinsfile
+        src: files/Jenkinsfile
         dest: /var/lib/jenkins/Jenkinsfile
         owner: jenkins
         group: jenkins
