@@ -62,7 +62,7 @@ jobs:
       - name: Wait for Jenkins to be ready
         run: |
           echo "Waiting for Jenkins to be fully initialized..."
-          sleep 60
+          sleep 30
           JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           for i in {1..10}; do
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://$JENKINS_IP:8080)
@@ -86,41 +86,45 @@ jobs:
           JENKINS_IP=${{ steps.get-jenkins-ip.outputs.jenkins_ip }}
           JENKINS_ADMIN_PASSWORD=${{ steps.jenkins-password.outputs.jenkins_password }}
           PRODUCTION_IP=${{ secrets.PRODUCTION_IP }}
+          DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
           echo "Triggering Jenkins job..."
           echo "Jenkins IP: $JENKINS_IP"
-          echo "Jenkins Admin Password: $JENKINS_ADMIN_PASSWORD"
           echo "Production IP: $PRODUCTION_IP"
 
           echo "Listing Jenkins jobs:"
-          curl -v -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/api/json?tree=jobs[name] || echo "Failed to list jobs"
-          echo "Triggering Jenkins job..."
+          curl -v -u admin:$JENKINS_ADMIN_PASSWORD "http://$JENKINS_IP:8080/api/json?tree=jobs%5Bname%5D" || echo "Failed to list jobs"
 
-          curl -X POST http://$JENKINS_IP:8080/job/deployment/buildWithParameters \
+          echo "Triggering Jenkins job..."
+          curl -X POST "http://$JENKINS_IP:8080/job/deployment/buildWithParameters" \
             -u admin:$JENKINS_ADMIN_PASSWORD \
             --data-urlencode "FRONTEND_TAG=$GITHUB_SHA" \
             --data-urlencode "BACKEND_TAG=$GITHUB_SHA" \
-            --data-urlencode "PRODUCTION_IP=$PRODUCTION_IP"
-            
-          echo "Jenkins job triggered!"
+            --data-urlencode "PRODUCTION_IP=$PRODUCTION_IP" \
+            --data-urlencode "DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME"
 
+          echo "Jenkins job triggered!"
           # Wait for job to start
           sleep 15
 
           # Get the build number of the triggered job
-          BUILD_NUMBER=$(curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/lastBuild/api/json | grep -o '"number":[0-9]*' | grep -o '[0-9]*')
+          BUILD_NUMBER=$(curl -s -u admin:$JENKINS_ADMIN_PASSWORD "http://$JENKINS_IP:8080/job/deployment/lastBuild/api/json" | grep -o '"number":[0-9]*' | grep -o '[0-9]*')
           echo "Jenkins build number: $BUILD_NUMBER"
 
           # Get console output
           echo "Getting console output for build #$BUILD_NUMBER:"
-          curl -v -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText | head -n 50 || echo "Failed to get console output"
+          curl -v -s -u admin:$JENKINS_ADMIN_PASSWORD "http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText" | head -n 50 || echo "Failed to get console output"
 
+          # Monitor build progress
+          for i in {1..30}; do
+            RESULT=$(curl -s -u admin:$JENKINS_ADMIN_PASSWORD "http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/api/json" | grep -o '"result":"[A-Z]*"' | cut -d'"' -f4)
+            
             if [ "$RESULT" = "SUCCESS" ]; then
               echo "Deployment successful!"
               break
             elif [ "$RESULT" = "FAILURE" ]; then
               echo "Deployment failed! Getting console output:"
-              curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText | tail -n 100
+              curl -s -u admin:$JENKINS_ADMIN_PASSWORD "http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText" | tail -n 100
               exit 1
             elif [ "$RESULT" = "ABORTED" ]; then
               echo "Deployment was aborted!"
@@ -129,7 +133,7 @@ jobs:
               echo "Deployment still in progress, waiting... (attempt $i/30)"
               if [ $i -eq 15 ]; then
                 echo "Showing build console output at halfway point:"
-                curl -s -u admin:$JENKINS_ADMIN_PASSWORD http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText | tail -n 50
+                curl -s -u admin:$JENKINS_ADMIN_PASSWORD "http://$JENKINS_IP:8080/job/deployment/$BUILD_NUMBER/consoleText" | tail -n 50
               fi
               sleep 20
             fi
