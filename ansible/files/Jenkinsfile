@@ -8,30 +8,37 @@ pipeline {
         string(name: 'DOCKERHUB_USERNAME', defaultValue: '', description: 'Docker Hub username')
     }
     
+    environment {
+        PRODUCTION_IP = "${params.PRODUCTION_IP}"
+        DOCKERHUB_USERNAME = "${params.DOCKERHUB_USERNAME}"
+        FRONTEND_TAG = "${params.FRONTEND_TAG}"
+        BACKEND_TAG = "${params.BACKEND_TAG}"
+    }
+    
     stages {
         stage('Deploy') {
             steps {
                 // Copy deployment files to production server
                 sh '''
                     echo "Copying deployment file to production server"
-                    if [ -z "${params.PRODUCTION_IP}" ]; then
+                    if [ -z "$PRODUCTION_IP" ]; then
                         echo "Error: PRODUCTION_IP is not set"
                         exit 1
                     fi
                     
                     # Debug info
-                    echo "DOCKERHUB_USERNAME: ${params.DOCKERHUB_USERNAME}"
-                    echo "FRONTEND_TAG: ${params.FRONTEND_TAG}"
-                    echo "BACKEND_TAG: ${params.BACKEND_TAG}"
-                    echo "PRODUCTION_IP: ${params.PRODUCTION_IP}"
+                    echo "DOCKERHUB_USERNAME: $DOCKERHUB_USERNAME"
+                    echo "FRONTEND_TAG: $FRONTEND_TAG"
+                    echo "BACKEND_TAG: $BACKEND_TAG"
+                    echo "PRODUCTION_IP: $PRODUCTION_IP"
                     
-                    scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@${params.PRODUCTION_IP}:/home/ubuntu/
+                    scp -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem /home/ubuntu/deploy-compose.yml ubuntu@$PRODUCTION_IP:/home/ubuntu/
                     
                     # SSH to production and deploy
-                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@${params.PRODUCTION_IP} "
-                        export DOCKERHUB_USERNAME='${params.DOCKERHUB_USERNAME}'
-                        export FRONTEND_TAG='${params.FRONTEND_TAG}'
-                        export BACKEND_TAG='${params.BACKEND_TAG}'
+                    ssh -o StrictHostKeyChecking=no -i /var/jenkins_home/production-key.pem ubuntu@$PRODUCTION_IP "
+                        export DOCKERHUB_USERNAME='$DOCKERHUB_USERNAME'
+                        export FRONTEND_TAG='$FRONTEND_TAG'
+                        export BACKEND_TAG='$BACKEND_TAG'
                         
                         # Ensure docker is installed on production
                         if ! command -v docker &> /dev/null; then
@@ -52,14 +59,14 @@ pipeline {
             steps {
                 sh '''
                     echo "Verifying deployment"
-                    if [ -z "${params.PRODUCTION_IP}" ]; then
+                    if [ -z "$PRODUCTION_IP" ]; then
                         echo "Error: PRODUCTION_IP is not set"
                         exit 1
                     fi
                     
                     sleep 30  # Give services time to start
-                    curl -f http://${params.PRODUCTION_IP} || exit 1  # Check frontend
-                    curl -f http://${params.PRODUCTION_IP}:4000/health || exit 1  # Check backend health endpoint
+                    curl -f http://$PRODUCTION_IP || exit 1  # Check frontend
+                    curl -f http://$PRODUCTION_IP:4000/health || exit 1  # Check backend health endpoint
                 '''
             }
         }
