@@ -24,6 +24,10 @@ export class Tournament {
   @Property({ hidden: true })
   password: string;
 
+  // @ManyToMany(() => User)
+  // @Field(() => [User])
+  // admins = new Collection<User>(this);
+
   @Property()
   @Field()
   createdAt: Date = new Date();

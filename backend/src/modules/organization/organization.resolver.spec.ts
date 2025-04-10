@@ -19,7 +19,6 @@ describe('OrganizationResolver', () => {
     email: 'john@example.com',
     password: 'hashedPassword',
     ownedOrganizations: new Collection<Organization>(this),
-    adminOrganizations: new Collection<Organization>(this),
     createdAt: new Date(),
     updatedAt: new Date(),
   } as User;
@@ -29,11 +28,6 @@ describe('OrganizationResolver', () => {
     slug: 'test-org',
     name: 'Test Organization',
     owner: mockUser,
-    admins: {
-      getItems: jest.fn().mockReturnValue([mockUser]),
-      add: jest.fn(),
-      remove: jest.fn(),
-    } as unknown as Collection<User>,
     createdAt: new Date(),
     updatedAt: new Date(),
   } as Organization;
@@ -45,8 +39,6 @@ describe('OrganizationResolver', () => {
       findBySlug: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
-      addAdmin: jest.fn(),
-      removeAdmin: jest.fn(),
       remove: jest.fn(),
     };
 
@@ -165,50 +157,6 @@ describe('OrganizationResolver', () => {
       const result = await resolver.updateOrganization(999, updateOrganizationInput);
       expect(result.success).toBe(false);
       expect(result.message).toBe('Organization not found');
-      expect(result.organization).toBeUndefined();
-    });
-  });
-
-  describe('addOrganizationAdmin', () => {
-    it('should add an admin to an organization', async () => {
-      mockOrganizationService.addAdmin.mockResolvedValue(mockOrganization);
-
-      const result = await resolver.addOrganizationAdmin(123, 456);
-      expect(result.success).toBe(true);
-      expect(result.message).toBe('Admin added to organization successfully');
-      expect(result.organization).toBe(mockOrganization);
-      expect(mockOrganizationService.addAdmin).toHaveBeenCalledWith(123, 456);
-    });
-
-    it('should handle errors when adding an admin', async () => {
-      const error = new NotFoundException('Organization or user not found');
-      mockOrganizationService.addAdmin.mockRejectedValue(error);
-
-      const result = await resolver.addOrganizationAdmin(999, 999);
-      expect(result.success).toBe(false);
-      expect(result.message).toBe('Organization or user not found');
-      expect(result.organization).toBeUndefined();
-    });
-  });
-
-  describe('removeOrganizationAdmin', () => {
-    it('should remove an admin from an organization', async () => {
-      mockOrganizationService.removeAdmin.mockResolvedValue(mockOrganization);
-
-      const result = await resolver.removeOrganizationAdmin(123, 456);
-      expect(result.success).toBe(true);
-      expect(result.message).toBe('Admin removed from organization successfully');
-      expect(result.organization).toBe(mockOrganization);
-      expect(mockOrganizationService.removeAdmin).toHaveBeenCalledWith(123, 456);
-    });
-
-    it('should handle errors when removing an admin', async () => {
-      const error = new NotFoundException('Admin not found in organization');
-      mockOrganizationService.removeAdmin.mockRejectedValue(error);
-
-      const result = await resolver.removeOrganizationAdmin(123, 999);
-      expect(result.success).toBe(false);
-      expect(result.message).toBe('Admin not found in organization');
       expect(result.organization).toBeUndefined();
     });
   });

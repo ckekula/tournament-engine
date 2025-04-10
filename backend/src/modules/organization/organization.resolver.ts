@@ -70,46 +70,6 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => OrganizationResponse)
-  async addOrganizationAdmin(
-    @Args('organizationId', { type: () => ID }) organizationId: number,
-    @Args('userId', { type: () => ID }) userId: number,
-  ): Promise<OrganizationResponse> {
-    try {
-      const organization = await this.organizationService.addAdmin(organizationId, userId);
-      return {
-        success: true,
-        message: 'Admin added to organization successfully',
-        organization,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message || 'Failed to add admin to organization',
-      };
-    }
-  }
-
-  @Mutation(() => OrganizationResponse)
-  async removeOrganizationAdmin(
-    @Args('organizationId', { type: () => ID }) organizationId: number,
-    @Args('userId', { type: () => ID }) userId: number,
-  ): Promise<OrganizationResponse> {
-    try {
-      const organization = await this.organizationService.removeAdmin(organizationId, userId);
-      return {
-        success: true,
-        message: 'Admin removed from organization successfully',
-        organization,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message || 'Failed to remove admin from organization',
-      };
-    }
-  }
-
-  @Mutation(() => OrganizationResponse)
   async removeOrganization(
     @Args('id', { type: () => ID }) id: number,
   ): Promise<OrganizationResponse> {

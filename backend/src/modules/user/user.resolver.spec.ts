@@ -19,7 +19,6 @@ describe('UserResolver', () => {
     email: 'john@example.com',
     password: 'hashedPassword',
     ownedOrganizations: new Collection<Organization>(this),
-    adminOrganizations: new Collection<Organization>(this),
     createdAt: new Date(),
     updatedAt: new Date(),
   };

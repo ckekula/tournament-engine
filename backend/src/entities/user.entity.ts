@@ -1,4 +1,4 @@
-import { Entity, Property, PrimaryKey, Unique, OneToMany, ManyToMany, Collection } from '@mikro-orm/core';
+import { Entity, Property, PrimaryKey, Unique, OneToMany, Collection } from '@mikro-orm/core';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Organization } from './organization.entity';
 
@@ -33,9 +33,9 @@ export class User {
   @OneToMany({ mappedBy: "owner" })
   ownedOrganizations = new Collection<Organization>(this);
 
-  @Field(() => [Organization], { nullable: true })
-  @ManyToMany(() => Organization)
-  adminOrganizations = new Collection<Organization>(this);
+  // @Field(() => [Tournament], { nullable: true })
+  // @ManyToMany(() => Tournament)
+  // adminTournaments = new Collection<Tournament>(this);
 
   @Property({ defaultRaw: 'CURRENT_TIMESTAMP' })
   @Field()

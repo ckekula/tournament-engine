@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -19,9 +19,7 @@ export class OrganizationService {
 
   async findAll(): Promise<Organization[]> {
     try {
-      return await this.organizationRepository.findAll({
-        populate: ['owner', 'admins'],
-      });
+      return await this.organizationRepository.findAll({populate: ['owner']});
     } catch (error) {
       throw new InternalServerErrorException('Failed to fetch organizations');
     }
@@ -31,7 +29,7 @@ export class OrganizationService {
     try {
       const organization = await this.organizationRepository.findOne(
         { id },
-        { populate: ['owner', 'admins'] }
+        { populate: ['owner'] }
       );
       
       if (!organization) {
@@ -51,7 +49,7 @@ export class OrganizationService {
     try {
       const organization = await this.organizationRepository.findOne(
         { slug },
-        { populate: ['owner', 'admins'] }
+        { populate: ['owner'] }
       );
       
       if (!organization) {
@@ -69,14 +67,17 @@ export class OrganizationService {
 
   async findByUser(userId: number): Promise<Organization[]> {
     try {
-      return await this.organizationRepository.find({ owner: userId }, { populate: ['owner', 'admins'] });
+      return await this.organizationRepository.find(
+        { owner: userId }, 
+        { populate: ['owner'] }
+      );
     } catch (error) {
       throw new InternalServerErrorException(`Failed to fetch organizations for user with ID ${userId}`);
     }
   }
 
   async create(createOrganizationInput: CreateOrganizationInput): Promise<Organization> {
-    const { slug, name, ownerId, adminIds } = createOrganizationInput;
+    const { slug, name, ownerId } = createOrganizationInput;
 
     try {
       // Check if slug already exists
@@ -99,22 +100,6 @@ export class OrganizationService {
         owner: ownerUser,
       });
 
-      // Add owner to admins by default
-      organization.admins.add(ownerUser);
-
-      // Add additional admins if provided
-      if (adminIds && adminIds.length > 0) {
-        for (const adminId of adminIds) {
-          if (adminId !== ownerId) { // Avoid adding owner twice
-            const admin = await this.userRepository.findOne({ id: adminId });
-            if (!admin) {
-              throw new NotFoundException(`User with ID ${adminId} not found`);
-            }
-            organization.admins.add(admin);
-          }
-        }
-      }
-
       // Persist the organization
       await this.entityManager.persistAndFlush(organization);
       return organization;
@@ -130,14 +115,14 @@ export class OrganizationService {
     try {
       const organization = await this.organizationRepository.findOne(
         { id },
-        { populate: ['owner', 'admins'] }
+        { populate: ['owner'] }
       );
       
       if (!organization) {
         throw new NotFoundException(`Organization with ID ${id} not found`);
       }
 
-      const { slug, name, ownerId, adminIds } = updateOrganizationInput;
+      const { slug, name, ownerId } = updateOrganizationInput;
 
       // Check if slug is being updated and already exists
       if (slug && slug !== organization.slug) {
@@ -160,30 +145,6 @@ export class OrganizationService {
           throw new NotFoundException(`User with ID ${ownerId} not found`);
         }
         organization.owner = newOwner;
-        
-        // Ensure owner is in admins list
-        if (!organization.admins.contains(newOwner)) {
-          organization.admins.add(newOwner);
-        }
-      }
-
-      // Update admins if provided
-      if (adminIds) {
-        // Clear existing admins except owner
-        const currentOwner = organization.owner;
-        organization.admins.removeAll();
-        organization.admins.add(currentOwner);
-        
-        // Add new admins
-        for (const adminId of adminIds) {
-          if (adminId !== organization.owner.id) { // Avoid adding owner twice
-            const admin = await this.userRepository.findOne({ id: adminId });
-            if (!admin) {
-              throw new NotFoundException(`User with ID ${adminId} not found`);
-            }
-            organization.admins.add(admin);
-          }
-        }
       }
 
       // Persist the updated organization
@@ -194,75 +155,6 @@ export class OrganizationService {
         throw error;
       }
       throw new InternalServerErrorException(`Failed to update organization with ID ${id}`);
-    }
-  }
-
-  async addAdmin(organizationId: number, userId: number): Promise<Organization> {
-    try {
-      const organization = await this.organizationRepository.findOne(
-        { id: organizationId },
-        { populate: ['admins'] }
-      );
-      
-      if (!organization) {
-        throw new NotFoundException(`Organization with ID ${organizationId} not found`);
-      }
-
-      const user = await this.userRepository.findOne({ id: userId });
-      if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-
-      // Check if user is already an admin
-      if (organization.admins.contains(user)) {
-        throw new ConflictException(`User with ID ${userId} is already an admin`);
-      }
-
-      organization.admins.add(user);
-      await this.entityManager.persistAndFlush(organization);
-      return organization;
-    } catch (error) {
-      if (error instanceof NotFoundException || error instanceof ConflictException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(`Failed to add admin to organization`);
-    }
-  }
-
-  async removeAdmin(organizationId: number, userId: number): Promise<Organization> {
-    try {
-      const organization = await this.organizationRepository.findOne(
-        { id: organizationId },
-        { populate: ['owner', 'admins'] }
-      );
-      
-      if (!organization) {
-        throw new NotFoundException(`Organization with ID ${organizationId} not found`);
-      }
-
-      const user = await this.userRepository.findOne({ id: userId });
-      if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-
-      // Prevent removing the owner from admins
-      if (organization.owner.id === userId) {
-        throw new BadRequestException(`Cannot remove the owner from admins`);
-      }
-
-      // Check if user is an admin
-      if (!organization.admins.contains(user)) {
-        throw new BadRequestException(`User with ID ${userId} is not an admin`);
-      }
-
-      organization.admins.remove(user);
-      await this.entityManager.persistAndFlush(organization);
-      return organization;
-    } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ConflictException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(`Failed to remove admin from organization`);
     }
   }
 

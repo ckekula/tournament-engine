@@ -1,4 +1,4 @@
-import { Entity, Property, PrimaryKey, ManyToOne, ManyToMany, Collection } from '@mikro-orm/core';
+import { Entity, Property, PrimaryKey, ManyToOne } from '@mikro-orm/core';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { User } from './user.entity';
 
@@ -20,10 +20,6 @@ export class Organization {
   @ManyToOne(() => User)
   @Field(() => User)
   owner: User;
-
-  @ManyToMany(() => User)
-  @Field(() => [User])
-  admins = new Collection<User>(this);
 
   @Property()
   @Field()

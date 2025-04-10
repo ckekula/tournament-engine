@@ -6,7 +6,7 @@ import { User } from 'src/entities/user.entity';
 import { Organization } from '../../entities/organization.entity';
 import { CreateOrganizationInput } from './dto/createOrganization.input';
 import { UpdateOrganizationInput } from './dto/updateOrganization.input';
-import { NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { NotFoundException, ConflictException } from '@nestjs/common';
 
 describe('OrganizationService', () => {
   let service: OrganizationService;
@@ -21,25 +21,11 @@ describe('OrganizationService', () => {
     email: 'john@example.com',
   };
 
-  const mockAdmin = {
-    id: 456,
-    firstname: 'Jane',
-    lastname: 'Smith',
-    email: 'jane@example.com',
-  };
-
   const mockOrganization = {
     id: 123,
     slug: 'test-org',
     name: 'Test Organization',
     owner: mockUser,
-    admins: {
-      contains: jest.fn(),
-      add: jest.fn(),
-      remove: jest.fn(),
-      removeAll: jest.fn(),
-      getItems: jest.fn().mockReturnValue([mockUser]),
-    },
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -111,7 +97,7 @@ describe('OrganizationService', () => {
       const result = await service.findOne(123);
       
       expect(result).toEqual(mockOrganization);
-      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({ id: 123 }, { populate: ['owner', 'admins'] });
+      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({ id: 123 }, { populate: ['owner'] });
     });
 
     it('should throw NotFoundException if organization is not found', async () => {
@@ -128,7 +114,9 @@ describe('OrganizationService', () => {
       const result = await service.findBySlug('test-org');
       
       expect(result).toEqual(mockOrganization);
-      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({ slug: 'test-org' }, { populate: ['owner', 'admins'] });
+      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith(
+        { slug: 'test-org' }, { populate: ['owner'] }
+      );
     });
 
     it('should throw NotFoundException if organization is not found', async () => {
@@ -145,7 +133,9 @@ describe('OrganizationService', () => {
       const result = await service.findByUser(123);
       
       expect(result).toEqual([mockOrganization]);
-      expect(mockOrganizationRepository.findAll).toHaveBeenCalledWith({ owner: { id: 123 } }, { populate: ['owner', 'admins'] });
+      expect(mockOrganizationRepository.findAll).toHaveBeenCalledWith(
+        { owner: { id: 123 } }, { populate: ['owner'] }
+      );
     });
   });
 
@@ -154,13 +144,11 @@ describe('OrganizationService', () => {
       slug: 'test-org',
       name: 'Test Organization',
       ownerId: 123,
-      adminIds: [456],
     };
 
     it('should create a new organization', async () => {
       mockOrganizationRepository.findOne.mockResolvedValue(null);
       mockUserRepository.findOne.mockResolvedValueOnce(mockUser);
-      mockUserRepository.findOne.mockResolvedValueOnce(mockAdmin);
       mockOrganizationRepository.create.mockReturnValue(mockOrganization);
       
       const result = await service.create(createOrganizationInput);
@@ -170,8 +158,6 @@ describe('OrganizationService', () => {
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({ id: '123' });
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({ id: 456 });
       expect(mockOrganizationRepository.create).toHaveBeenCalled();
-      expect(mockOrganization.admins.add).toHaveBeenCalledWith(mockUser);
-      expect(mockOrganization.admins.add).toHaveBeenCalledWith(mockAdmin);
       expect(mockEntityManager.persistAndFlush).toHaveBeenCalledWith(mockOrganization);
     });
 
@@ -200,7 +186,7 @@ describe('OrganizationService', () => {
       const result = await service.update(123, updateOrganizationInput);
       
       expect(result.name).toEqual('Updated Organization');
-      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({ id: 123 }, { populate: ['owner', 'admins'] });
+      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({ id: 123 }, { populate: ['owner'] });
       expect(mockEntityManager.persistAndFlush).toHaveBeenCalledWith(mockOrganization);
     });
 
@@ -215,95 +201,6 @@ describe('OrganizationService', () => {
       mockOrganizationRepository.findOne.mockResolvedValueOnce({ ...mockOrganization, id: 'org456' });
       
       await expect(service.update(123, { slug: 'existing-slug' })).rejects.toThrow(ConflictException);
-    });
-  });
-
-  describe('addAdmin', () => {
-    it('should add an admin to an organization', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue(mockOrganization);
-      mockUserRepository.findOne.mockResolvedValue(mockAdmin);
-      mockOrganization.admins.contains.mockReturnValue(false);
-      
-      const result = await service.addAdmin(123, 456);
-      
-      expect(result).toEqual(mockOrganization);
-      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({ id: 123 }, { populate: ['admins'] });
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({ id: 456 });
-      expect(mockOrganization.admins.contains).toHaveBeenCalledWith(mockAdmin);
-      expect(mockOrganization.admins.add).toHaveBeenCalledWith(mockAdmin);
-      expect(mockEntityManager.persistAndFlush).toHaveBeenCalledWith(mockOrganization);
-    });
-
-    it('should throw NotFoundException if organization is not found', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue(null);
-      
-      await expect(service.addAdmin(123, 456)).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw NotFoundException if user is not found', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue(mockOrganization);
-      mockUserRepository.findOne.mockResolvedValue(null);
-      
-      await expect(service.addAdmin(123, 456)).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw ConflictException if user is already an admin', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue(mockOrganization);
-      mockUserRepository.findOne.mockResolvedValue(mockAdmin);
-      mockOrganization.admins.contains.mockReturnValue(true);
-      
-      await expect(service.addAdmin(123, 456)).rejects.toThrow(ConflictException);
-    });
-  });
-
-  describe('removeAdmin', () => {
-    it('should remove an admin from an organization', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue({
-        ...mockOrganization,
-        owner: { id: '123' },
-      });
-      mockUserRepository.findOne.mockResolvedValue(mockAdmin);
-      mockOrganization.admins.contains.mockReturnValue(true);
-      
-      const result = await service.removeAdmin(123, 456);
-      
-      expect(result).toEqual(mockOrganization);
-      expect(mockOrganizationRepository.findOne).toHaveBeenCalledWith({ id: 123 }, { populate: ['owner', 'admins'] });
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({ id: 456 });
-      expect(mockOrganization.admins.contains).toHaveBeenCalledWith(mockAdmin);
-      expect(mockOrganization.admins.remove).toHaveBeenCalledWith(mockAdmin);
-      expect(mockEntityManager.persistAndFlush).toHaveBeenCalledWith(mockOrganization);
-    });
-
-    it('should throw BadRequestException if trying to remove owner from admins', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue({
-        ...mockOrganization,
-        owner: { id: '123' },
-      });
-      mockUserRepository.findOne.mockResolvedValue(mockUser);
-      
-      await expect(service.removeAdmin(123, 123)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw BadRequestException if user is not an admin', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue(mockOrganization);
-      mockUserRepository.findOne.mockResolvedValue(mockAdmin);
-      mockOrganization.admins.contains.mockReturnValue(false);
-      
-      await expect(service.removeAdmin(123, 456)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw NotFoundException if organization is not found', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue(null);
-      
-      await expect(service.removeAdmin(123, 456)).rejects.toThrow(NotFoundException);
-    });
-
-    it('should throw NotFoundException if user is not found', async () => {
-      mockOrganizationRepository.findOne.mockResolvedValue(mockOrganization);
-      mockUserRepository.findOne.mockResolvedValue(null);
-      
-      await expect(service.removeAdmin(123, 456)).rejects.toThrow(NotFoundException);
     });
   });
 });

@@ -17,7 +17,6 @@ export const GET_ORGANIZATION = gql`
       id
       name
       slug
-      description
     }
   }
 `;
@@ -28,7 +27,6 @@ export const GET_ORGANIZATION_BY_SLUG = gql`
       id
       name
       slug
-      description
     }
   }
 `;
@@ -39,7 +37,6 @@ export const GET_ORGANIZATION_BY_USER = gql`
       id
       name
       slug
-      description
     }
   }
 `;

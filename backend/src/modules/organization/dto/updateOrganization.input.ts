@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsOptional, IsString, MaxLength, MinLength, Matches, IsArray, IsNumber } from 'class-validator';
+import { IsOptional, IsString, MaxLength, MinLength, Matches, IsNumber } from 'class-validator';
 
 @InputType()
 export class UpdateOrganizationInput {
@@ -22,9 +22,4 @@ export class UpdateOrganizationInput {
   @IsOptional()
   @IsNumber()
   ownerId?: number;
-
-  @Field(() => [Number], { nullable: true })
-  @IsOptional()
-  @IsArray({ message: 'Admin IDs must be an array' })
-  adminIds?: number[];
 }
