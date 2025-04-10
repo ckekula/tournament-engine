@@ -44,7 +44,6 @@ export class AddOrgComponent {
 
   submit(): void {
     if (this.organizationForm.valid) {
-      console.log('Form is valid, proceeding with submission');
       const formValue = this.organizationForm.value;
   
       // Convert abbreviation to a valid slug
@@ -54,11 +53,7 @@ export class AddOrgComponent {
         .replace(/[^a-z0-9-]/g, '') // Remove invalid characters
         .slice(0, 20); // Ensure max length of 20 characters
   
-      console.log('Generated slug:', slug);
       const ownerId = this.authService.currentUser?.id;
-      console.log('Owner ID type:', typeof this.authService.currentUser?.id);
-      console.log('Current user ID (ownerId):', ownerId);
-  
       const variables = {
         input: {
           name: formValue.name,

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { Tournament } from '../../../types/models';
+import { Tournament } from '../../../types/tournament';
 
 @Component({
   selector: 'app-add-tourna',

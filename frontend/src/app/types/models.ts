@@ -1,12 +1,3 @@
-
-
-export interface Tournament {
-    id: number;
-    name: string;
-    year: number;
-    abbreviation: string;
-}
-
 export interface Activity {
     id: number;
     name: string;

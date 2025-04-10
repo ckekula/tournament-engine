@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
-import { Tournament } from '../../../types/models';
+import { Tournament } from '../../../types/tournament';
 
 @Component({
   selector: 'app-tourna-card',
