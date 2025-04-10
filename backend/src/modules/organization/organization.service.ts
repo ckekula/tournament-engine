@@ -94,7 +94,6 @@ export class OrganizationService {
 
       // Create new organization
       const organization = this.organizationRepository.create({
-        id: 0,
         slug,
         name,
         owner: ownerUser,

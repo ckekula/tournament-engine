@@ -1,7 +1,7 @@
 export interface Organization {
     id: number;
     name: string;
-    abbreviation: string;
+    slug: string;
 }
 
 export interface CreateOrganizationResponse {

@@ -31,9 +31,9 @@ export const GET_ORGANIZATION_BY_SLUG = gql`
   }
 `;
 
-export const GET_ORGANIZATION_BY_USER = gql`
-  query GetOrganizationByUser($userId: ID!) {
-    organizationByUser(userId: $userId) {
+export const GET_ORGANIZATIONS_BY_USER = gql`
+  query GetOrganizationsByUser($userId: ID!) {
+    organizationsByUser(userId: $userId) {
       id
       name
       slug

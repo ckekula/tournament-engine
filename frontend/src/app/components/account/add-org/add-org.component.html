@@ -20,7 +20,7 @@
             @if (organizationForm.get('name')?.errors?.['required']) {
               Organization name is required
             } @else if (organizationForm.get('name')?.errors?.['minlength']) {
-              Name must be at least 2 characters long
+              Name must be at least 3 characters long
             }
           </small>
         }
@@ -32,7 +32,7 @@
           id="abbreviation" 
           pInputText 
           formControlName="abbreviation" 
-          placeholder="Enter abbreviation (2-5 characters)"
+          placeholder="Enter abbreviation (3-7 characters)"
           [class.ng-invalid]="organizationForm.get('abbreviation')?.invalid && organizationForm.get('abbreviation')?.touched"
         />
         @if (organizationForm.get('abbreviation')?.invalid && organizationForm.get('abbreviation')?.touched) {
@@ -40,9 +40,9 @@
             @if (organizationForm.get('abbreviation')?.errors?.['required']) {
               Abbreviation is required
             } @else if (organizationForm.get('abbreviation')?.errors?.['minlength']) {
-              Abbreviation must be at least 2 characters
+              Abbreviation must be at least 3 characters
             } @else if (organizationForm.get('abbreviation')?.errors?.['maxlength']) {
-              Abbreviation cannot exceed 5 characters
+              Abbreviation cannot exceed 7 characters
             }
           </small>
         }

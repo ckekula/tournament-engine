@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -6,6 +6,7 @@ import { Organization, CreateOrganizationResponse } from '../../../types/organiz
 import { ButtonModule } from 'primeng/button';
 import { Apollo } from 'apollo-angular';
 import { CREATE_ORGANIZATION } from '../../../graphql/mutations/organization.mutation';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-add-org',
@@ -24,9 +25,12 @@ export class AddOrgComponent {
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() organizationCreated = new EventEmitter<Organization>();
 
+  private apollo = inject(Apollo);
+  private authService = inject(AuthService);
+
   organizationForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private apollo: Apollo) {
+  constructor(private fb: FormBuilder) {
     this.organizationForm = this.fb.group({
       id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -51,15 +55,23 @@ export class AddOrgComponent {
         .slice(0, 20); // Ensure max length of 20 characters
   
       console.log('Generated slug:', slug);
+      const ownerId = this.authService.currentUser?.id;
+      console.log('Owner ID type:', typeof this.authService.currentUser?.id);
+      console.log('Current user ID (ownerId):', ownerId);
+  
+      const variables = {
+        input: {
+          name: formValue.name,
+          slug,
+          ownerId
+        }
+      };
+  
+      console.log('GraphQL mutation variables:', variables);
   
       this.apollo.mutate<CreateOrganizationResponse>({
         mutation: CREATE_ORGANIZATION,
-        variables: { 
-          input: { 
-            name: formValue.name, 
-            slug 
-          } 
-        }
+        variables
       }).subscribe({
         next: ({ data }) => {
           console.log('Mutation response data:', data);
@@ -75,7 +87,7 @@ export class AddOrgComponent {
         error: (error) => console.error('Mutation error:', error)
       });
     } else {
-      console.log('Form is invalid, submission aborted');
+      console.warn('Form is invalid:', this.organizationForm.errors);
     }
   }
 
