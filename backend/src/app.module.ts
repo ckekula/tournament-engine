@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { OrganizationModule } from './modules/organization/organization.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
+import { TournamentModule } from './modules/tournament/tournament.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
     ThrottlerModule.forRoot(throttlerConfig),
     AuthModule,
     UserModule,
-    OrganizationModule
+    OrganizationModule,
+    TournamentModule,
   ],
   providers: [SchemaSyncService],
 })

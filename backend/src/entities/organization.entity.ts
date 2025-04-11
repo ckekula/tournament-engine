@@ -17,8 +17,8 @@ export class Organization {
   @Field()
   name: string;
 
-  @ManyToOne(() => User)
-  @Field(() => User)
+  @ManyToOne(() => User, { nullable: false })
+  @Field(() => User, { nullable: false })
   owner: User;
 
   @Property()
