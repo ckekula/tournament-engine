@@ -1,14 +1,14 @@
 export interface Tournament {
-    id: number;
-    name: string;
-    year: number;
-    abbreviation: string;
+  id: number;
+  name: string;
+  year: number;
+  slug: string;
 }
 
 export interface CreateTournamentResponse {
-    createOrganization: {
-      success: boolean;
-      message: string;
-      organization: Tournament;
-    };
+  createTournament: {
+    success: boolean;
+    message: string;
+    tournament: Tournament;
+  };
 }

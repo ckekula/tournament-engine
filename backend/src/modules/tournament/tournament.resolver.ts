@@ -25,9 +25,9 @@ export class TournamentResolver {
     return this.tournamentService.findBySlug(slug);
   }
 
-  @Query(() => [Tournament], { name: 'tournamentsByUser' })
-  async findByUser(@Args('userId', { type: () => ID }) userId: number): Promise<Tournament[]> {
-    return this.tournamentService.findByUser(userId);
+  @Query(() => [Tournament], { name: 'tournamentsByOrganization' })
+  async findByOrganization(@Args('organizationId', { type: () => ID }) organizationId: number): Promise<Tournament[]> {
+    return this.tournamentService.findByOrganization(organizationId);
   }
 
   @Mutation(() => TournamentResponse)

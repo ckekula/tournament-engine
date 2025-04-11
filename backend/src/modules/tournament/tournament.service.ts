@@ -65,14 +65,14 @@ export class TournamentService {
     }
   }
 
-  async findByUser(userId: number): Promise<Tournament[]> {
+  async findByOrganization(organizationId: number): Promise<Tournament[]> {
     try {
       return await this.tournamentRepository.find(
-        { organizer: userId }, 
+        { organizer: organizationId }, 
         { populate: ['organizer'] }
       );
     } catch (error) {
-      throw new InternalServerErrorException(`Failed to fetch organizations for user with ID ${userId}`);
+      throw new InternalServerErrorException(`Failed to fetch tournaments for organization with ID ${organizationId}`);
     }
   }
 
@@ -87,16 +87,16 @@ export class TournamentService {
       }
 
       // Get organizer
-      const organizerUser = await this.organizationRepository.findOne({ id: organizerId });
-      if (!organizerUser) {
-        throw new NotFoundException(`User with ID ${organizerId} not found`);
+      const org = await this.organizationRepository.findOne({ id: organizerId });
+      if (!org) {
+        throw new NotFoundException(`Organization with ID ${organizerId} not found`);
       }
 
       // Create new organization
       const tournament = this.tournamentRepository.create({
         slug,
         name,
-        organizer: organizerUser,
+        organizer: org,
       });
 
       // Persist the organization

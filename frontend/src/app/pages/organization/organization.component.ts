@@ -7,6 +7,7 @@ import { HeaderComponent } from "../../components/shared/header/header.component
 import { FooterComponent } from '../../components/shared/footer/footer.component';
 import { AddTournaComponent } from '../../components/organization/add-tourna/add-tourna.component';
 import { TournaCardComponent } from '../../components/organization/tourna-card/tourna-card.component';
+import { TournaListComponent } from "../../components/organization/tourna-list/tourna-list.component";
 
 @Component({
   selector: 'app-organization',
@@ -16,8 +17,9 @@ import { TournaCardComponent } from '../../components/organization/tourna-card/t
     HeaderComponent,
     FooterComponent,
     AddTournaComponent,
-    TournaCardComponent
-  ],
+    TournaCardComponent,
+    TournaListComponent
+],
   templateUrl: './organization.component.html',
   styleUrl: './organization.component.scss'
 })
@@ -27,23 +29,9 @@ export class OrganizationComponent {
     private router: Router,
   ) {}
 
-  tournaments = [
-    { id: 1, name: "Sri Lanka University Games", year: 2023, abbreviation: "slug2023" },
-    { id: 2, name: "Sri Lanka University Games", year: 2025, abbreviation: "slug2025" },
-    { id: 3, name: "Sri Lanka University Games", year: 2027, abbreviation: "slug2027" },
-  ];
-
   newTournaVisible = false;
 
   toggleNewTourna(): void {
     this.newTournaVisible = true;
-  }
-
-  addTournament(tournament: Tournament): void {
-    this.tournaments = [...this.tournaments, tournament];
-  }
-
-  navigateToTourna(tournaAbb: string, tournaId: number) {
-    this.router.navigate([`${tournaAbb}/${tournaId}`]);
   }
 }

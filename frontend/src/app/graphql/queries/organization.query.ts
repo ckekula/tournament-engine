@@ -6,7 +6,6 @@ export const GET_ORGANIZATIONS = gql`
       id
       name
       slug
-      description
     }
   }
 `;

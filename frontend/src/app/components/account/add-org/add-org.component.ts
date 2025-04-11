@@ -61,15 +61,12 @@ export class AddOrgComponent {
           ownerId
         }
       };
-  
-      console.log('GraphQL mutation variables:', variables);
-  
+    
       this.apollo.mutate<CreateOrganizationResponse>({
         mutation: CREATE_ORGANIZATION,
         variables
       }).subscribe({
         next: ({ data }) => {
-          console.log('Mutation response data:', data);
           if (data?.createOrganization?.success) {
             console.log('Organization creation successful:', data.createOrganization.organization);
             this.organizationCreated.emit(data.createOrganization.organization);
