@@ -16,6 +16,10 @@ export const GET_TOURNAMENT = gql`
       id
       name
       slug
+      organizer {
+        id
+        name
+      }
     }
   }
 `;

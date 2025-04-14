@@ -1,6 +1,9 @@
+import { Organization } from "./organization";
+
 export interface Tournament {
   id: number;
   name: string;
+  organizer: Organization;
   year: number;
   slug: string;
 }
