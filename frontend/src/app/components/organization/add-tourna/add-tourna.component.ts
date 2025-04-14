@@ -5,8 +5,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CreateTournamentResponse, Tournament } from '../../../types/tournament';
 import { Apollo } from 'apollo-angular';
-import { AuthService } from '../../../services/auth/auth.service';
-import { CREATE_ORGANIZATION } from '../../../graphql/mutations/organization.mutation';
+import { CREATE_TOURNAMENT } from '../../../graphql/mutations/tournament.mutation';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-add-tourna',
@@ -26,7 +26,7 @@ export class AddTournaComponent {
   @Output() tournamentCreated = new EventEmitter<Tournament>();
 
   private apollo = inject(Apollo);
-  private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
 
   tournamentForm: FormGroup;
 
@@ -53,7 +53,7 @@ export class AddTournaComponent {
         .replace(/[^a-z0-9-]/g, '') // Remove invalid characters
         .slice(0, 20); // Ensure max length of 20 characters
   
-      const organizerId = this.authService.currentUser?.id; //change
+      const organizerId = Number(this.route.snapshot.paramMap.get('id'));
       const variables = {
         input: {
           name: formValue.name,
@@ -63,12 +63,12 @@ export class AddTournaComponent {
       };
     
       this.apollo.mutate<CreateTournamentResponse>({
-        mutation: CREATE_ORGANIZATION,
+        mutation: CREATE_TOURNAMENT,
         variables
       }).subscribe({
         next: ({ data }) => {
           if (data?.createTournament?.success) {
-            console.log('Organization creation successful:', data.createTournament.tournament);
+            console.log('Tournament creation successful:', data.createTournament.tournament);
             this.tournamentCreated.emit(data.createTournament.tournament);
             this.resetForm();
             this.closeDialog();

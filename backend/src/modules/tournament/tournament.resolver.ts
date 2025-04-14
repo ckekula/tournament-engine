@@ -25,8 +25,8 @@ export class TournamentResolver {
     return this.tournamentService.findBySlug(slug);
   }
 
-  @Query(() => [Tournament], { name: 'tournamentsByOrganization' })
-  async findByOrganization(@Args('organizationId', { type: () => ID }) organizationId: number): Promise<Tournament[]> {
+  @Query(() => [Tournament], { name: 'tournamentsByOrg' })
+  async findByOrganization(@Args('orgId', { type: () => ID }) organizationId: number): Promise<Tournament[]> {
     return this.tournamentService.findByOrganization(organizationId);
   }
 

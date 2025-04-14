@@ -5,7 +5,7 @@ export const CREATE_TOURNAMENT = gql`
     createTournament(createTournamentInput: $input) {
       success
       message
-      Tournament {
+      tournament {
         id
         name
         slug
@@ -19,7 +19,7 @@ export const UPDATE_TOURNAMENT = gql`
     updateTournament(id: $id, updateTournamentInput: $input) {
       success
       message
-      Tournament {
+      tournament {
         id
         name
         slug

@@ -51,7 +51,7 @@ export class TournaListComponent {
       this.apollo
         .watchQuery<{ tournamentsByOrg: Tournament[] }>({
           query: GET_TOURNAMENTS_BY_ORG,
-          variables: { userId: currentOrgId }
+          variables: { orgId: currentOrgId }
         })
         .valueChanges
         .subscribe(({ data }) => {
