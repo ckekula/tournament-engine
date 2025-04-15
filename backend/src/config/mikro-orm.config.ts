@@ -5,10 +5,11 @@ import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Organization } from 'src/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
 import { Tournament } from 'src/entities/tournament.entity';
+import { Activity } from '../entities/activity.entity';
 
 const microOrmConfig = (config: ConfigService): Options => ({
   clientUrl: config.get('DATABASE_URL'),
-  entities: [User, Organization, Tournament],
+  entities: [User, Organization, Tournament, Activity],
   ensureDatabase: true,
   debug: ['query', 'discovery', 'schema'],
   driverOptions: {
