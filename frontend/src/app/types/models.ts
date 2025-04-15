@@ -1,8 +1,3 @@
-export interface Activity {
-    id: number;
-    name: string;
-}
-
 export interface _Event {
     id: number;
     name: string;

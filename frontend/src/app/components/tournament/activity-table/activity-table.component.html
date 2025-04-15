@@ -31,7 +31,7 @@
         </div>
     </ng-template>
 
-    <ng-template *ngFor="let activity of activities" pTemplate="body" let-activity>
+    <ng-template pTemplate="body" let-activity>
         <tr [pSelectableRow]="activity">
             <td>
                 {{ activity.name }}

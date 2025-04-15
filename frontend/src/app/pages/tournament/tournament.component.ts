@@ -47,8 +47,6 @@ export class TournamentComponent {
         next: ({ data }) => {
           this.currentTourn = data.tournament;
           this.organizer = data.tournament.organizer;
-          console.log(this.currentTourn);
-          console.log(this.organizer);
         },
         error: (error) => {
           console.error('Error fetching organization:', error);

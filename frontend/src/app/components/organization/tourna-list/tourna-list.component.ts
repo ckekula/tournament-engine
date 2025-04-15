@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Tournament } from '../../../types/tournament';
 import { GET_TOURNAMENTS_BY_ORG } from '../../../graphql/queries/tournament.query';
@@ -21,7 +21,7 @@ import { Organization } from '../../../types/organization';
   templateUrl: './tourna-list.component.html',
   styleUrl: './tourna-list.component.scss'
 })
-export class TournaListComponent {
+export class TournaListComponent implements OnInit {
   private apollo = inject(Apollo);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
