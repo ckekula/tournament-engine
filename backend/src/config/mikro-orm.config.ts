@@ -6,10 +6,11 @@ import { Organization } from 'src/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
 import { Tournament } from 'src/entities/tournament.entity';
 import { Activity } from '../entities/activity.entity';
+import { Event } from 'src/entities/event.entity';
 
 const microOrmConfig = (config: ConfigService): Options => ({
   clientUrl: config.get('DATABASE_URL'),
-  entities: [User, Organization, Tournament, Activity],
+  entities: [User, Organization, Tournament, Activity, Event],
   ensureDatabase: true,
   debug: ['query', 'discovery', 'schema'],
   driverOptions: {
