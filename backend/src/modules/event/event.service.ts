@@ -55,9 +55,9 @@ export class EventService {
       throw new InternalServerErrorException(`Failed to fetch events for activity with ID ${activityId}`);
     }
   }
-
+ 
   async create(createEventInput: CreateEventInput): Promise<_Event> {
-    const { name, activityId, category } = createEventInput;
+    const { name, activityId, gender, weightClass, ageGroup } = createEventInput;
 
     try {
       // Get activity
@@ -70,7 +70,9 @@ export class EventService {
       const event = this.eventRepository.create({
         name,
         activity: activity,
-        category,
+        gender,
+        weightClass,
+        ageGroup,
       });
 
       // Persist the activity
@@ -86,7 +88,7 @@ export class EventService {
 
   async update(id: number, updateEventInput: UpdateEventInput): Promise<_Event> {
     try {
-      const { name, eventId, category } = updateEventInput;
+      const { name, eventId, gender, weightClass, ageGroup } = updateEventInput;
 
       const event = await this.eventRepository.findOne(
         { id: eventId },
@@ -102,9 +104,19 @@ export class EventService {
         event.name = name;
       }
 
-      // Update category if provided
-      if (category) {
-        event.category = category;
+      // Update gender if provided
+      if (gender) {
+        event.gender = name;
+      }
+
+      // Update weight class if provided
+      if (weightClass) {
+        event.weightClass = weightClass;
+      }
+
+      // Update age group if provided
+      if (ageGroup) {
+        event.ageGroup = ageGroup;
       }
 
       // Persist the updated organization

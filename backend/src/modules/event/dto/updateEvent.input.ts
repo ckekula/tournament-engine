@@ -1,6 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsString, MaxLength, MinLength, IsNumber } from 'class-validator';
-import { ActivityCategory } from 'src/entities/category.enum';
 
 @InputType()
 export class UpdateEventInput {
@@ -16,7 +15,15 @@ export class UpdateEventInput {
   @IsNumber()
   eventId: number;
 
-  @Field(() => ActivityCategory)
-  @IsNotEmpty({ message: 'Category is required' })
-  category: ActivityCategory;
+  @Field()
+  @IsString({ message: 'Gender must be a string' })
+  gender: string;
+
+  @Field()
+  @IsString({ message: 'Weight Class must be a string' })
+  weightClass: string;
+
+  @Field()
+  @IsString({ message: 'Age Group must be a string' })
+  ageGroup: string;
 }

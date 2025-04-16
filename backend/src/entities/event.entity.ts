@@ -1,7 +1,6 @@
-import { Entity, Property, PrimaryKey, ManyToOne, Enum } from '@mikro-orm/core';
+import { Entity, Property, PrimaryKey, ManyToOne } from '@mikro-orm/core';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Activity } from './activity.entity';
-import { ActivityCategory } from './category.enum';
 
 @Entity()
 @ObjectType()
@@ -14,9 +13,17 @@ export class _Event {
   @Field()
   name: string;
 
-  @Enum(() => ActivityCategory)
-  @Field(() => ActivityCategory)
-  category: ActivityCategory;
+  @Property()
+  @Field()
+  gender: string;
+
+  @Property()
+  @Field()
+  weightClass: string;
+
+  @Property()
+  @Field()
+  ageGroup: string;
 
   @ManyToOne(() => Activity, { nullable: false })
   @Field(() => Activity, { nullable: false })
