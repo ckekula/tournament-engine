@@ -1,9 +1,3 @@
-export interface _Event {
-    id: number;
-    name: string;
-    category: string;
-}
-
 export interface Stage {
     id: number;
     name: string;

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { _Event } from '../../../types/models';
+import { _Event } from '../../../types/event';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 

@@ -1,6 +1,9 @@
+import { Tournament } from "./tournament";
+
 export interface Activity {
     id: number;
     name: string;
+    tournament: Tournament;
 }
 
 export interface CreateActivityResponse {

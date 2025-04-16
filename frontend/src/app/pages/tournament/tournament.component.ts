@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from "../../components/shared/header/header.component";
@@ -28,7 +28,7 @@ import { Organization } from '../../types/organization';
   templateUrl: './tournament.component.html',
   styleUrl: './tournament.component.scss'
 })
-export class TournamentComponent {
+export class TournamentComponent implements OnInit {
   private apollo = inject(Apollo);
   private route = inject(ActivatedRoute);
 

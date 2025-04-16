@@ -6,12 +6,11 @@
     [rowsPerPageOptions]="[10, 25, 50]"
     [loading]="loading"
     [paginator]="true"
-    [globalFilterFields]="['name']"
+    [globalFilterFields]="['name', 'gender', 'weightClass', 'ageGroup']"
     [tableStyle]="{ 'min-width': '75rem' }"
     selectionMode="single"
     [(selection)]="selectedEvent"
-    (onRowSelect)="navigateToEvent($event.data.category)"
-    >
+    (onRowSelect)="navigateToEvent($event.data.category)">
 
     <ng-template pTemplate="caption">
         <div class="flex justify-between items-center">
@@ -31,11 +30,21 @@
         </div>
     </ng-template>
 
-    <ng-template *ngFor="let event of events" pTemplate="body" let-event>
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Name</th>
+            <th *ngIf="hasGenderData">Gender</th>
+            <th *ngIf="hasWeightClassData">Weight Class</th>
+            <th *ngIf="hasAgeGroupData">Age Group</th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-event>
         <tr [pSelectableRow]="event">
-            <td>
-                {{ event.name }}
-            </td>
+            <td>{{ event.name || 'Unnamed Event' }}</td>
+            <td *ngIf="hasGenderData">{{ event.gender }}</td>
+            <td *ngIf="hasWeightClassData">{{ event.weightClass }}</td>
+            <td *ngIf="hasAgeGroupData">{{ event.ageGroup }}</td>
         </tr>
     </ng-template>
 
@@ -44,7 +53,6 @@
             <td colspan="5">No Events found.</td>
         </tr>
     </ng-template>
-
 </p-table>
 
 <app-add-event

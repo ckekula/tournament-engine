@@ -53,7 +53,8 @@ export class ActivityTableComponent {
             if (data && data.activitiesByTournament) {
               this.activities = data.activitiesByTournament.map((activity, index) => ({
                 id: index + 1,
-                name: activity.name
+                name: activity.name,
+                tournament: activity.tournament,
               }));
             } else {
               this.activities = [];

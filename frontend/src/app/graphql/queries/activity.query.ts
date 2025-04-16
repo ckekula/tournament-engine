@@ -5,6 +5,10 @@ export const GET_ACTIVITY = gql`
     activity(id: $id) {
       id
       name
+      tournament {
+        id,
+        name
+      }
     }
   }
 `;
