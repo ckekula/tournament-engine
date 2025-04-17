@@ -9,20 +9,20 @@ export class _Event {
   @Field(() => ID)
   id: number;
 
-  @Property()
-  @Field()
+  @Property({ nullable: true })
+  @Field({ nullable: true })
   name: string;
 
-  @Property()
-  @Field()
+  @Property({ nullable: true })
+  @Field({ nullable: true })
   gender: string;
 
-  @Property()
-  @Field()
+  @Property({ nullable: true })
+  @Field({ nullable: true })
   weightClass: string;
 
-  @Property()
-  @Field()
+  @Property({ nullable: true })
+  @Field({ nullable: true })
   ageGroup: string;
 
   @ManyToOne(() => Activity, { nullable: false })
