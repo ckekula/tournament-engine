@@ -21,7 +21,7 @@ import { GET_EVENTS_BY_ACTIVITY } from '../../../graphql/queries/event.query';
     IconFieldModule, 
     InputTextModule, 
     InputIconModule, 
-    MultiSelectModule, 
+    MultiSelectModule,
     SelectModule, 
     CommonModule,
     AddEventComponent
@@ -35,33 +35,63 @@ export class EventTableComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  events: _Event [] = [
-    { id: 1, name: null, gender: 'Men', weightClass: '55kg', ageGroup: null },
-    { id: 2, name: null, gender: 'Men', weightClass: '67kg', ageGroup: null },
-    { id: 3, name: null, gender: 'Men', weightClass: '73kg', ageGroup: null },
-    { id: 4, name: null, gender: 'Men', weightClass: '81kg', ageGroup: null },     
-    { id: 5, name: null, gender: 'Women', weightClass: '49kg', ageGroup: null },
-    { id: 6, name: null, gender: 'Women', weightClass: '55kg', ageGroup: null }, 
-    { id: 7, name: null, gender: 'Women', weightClass: '59kg', ageGroup: null },
-    { id: 8, name: null, gender: 'Women', weightClass: '64kg', ageGroup: null },  
-  ];
-
-  hasGenderData: boolean = false;
-  hasWeightClassData: boolean = false;
-  hasAgeGroupData: boolean = false;
-
+  hasName: boolean = false;
+  hasGender: boolean = false;
+  hasWeightClass: boolean = false;
+  hasAgeGroup: boolean = false;
+  
+  events: _Event[] = [];
   selectedEvent!: _Event;
   loading: boolean = false;
   newEventVisible = false;
 
-  ngOnInit(): void {
-    this.checkColumnData();
+  ngOnInit(): void { 
+    const tournaId = this.route.snapshot.paramMap.get('id');
+    const activityName = this.route.snapshot.paramMap.get('actName') || '';
+
+    if (tournaId && activityName) {
+      this.apollo
+        .watchQuery<{ eventsByActivity: _Event[] }>({
+          query: GET_EVENTS_BY_ACTIVITY,
+          variables: { 
+            tournamentId: Number(tournaId),
+            activityName: activityName.toUpperCase()
+          }
+        })
+        .valueChanges
+        .subscribe({
+          next: ({ data }) => {
+            if (data && data.eventsByActivity) {
+              this.events = data.eventsByActivity.map((event, index) => ({
+                id: index + 1,
+                name: event.name,
+                activity: event.activity,
+                gender: event.gender,
+                weightClass: event.weightClass,
+                ageGroup: event.ageGroup
+              }));
+              this.checkColumnData();
+            } else {
+              this.events = [];
+            }
+            this.loading = false;
+          },
+          error: (error) => {
+            console.error('Error fetching events:', error);
+            this.loading = false;
+          }
+        });
+    } else {
+      console.error('Tournament ID or activity name not found in route parameters');
+      this.loading = false;
+    }
   }
 
   checkColumnData(): void {
-    this.hasGenderData = this.events.some(event => event.gender !== null && event.gender !== undefined);
-    this.hasWeightClassData = this.events.some(event => event.weightClass !== null && event.weightClass !== undefined);
-    this.hasAgeGroupData = this.events.some(event => event.ageGroup !== null && event.ageGroup !== undefined);
+    this.hasName = this.events.some(event => event.name !== null && event.name !== undefined);
+    this.hasGender = this.events.some(event => event.gender !== null && event.gender !== undefined);
+    this.hasWeightClass = this.events.some(event => event.weightClass !== null && event.weightClass !== undefined);
+    this.hasAgeGroup = this.events.some(event => event.ageGroup !== null && event.ageGroup !== undefined);
   }
 
   onGlobalFilter(event: Event, dt2: any) {
@@ -69,14 +99,23 @@ export class EventTableComponent implements OnInit {
     dt2.filterGlobal(inputValue, 'contains');
   }
 
-  navigateToEvent(category: string) {
+  navigateToEvent(event: _Event) {
     const tournaSlug = this.route.snapshot.paramMap.get('tournaSlug');
     const tournaId = this.route.snapshot.paramMap.get('id');
-    const actSlug = this.route.snapshot.paramMap.get('actSlug');
-    const categorySlug = category?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') || '';
+    const actSlug = this.route.snapshot.paramMap.get('actName');
+    
+    // Build the category parts array
+    const categoryParts = [];
+    if (event.gender) categoryParts.push(event.gender);
+    if (event.weightClass) categoryParts.push(event.weightClass);
+    if (event.ageGroup) categoryParts.push(event.ageGroup);
+    
+    // Join the parts with hyphens and create slug
+    const category = categoryParts.join('-');
+    const categorySlug = category.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '') || '';
 
     this.router.navigate([tournaSlug, tournaId, actSlug, categorySlug], { relativeTo: this.route.root });
-  }
+}
 
   toggleNewEvent(): void {
     this.newEventVisible = true;

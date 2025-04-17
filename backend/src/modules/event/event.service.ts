@@ -45,27 +45,56 @@ export class EventService {
     }
   }
 
-  async findByActivity(activityId: number): Promise<_Event[]> {
+  async findByActivity(activityName: string, tournamentId: number): Promise<_Event[]> {
     try {
+      // First find the activity using tournamentId and activityName
+      const activity = await this.activityRepository.findOne(
+        {
+          name: activityName,
+          tournament: { id: tournamentId }
+        },
+        { populate: ['tournament'] }
+      );
+  
+      if (!activity) {
+        throw new NotFoundException(
+          `Activity with name ${activityName} under tournament ID ${tournamentId} not found`);
+      }
+  
+      // Then find events related to this activity
       return await this.eventRepository.find(
-        { activity: activityId }, 
+        { activity: activity.id },
         { populate: ['activity'] }
       );
     } catch (error) {
-      throw new InternalServerErrorException(`Failed to fetch events for activity with ID ${activityId}`);
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Failed to fetch events for activity "${activityName}" in tournament ID ${tournamentId}`);
     }
   }
  
   async create(createEventInput: CreateEventInput): Promise<_Event> {
-    const { name, activityId, gender, weightClass, ageGroup } = createEventInput;
-
+    const { name, activityName, tournamentId, gender, weightClass, ageGroup } = createEventInput;
+  
     try {
-      // Get activity
-      const activity = await this.activityRepository.findOne({ id: activityId });
+      // Get activity by tournamentId and activityName
+      const activity = await this.activityRepository.findOne(
+        { 
+          name: activityName,
+          tournament: { id: tournamentId }
+        },
+        { 
+          populate: ['tournament'] 
+        }
+      );
+  
       if (!activity) {
-        throw new NotFoundException(`Activity with ID ${activityId} not found`);
+        throw new NotFoundException(
+          `Activity with name ${activityName} under tournament ID ${tournamentId} not found`);
       }
-
+  
       // Create new event
       const event = this.eventRepository.create({
         name,
@@ -74,9 +103,9 @@ export class EventService {
         weightClass,
         ageGroup,
       });
-
-      // Persist the activity
-      await this.entityManager.persistAndFlush(activity);
+  
+      // Persist the event (not the activity)
+      await this.entityManager.persistAndFlush(event);
       return event;
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof ConflictException) {

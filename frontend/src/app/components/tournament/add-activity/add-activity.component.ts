@@ -47,7 +47,7 @@ export class AddActivityComponent {
 
       const variables = {
         input: {
-          name: formValue.name,
+          name: formValue.name.toUpperCase(),
           tournamentId
         }
       };

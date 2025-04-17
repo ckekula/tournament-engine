@@ -1,7 +1,7 @@
 <p-dialog 
   [(visible)]="visible" 
   (visibleChange)="visibleChange.emit($event)"
-  header="Create Organization" 
+  header="Add Event" 
   [modal]="true" 
   [style]="{ width: '450px' }">
   <form [formGroup]="eventForm" (ngSubmit)="submit()">
@@ -17,22 +17,54 @@
       </div>
   
       <div class="p-field mb-4">
-        <label for="category" class="block mb-2">Category</label>
+        <label for="gender" class="block mb-2">Gender</label>
         <input 
-          id="category" 
+          id="gender" 
           pInputText 
-          formControlName="category" 
-          placeholder="Enter category (2-5 characters)"
-          [class.ng-invalid]="eventForm.get('category')?.invalid && eventForm.get('category')?.touched"
+          formControlName="gender" 
+          placeholder="Enter gender"
+          [class.ng-invalid]="eventForm.get('gender')?.invalid && eventForm.get('gender')?.touched"
         />
-        @if (eventForm.get('category')?.invalid && eventForm.get('category')?.touched) {
+        @if (eventForm.get('gender')?.invalid && eventForm.get('gender')?.touched) {
           <small class="p-error block">
-            @if (eventForm.get('category')?.errors?.['required']) {
-              category is required
-            } @else if (eventForm.get('category')?.errors?.['minlength']) {
-              category must be at least 2 characters
-            } @else if (eventForm.get('category')?.errors?.['maxlength']) {
-              category cannot exceed 5 characters
+            @if (eventForm.get('gender')?.errors?.['required']) {
+              gender is required
+            }
+          </small>
+        }
+      </div>
+
+      <div class="p-field mb-4">
+        <label for="weightClass" class="block mb-2">Weight Class</label>
+        <input 
+          id="weightClass" 
+          pInputText 
+          formControlName="weightClass" 
+          placeholder="Enter Weight class"
+          [class.ng-invalid]="eventForm.get('gender')?.invalid && eventForm.get('weightClass')?.touched"
+        />
+        @if (eventForm.get('weightClass')?.invalid && eventForm.get('weightClass')?.touched) {
+          <small class="p-error block">
+            @if (eventForm.get('weightClass')?.errors?.['required']) {
+              Weight Class is required
+            }
+          </small>
+        }
+      </div>
+
+      <div class="p-field mb-4">
+        <label for="ageGroup" class="block mb-2">Age Group</label>
+        <input 
+          id="ageGroup" 
+          pInputText 
+          formControlName="ageGroup" 
+          placeholder="Enter Age Group"
+          [class.ng-invalid]="eventForm.get('ageGroup')?.invalid && eventForm.get('ageGroup')?.touched"
+        />
+        @if (eventForm.get('ageGroup')?.invalid && eventForm.get('ageGroup')?.touched) {
+          <small class="p-error block">
+            @if (eventForm.get('ageGroup')?.errors?.['required']) {
+              Age Group is required
             }
           </small>
         }

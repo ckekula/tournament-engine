@@ -6,7 +6,7 @@ export const GET_EVENT = gql`
       id
       name
       activity {
-        id,
+        id
         name
       }
     }
@@ -14,10 +14,13 @@ export const GET_EVENT = gql`
 `;
 
 export const GET_EVENTS_BY_ACTIVITY = gql`
-  query GetEventsByActivity($activityId: ID!) {
-    eventsByActivity(activityId: $activityId) {
+  query GetEventsByActivity($activityName: String!, $tournamentId: ID!) {
+    eventsByActivity(activityName: $activityName, tournamentId: $tournamentId) {
       id
       name
+      gender
+      weightClass
+      ageGroup
     }
   }
 `;

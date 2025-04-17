@@ -19,7 +19,7 @@ export const routes: Routes = [
     },
     { path: 'org/:slug/:id', component: OrganizationComponent },
     { path: ':slug/:id', component: TournamentComponent },
-    { path: ':tournaSlug/:id/:actSlug', component: ActivityComponent },
-    { path: ':tournaSlug/:id/:actSlug/:catSlug', component: EventComponent },
+    { path: ':tournaSlug/:id/:actName', component: ActivityComponent },
+    { path: ':tournaSlug/:id/:actName/:category', component: EventComponent },
     // { path: ':tournaSlug/:tournaId/:actSlug/:catSlug/:matchSlug/:matchId', component: MatchComponent },
 ];

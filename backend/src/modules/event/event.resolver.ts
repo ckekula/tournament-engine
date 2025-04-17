@@ -21,12 +21,12 @@ export class EventResolver {
   }
 
   @Query(() => [_Event], { name: 'eventsByActivity' })
-  async findByActivity(@Args('activityId', { type: () => ID }) activityId: number): Promise<_Event[]> {
-    return this.eventService.findByActivity(activityId);
+  async findByActivity(@Args('tournamentId', { type: () => ID }) tournamentId: number, @Args('activityName', { type: () => String }) activityName: string): Promise<_Event[]> {
+    return this.eventService.findByActivity(activityName, tournamentId);
   }
 
   @Mutation(() => EventResponse)
-  async createActivity(
+  async createEvent(
     @Args('createEventInput', new ValidationPipe()) createEventInput: CreateEventInput,
   ): Promise<EventResponse> {
     try {
@@ -45,7 +45,7 @@ export class EventResolver {
   }
 
   @Mutation(() => EventResponse)
-  async updateActivity(
+  async updateEvent(
     @Args('id', { type: () => ID }) id: number,
     @Args('updateActivityInput', new ValidationPipe()) updateEventInput: UpdateEventInput,
   ): Promise<EventResponse> {

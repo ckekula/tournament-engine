@@ -13,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { TournamentModule } from './modules/tournament/tournament.module';
 import { ActivityModule } from './modules/activity/activity.module';
+import { EventModule } from './modules/event/event.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ActivityModule } from './modules/activity/activity.module';
     OrganizationModule,
     TournamentModule,
     ActivityModule,
+    EventModule
   ],
   providers: [SchemaSyncService],
 })

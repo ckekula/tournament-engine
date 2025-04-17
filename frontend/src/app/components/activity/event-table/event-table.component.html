@@ -10,7 +10,7 @@
     [tableStyle]="{ 'min-width': '75rem' }"
     selectionMode="single"
     [(selection)]="selectedEvent"
-    (onRowSelect)="navigateToEvent($event.data.category)">
+    (onRowSelect)="navigateToEvent($event.data)">
 
     <ng-template pTemplate="caption">
         <div class="flex justify-between items-center">
@@ -32,19 +32,19 @@
 
     <ng-template pTemplate="header">
         <tr>
-            <th>Name</th>
-            <th *ngIf="hasGenderData">Gender</th>
-            <th *ngIf="hasWeightClassData">Weight Class</th>
-            <th *ngIf="hasAgeGroupData">Age Group</th>
+            <th *ngIf="hasName">Name</th>
+            <th *ngIf="hasGender">Gender</th>
+            <th *ngIf="hasWeightClass">Weight Class</th>
+            <th *ngIf="hasAgeGroup">Age Group</th>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-event>
         <tr [pSelectableRow]="event">
-            <td>{{ event.name || 'Unnamed Event' }}</td>
-            <td *ngIf="hasGenderData">{{ event.gender }}</td>
-            <td *ngIf="hasWeightClassData">{{ event.weightClass }}</td>
-            <td *ngIf="hasAgeGroupData">{{ event.ageGroup }}</td>
+            <td *ngIf="hasName">{{ event.name }}</td>
+            <td *ngIf="hasGender">{{ event.gender }}</td>
+            <td *ngIf="hasWeightClass">{{ event.weightClass }}</td>
+            <td *ngIf="hasAgeGroup">{{ event.ageGroup }}</td>
         </tr>
     </ng-template>
 
