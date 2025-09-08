@@ -1,0 +1,48 @@
+<div>
+    <div class="surface-section px-4 py-2 shadow-4">
+        <div class="grid grid-nogutter align-items-center">
+            <div class="col-6">
+                <a (click)="navigateTo('/')">
+                    <span class="text-2xl font-bold font-italic text-900 cursor-pointer">Tuna</span>
+                </a>
+            </div>
+            <div class="col-6 text-right">
+                <!-- Show these buttons only when user is NOT authenticated -->
+                <ng-container *ngIf="!isAuthenticated">
+                    <button 
+                        pButton 
+                        pRipple 
+                        label="Login" 
+                        class="p-button-text p-button-sm mr-3" 
+                        (click)="navigateTo('/login')">
+                    </button>
+                    <button 
+                        pButton 
+                        pRipple 
+                        label="Sign Up" 
+                        class="p-button-raised p-button-sm" 
+                        (click)="navigateTo('/register')">
+                    </button>
+                </ng-container>
+
+                <!-- Show these buttons only when user is authenticated -->
+                <ng-container *ngIf="isAuthenticated">
+                    <button 
+                        pButton 
+                        pRipple 
+                        label="My Profile" 
+                        class="p-button-text p-button-sm mr-3" 
+                        (click)="navigateTo('/account')">
+                    </button>
+                    <button 
+                        pButton 
+                        pRipple 
+                        label="Logout" 
+                        class="p-button-raised p-button-sm" 
+                        (click)="logout()">
+                    </button>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,95 @@
+<div>
+  <app-header />
+
+  <div class="surface-card p-4 my-6 shadow-2 border-round w-full lg:w-6">
+    <div class="text-center mb-5">
+      <img src="assets/images/user.svg" alt="User Icon" height="50" class="mb-3">
+      <div class="text-900 text-3xl font-medium mb-3">Hello there!</div>
+      <span class="text-600 font-medium line-height-3">Already have an account?</span>
+      <span (click)="navigateTo('/login')" class="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Create one today!</span>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+      <div class="mb-3">
+        <label for="firstname" class="block text-900 font-medium mb-2">First Name</label>
+        <input id="firstname" 
+               type="text" 
+               placeholder="e.g: Saman" 
+               pInputText 
+               class="w-full"
+               formControlName="firstname"
+               aria-label="First Name">
+        <small *ngIf="firstname?.invalid && firstname?.touched" class="p-error block mt-1">
+          <span *ngIf="firstname?.errors?.['required']">First name is required</span>
+          <span *ngIf="firstname?.errors?.['minlength']">First name must be at least 2 characters</span>
+        </small>
+      </div>
+      
+      <div class="mb-3">
+        <label for="lastname" class="block text-900 font-medium mb-2">Last Name</label>
+        <input id="lastname" 
+               type="text" 
+               placeholder="e.g: Kumara" 
+               pInputText 
+               class="w-full"
+               formControlName="lastname"
+               aria-label="Last Name">
+        <small *ngIf="lastname?.invalid && lastname?.touched" class="p-error block mt-1">
+          <span *ngIf="lastname?.errors?.['required']">Last name is required</span>
+          <span *ngIf="lastname?.errors?.['minlength']">Last name must be at least 2 characters</span>
+        </small>
+      </div>
+      
+      <div class="mb-3">
+        <label for="email" class="block text-900 font-medium mb-2">Email</label>
+        <input id="email" 
+               type="email" 
+               placeholder="example@mail.com" 
+               pInputText 
+               class="w-full"
+               formControlName="email"
+               aria-label="Email">
+        <small *ngIf="email?.invalid && email?.touched" class="p-error block mt-1">
+          <span *ngIf="email?.errors?.['required']">Email is required</span>
+          <span *ngIf="email?.errors?.['email']">Please enter a valid email address</span>
+        </small>
+      </div>
+      
+      <div class="mb-3">
+        <label for="password" class="block text-900 font-medium mb-2">Password</label>
+        <input id="password" 
+               type="password" 
+               placeholder="Password" 
+               pInputText 
+               class="w-full"
+               formControlName="password"
+               aria-label="Password">
+        <small *ngIf="password?.invalid && password?.touched" class="p-error block mt-1">
+          <span *ngIf="password?.errors?.['required']">Password is required</span>
+          <span *ngIf="password?.errors?.['minlength']">Password must be at least 8 characters</span>
+        </small>
+      </div>
+
+      <div class="flex align-items-center justify-content-between mb-6">
+        <div class="flex align-items-center">
+          <p-checkbox inputId="rememberMe" [binary]="true" styleClass="mr-2"></p-checkbox>
+          <label for="rememberMe" class="text-900">Remember me</label>
+        </div>
+      </div>
+
+      <p-message *ngFor="let error of errorMessages" severity="error" [text]="error" styleClass="w-full mb-3"></p-message>
+
+      <button type="submit" 
+              pButton 
+              pRipple 
+              [label]="isLoading ? 'Signing up...' : 'Sign up'" 
+              icon="pi pi-user" 
+              [disabled]="isLoading" 
+              class="w-full">
+        <p-progressSpinner *ngIf="isLoading" [style]="{width: '20px', height: '20px'}" styleClass="ml-2" strokeWidth="4"></p-progressSpinner>
+      </button>
+    </form>
+  </div>
+
+  <app-footer />
+</div>
