@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength, MinLength, Matches, IsArray, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, MinLength, Matches, IsArray, IsNumber } from 'class-validator';
 
 export class CreateOrganizationInput {
   @IsNotEmpty({ message: 'Slug is required' })
@@ -13,12 +13,5 @@ export class CreateOrganizationInput {
   @MinLength(2, { message: 'Name must be at least 2 characters' })
   @MaxLength(100, { message: 'Name must be at most 100 characters' })
   name: string;
-  
-  @IsNotEmpty({ message: 'Owner ID is required' })
-  @IsNumber()
-  ownerId: number;
 
-  @IsOptional()
-  @IsArray({ message: 'Admin IDs must be an array' })
-  adminIds?: number[];
 }

@@ -33,15 +33,11 @@ import { CreateOrganizationInput } from './dto/createOrganization.input';
 import { UpdateOrganizationInput } from './dto/updateOrganization.input';
 import { AddAdminInput } from './dto/addAdmin.input';
 import { OrganizationResponse } from './dto/organization-response';
+import { ErrorResponseDto } from 'src/utils/types';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
-class ErrorResponseDto {
-  statusCode: number;
-  message: string;
-  error: string;
-}
-
-@ApiTags('Organizations')
-@Controller('organizations')
+@ApiTags('Organization')
+@Controller('organization')
 @ApiBearerAuth() // Assuming JWT authentication
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
@@ -79,8 +75,10 @@ export class OrganizationController {
   async create(
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
     createOrganizationInput: CreateOrganizationInput,
+    @CurrentUser() owner,
   ): Promise<Organization> {
-    return await this.organizationService.create(createOrganizationInput);
+    const ownerId = owner?.id;
+    return await this.organizationService.create(ownerId, createOrganizationInput);
   }
 
   @Get()
@@ -110,6 +108,24 @@ export class OrganizationController {
       return await this.organizationService.findByUser(userId);
     }
     return await this.organizationService.findAll();
+  }
+
+  @Get('me')
+  @ApiOperation({
+    summary: 'Get organizations for current user',
+    description: 'Retrieves all organizations owned by the currently authenticated user'
+  })
+  @ApiOkResponse({
+    description: 'Organizations retrieved successfully',
+    type: [OrganizationResponse],
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Failed to fetch organizations',
+    type: ErrorResponseDto,
+  })
+  async findMyOrganizations(@CurrentUser() user): Promise<Organization[]> {
+    const userId = Number(user?.id);
+    return await this.organizationService.findByUser(userId);
   }
 
   @Get(':id')

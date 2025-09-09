@@ -1,13 +1,10 @@
 export interface Organization {
     id: number;
     name: string;
-    abbreviation: string;
+    slug: string;
 }
 
-export interface CreateOrganizationResponse {
-    createOrganization: {
-      success: boolean;
-      message: string;
-      organization: Organization;
-    };
+export interface CreateOrganizationInput {
+    name: string;
+    slug: string;
 }

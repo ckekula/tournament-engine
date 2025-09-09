@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { Organization } from '../../../types/organization';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AddOrgComponent } from '../add-org/add-org.component';
 import { OrgCardComponent } from '../org-card/org-card.component';
+import { OrganizationService } from '../../../services/organization/organization.service';
 
 @Component({
   selector: 'app-org-list',
@@ -17,17 +18,24 @@ import { OrgCardComponent } from '../org-card/org-card.component';
   templateUrl: './org-list.component.html',
   styleUrl: './org-list.component.scss'
 })
-export class OrgListComponent {
+export class OrgListComponent implements OnInit {
+  organizations: Organization[] = [];
 
   constructor(
     private router: Router,
+    private organizationService: OrganizationService
   ) {}
 
-  organizations = [
-    { id: 1, name: 'Nature Co', abbreviation: 'NC' },
-    { id: 2, name: 'Innovate Ltd', abbreviation: 'INNO' },
-    { id: 3, name: 'Tech Corp', abbreviation: 'TC' },
-  ];
+  ngOnInit(): void {
+    this.loadOrganizations();
+  }
+
+  private loadOrganizations(): void {
+    this.organizationService.getMyOrganizations().subscribe({
+      next: (orgs) => this.organizations = orgs,
+      error: (error) => console.error('Failed to load organizations:', error)
+    });
+  }
 
   newOrgVisible = false;
 
@@ -39,7 +47,7 @@ export class OrgListComponent {
     this.organizations = [...this.organizations, org];
   }
 
-  navigateToOrg(orgAbb: string, orgId: number): void {
-    this.router.navigate(['/org', orgAbb, orgId]);
+  navigateToOrg(slug: string, orgId: number): void {
+    this.router.navigate(['/org', slug, orgId]);
   }
 }

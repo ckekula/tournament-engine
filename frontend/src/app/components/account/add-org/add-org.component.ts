@@ -2,8 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { Organization, CreateOrganizationResponse } from '../../../types/organization';
+import { Organization } from '../../../types/organization';
 import { ButtonModule } from 'primeng/button';
+import { OrganizationService } from '../../../services/organization/organization.service';
 
 @Component({
   selector: 'app-add-org',
@@ -24,7 +25,10 @@ export class AddOrgComponent {
 
   organizationForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private organizationService: OrganizationService
+  ) {
     this.organizationForm = this.fb.group({
       id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -38,7 +42,6 @@ export class AddOrgComponent {
 
   submit(): void {
     if (this.organizationForm.valid) {
-      console.log('Form is valid, proceeding with submission');
       const formValue = this.organizationForm.value;
   
       // Convert abbreviation to a valid slug
@@ -48,9 +51,20 @@ export class AddOrgComponent {
         .replace(/[^a-z0-9-]/g, '') // Remove invalid characters
         .slice(0, 20); // Ensure max length of 20 characters
   
-      console.log('Generated slug:', slug);  
-    } else {
-      console.log('Form is invalid, submission aborted');
+      this.organizationService.create({
+        name: formValue.name,
+        slug: slug
+      }).subscribe({
+        next: (organization) => {
+          this.organizationCreated.emit(organization);
+          this.resetForm();
+          this.closeDialog();
+        },
+        error: (error) => {
+          console.error('Failed to create organization:', error);
+          // TODO: Add error handling/notification
+        }
+      });
     }
   }
 

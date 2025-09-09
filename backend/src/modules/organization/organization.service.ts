@@ -87,10 +87,12 @@ export class OrganizationService {
   }
 
   async create(
+    ownerId: number,
     createOrganizationInput: CreateOrganizationInput,
   ): Promise<Organization> {
-    const { slug, name, ownerId, adminIds } = createOrganizationInput;
+    const { slug, name } = createOrganizationInput;
 
+    console.log('Creating organization with slug:', slug, 'and ownerId:', ownerId);
     try {
       // Check if slug already exists
       const existingOrg = await this.organizationRepository.findOne({
@@ -117,23 +119,6 @@ export class OrganizationService {
         owner: ownerUser,
         admins: [ownerUser],
       });
-
-      // Add additional admins if provided
-      if (adminIds && adminIds.length > 0) {
-        for (const adminId of adminIds) {
-          if (adminId !== ownerId) {
-            const admin = await this.userRepository.findOne({
-              where: { id: adminId },
-            });
-            if (!admin) {
-              throw new NotFoundException(
-                `User with ID ${adminId} not found`,
-              );
-            }
-            organization.admins.push(admin);
-          }
-        }
-      }
 
       return await this.organizationRepository.save(organization);
     } catch (error) {

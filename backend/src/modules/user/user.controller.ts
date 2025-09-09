@@ -33,15 +33,10 @@ import { CreateUserInput } from './dto/createUser.input';
 import { UpdateUserInput } from './dto/updateUser.input';
 import { ChangePasswordInput } from './dto/changePassword.input';
 import { UserResponse } from './dto/user-response';
+import { ErrorResponseDto } from 'src/utils/types';
 
-class ErrorResponseDto {
-  statusCode: number;
-  message: string;
-  error: string;
-}
-
-@ApiTags('Users')
-@Controller('users')
+@ApiTags('User')
+@Controller('user')
 @ApiBearerAuth() // Assuming JWT authentication
 export class UserController {
   constructor(private readonly userService: UserService) {}

@@ -24,7 +24,7 @@
           <app-org-card 
             *ngFor="let org of organizations; let i=index" 
             [organization]="org" 
-            (view)="navigateToOrg(organizations[i].abbreviation, organizations[i].id)">
+            (view)="navigateToOrg(organizations[i].slug, organizations[i].id)">
           </app-org-card>
         </div>
       }
