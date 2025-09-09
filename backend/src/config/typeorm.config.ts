@@ -9,6 +9,6 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   url: config.get('DATABASE_URL'),
   synchronize: config.get('TYPEORM_SYNC'),
   ssl: true,
-  entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+  entities: [User, Organization],
   connectTimeoutMS: 30000,
 });

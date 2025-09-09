@@ -55,6 +55,10 @@ export class AuthService {
   async register(registerInput: RegisterInput): Promise<AuthResponse> {
     try {
       const user = await this.userService.create(registerInput);
+
+      if (!user) {
+        throw new InternalServerErrorException('Failed to create user');
+      }
       
       const payload: JwtPayload = { 
         sub: user.id, 

@@ -5,4 +5,12 @@ export class Tournament {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  slug: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  year: number;
 }

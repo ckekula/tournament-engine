@@ -20,7 +20,6 @@ export class AuthInterceptor implements HttpInterceptor {
       console.log('No token found');
     }
 
-
     console.log('Request:', request);
     return next.handle(request).pipe(
       tap(event => {
