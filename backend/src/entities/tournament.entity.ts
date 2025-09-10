@@ -1,16 +1,26 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Organization } from './organization.entity';
 
 @Entity()
 export class Tournament {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  slug: string;
+  @Column({ length: 20, nullable: true })
+  slug?: string;
 
-  @Column()
+  @Column({ length: 100 })
   name: string;
 
-  @Column()
-  year: number;
+  @Column({ length: 20 })
+  season: string;
+
+  @ManyToOne(() => Organization, org => org.organizedTournaments)
+  organizer: Organization;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

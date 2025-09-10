@@ -1,10 +1,15 @@
-
+export interface Organization {
+    id: number;
+    name: string;
+    slug: string;
+}
 
 export interface Tournament {
     id: number;
+    organizerId: number;
     name: string;
-    year: number;
-    abbreviation: string;
+    season?: string;
+    slug: string;
 }
 
 export interface Activity {

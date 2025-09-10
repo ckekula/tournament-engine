@@ -25,6 +25,26 @@
           </small>
         }
       </div>
+
+      <div class="p-field mb-4">
+        <label for="season" class="block mb-2">Season</label>
+        <input 
+          id="season" 
+          pInputText 
+          formControlName="season" 
+          placeholder="Enter tournament season/year"
+          [class.ng-invalid]="tournamentForm.get('season')?.invalid && tournamentForm.get('season')?.touched"
+        />
+        @if (tournamentForm.get('season')?.invalid && tournamentForm.get('season')?.touched) {
+          <small class="p-error block">
+            @if (tournamentForm.get('season')?.errors?.['required']) {
+              Season is required
+            } @else if (tournamentForm.get('season')?.errors?.['minlength']) {
+              Season must be at least 1 characters long
+            }
+          </small>
+        }
+      </div>
   
       <div class="p-field mb-4">
         <label for="abbreviation" class="block mb-2">Abbreviation</label>
@@ -47,7 +67,7 @@
           </small>
         }
       </div>
-  
+
       <div class="p-field">
         <button 
           pButton 

@@ -15,10 +15,6 @@ export class UpdateOrganizationInput {
   name?: string;
 
   @IsOptional()
-  @IsNumber()
-  ownerId?: number;
-
-  @IsOptional()
   @IsArray({ message: 'Admin IDs must be an array' })
   adminIds?: number[];
 }

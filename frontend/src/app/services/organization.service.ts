@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { environment } from '../../environment';
-import { Organization } from '../../types/organization';
-import { AuthService } from '../auth/auth.service';
+import { environment } from '../environment';
+import { Organization } from '../types/models';
+import { AuthService } from './auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +43,7 @@ export class OrganizationService {
   }
 
   getMyOrganizations(): Observable<Organization[]> {
-    return this.http.get<Organization[]>(`${this.API_URL}/me`)
+    return this.http.get<Organization[]>(`${this.API_URL}/user/me`)
         .pipe(
             catchError(error => throwError(() => new Error(error.error?.message || 'Failed to fetch user organizations')))
         );

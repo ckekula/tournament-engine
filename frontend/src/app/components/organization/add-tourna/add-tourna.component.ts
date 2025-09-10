@@ -2,66 +2,78 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { Organization } from '../../../types/models';
 import { ButtonModule } from 'primeng/button';
-import { OrganizationService } from '../../../services/organization.service';
+import { Tournament } from '../../../types/models';
+import { TournamentService } from '../../../services/tournament.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-add-org',
+  selector: 'app-add-tourna',
   imports: [
     DialogModule,
     InputTextModule,
     ReactiveFormsModule,
     ButtonModule
   ],
-  templateUrl: './add-org.component.html',
-  styleUrl: './add-org.component.scss'
+  templateUrl: './add-tourna.component.html',
+  styleUrl: './add-tourna.component.scss'
 })
-export class AddOrgComponent {
+export class AddTournaComponent {
 
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() organizationCreated = new EventEmitter<Organization>();
+  @Output() tournamentCreated = new EventEmitter<Tournament>();
 
-  organizationForm: FormGroup;
+  tournamentForm: FormGroup;
+
+  // get organizerId using route params (:id of current page)
 
   constructor(
     private fb: FormBuilder,
-    private organizationService: OrganizationService
+    private tournamentService: TournamentService,
+    private route: ActivatedRoute
   ) {
-    this.organizationForm = this.fb.group({
+    this.tournamentForm = this.fb.group({
       id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
       abbreviation: ['', [
         Validators.required, 
-        Validators.minLength(3),
-        Validators.maxLength(5)
+        Validators.minLength(2),
+        Validators.maxLength(10)
       ]],
+      season: ['', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(10)
+      ]]
     });
   }
 
   submit(): void {
-    if (this.organizationForm.valid) {
-      const formValue = this.organizationForm.value;
-  
-      // Convert abbreviation to a valid slug
+    if (this.tournamentForm.valid) {
+      const formValue = this.tournamentForm.value;
+      const organizerId = Number(this.route.snapshot.paramMap.get('id'));
+
+      // Convert abbreviation to slug
       const slug = formValue.abbreviation
         .toLowerCase()
         .replace(/\s+/g, '-') // Replace spaces with hyphens
         .replace(/[^a-z0-9-]/g, '') // Remove invalid characters
         .slice(0, 20); // Ensure max length of 20 characters
-  
-      this.organizationService.create({
+
+      this.tournamentService.create({
         name: formValue.name,
-        slug: slug
+        slug: slug,
+        season: formValue.season,
+        organizerId: organizerId
       }).subscribe({
-        next: (organization) => {
-          this.organizationCreated.emit(organization);
+        next: (tournament) => {
+          this.tournamentCreated.emit(tournament);
           this.resetForm();
           this.closeDialog();
         },
         error: (error) => {
-          console.error('Failed to create organization:', error);
+          console.error('Failed to create tournament:', error);
           // TODO: Add error handling/notification
         }
       });
@@ -69,10 +81,10 @@ export class AddOrgComponent {
   }
 
   resetForm(): void {
-    this.organizationForm.reset({
+    this.tournamentForm.reset({
       id: '',
       name: '',
-      abbreviation: ''
+      abbreviation: '',
     });
   }
 

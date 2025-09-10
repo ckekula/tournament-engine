@@ -1,24 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { Organization } from '../../../types/organization';
+import { Organization } from '../../../types/models';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AddOrgComponent } from '../add-org/add-org.component';
 import { OrgCardComponent } from '../org-card/org-card.component';
-import { OrganizationService } from '../../../services/organization/organization.service';
+import { OrganizationService } from '../../../services/organization.service';
 
 @Component({
-  selector: 'app-org-list',
+  selector: 'app-org-section',
   imports: [
     CommonModule,
     ButtonModule,
     AddOrgComponent,
     OrgCardComponent
   ],
-  templateUrl: './org-list.component.html',
-  styleUrl: './org-list.component.scss'
+  templateUrl: './org-section.component.html',
+  styleUrl: './org-section.component.scss'
 })
-export class OrgListComponent implements OnInit {
+export class OrgSectionComponent implements OnInit {
   organizations: Organization[] = [];
 
   constructor(

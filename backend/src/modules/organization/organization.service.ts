@@ -142,7 +142,7 @@ export class OrganizationService {
         throw new NotFoundException(`Organization with ID ${id} not found`);
       }
 
-      const { slug, name, ownerId, adminIds } = updateOrganizationInput;
+      const { slug, name, adminIds } = updateOrganizationInput;
 
       // Check if slug is being updated and already exists
       if (slug && slug !== organization.slug) {
@@ -160,22 +160,6 @@ export class OrganizationService {
       // Update name if provided
       if (name) {
         organization.name = name;
-      }
-
-      // Update owner if provided
-      if (ownerId) {
-        const newOwner = await this.userRepository.findOne({
-          where: { id: ownerId },
-        });
-        if (!newOwner) {
-          throw new NotFoundException(`User with ID ${ownerId} not found`);
-        }
-        organization.owner = newOwner;
-
-        // Ensure owner is in admins list
-        if (!organization.admins.some((a) => a.id === newOwner.id)) {
-          organization.admins.push(newOwner);
-        }
       }
 
       // Update admins if provided
