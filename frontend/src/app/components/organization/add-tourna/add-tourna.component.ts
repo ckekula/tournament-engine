@@ -26,15 +26,12 @@ export class AddTournaComponent {
 
   tournamentForm: FormGroup;
 
-  // get organizerId using route params (:id of current page)
-
   constructor(
     private fb: FormBuilder,
     private tournamentService: TournamentService,
     private route: ActivatedRoute
   ) {
     this.tournamentForm = this.fb.group({
-      id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
       abbreviation: ['', [
         Validators.required, 
@@ -82,7 +79,6 @@ export class AddTournaComponent {
 
   resetForm(): void {
     this.tournamentForm.reset({
-      id: '',
       name: '',
       abbreviation: '',
     });

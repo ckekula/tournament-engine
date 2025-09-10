@@ -69,9 +69,8 @@ export class LoginComponent implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
       next: (response) => {
-        console.log('Login successful', response);
         this.isLoading = false;
-        this.router.navigate(['/account']); // Redirect to dashboard after successful login
+        this.router.navigate(['/account']);
       },
       error: (error) => {
         console.error('Login failed', error);

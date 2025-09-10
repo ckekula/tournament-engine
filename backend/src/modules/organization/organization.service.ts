@@ -92,7 +92,6 @@ export class OrganizationService {
   ): Promise<Organization> {
     const { slug, name } = createOrganizationInput;
 
-    console.log('Creating organization with slug:', slug, 'and ownerId:', ownerId);
     try {
       // Check if slug already exists
       const existingOrg = await this.organizationRepository.findOne({

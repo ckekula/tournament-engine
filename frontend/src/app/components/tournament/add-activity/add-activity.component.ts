@@ -5,8 +5,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Activity } from '../../../types/models';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { ActivityService } from '../../../services/activity.service';
+import { ActivatedRoute } from '@angular/router';
 
-@Component({
+@Component({ 
   selector: 'app-add-activity',
   imports: [
     CommonModule,
@@ -25,31 +27,41 @@ export class AddActivityComponent {
 
   activityForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private activityService: ActivityService,
+    private route: ActivatedRoute
+  ) {
     this.activityForm = this.fb.group({
       id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
-      abbreviation: ['', [
-        Validators.required, 
-        Validators.minLength(2),
-        Validators.maxLength(5)
-      ]],
     });
   }
 
   submit(): void {
     if (this.activityForm.valid) {
-      this.activityCreated.emit(this.activityForm.value);
-      this.resetForm();
-      this.closeDialog();
+      const formValue = this.activityForm.value;
+      const tournamentId = Number(this.route.snapshot.paramMap.get('id'));
+      
+      this.activityService.create({
+        ...formValue,
+        tournamentId
+      }).subscribe({
+        next: (activity) => {
+          this.activityCreated.emit(activity);
+          this.resetForm();
+          this.closeDialog();
+        },
+        error: (error) => {
+          console.error('Error creating activity:', error);
+        }
+      });
     }
   }
 
   resetForm(): void {
     this.activityForm.reset({
-      id: '',
       name: '',
-      abbreviation: ''
     });
   }
 
