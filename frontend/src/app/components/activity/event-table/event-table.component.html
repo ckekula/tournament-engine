@@ -14,9 +14,12 @@
     >
 
     <ng-template pTemplate="caption">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-row justify-between items-center gap-2">
             <span (click)="toggleNewEvent()" class="text-blue-600 font-semibold mt-3 text-left cursor-pointer">
                 Add an event
+            </span>
+            <span (click)="toggleNewCategory()" class="text-blue-600 font-semibold mt-3 text-left cursor-pointer">
+                Add a Category
             </span>
             <p-iconField iconPosition="left" class="ml-auto">
                 <p-inputIcon>
@@ -51,3 +54,8 @@
     [(visible)]="newEventVisible" 
     (eventCreated)="addEvent($event)">
 </app-add-event>
+
+<app-add-category
+    [(visible)]="newCategoryVisible" 
+    (categoryCreated)="addCategory($event)">
+</app-add-category>

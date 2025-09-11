@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsString, IsNumber, MaxLength, MinLength, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, MaxLength, MinLength } from 'class-validator';
 
-export class CreateEventInput {
+export class CreateCategoryInput {
   @IsNotEmpty({ message: 'Name is required' })
   @IsString({ message: 'Name must be a string' })
   @MinLength(2, { message: 'Name must be at least 2 characters' })
@@ -10,8 +10,4 @@ export class CreateEventInput {
   @IsNotEmpty({ message: 'Activity ID is required' })
   @IsNumber({}, { message: 'Activity ID must be a number' })
   activityId: number;
-
-  @IsArray({ message: 'Category IDs must be an array' })
-  @IsNumber({}, { each: true, message: 'Each Category ID must be a number' })
-  categoryIds?: number[];
 }

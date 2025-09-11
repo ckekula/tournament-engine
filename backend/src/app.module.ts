@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { TournamentModule } from './modules/tournament/tournament.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { EventModule } from './modules/event/event.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { EventModule } from './modules/event/event.module';
     OrganizationModule,
     TournamentModule,
     ActivityModule,
-    EventModule
+    EventModule,
+    CategoryModule
   ],
   providers: [],
 })

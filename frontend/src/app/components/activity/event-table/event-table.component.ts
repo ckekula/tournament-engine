@@ -10,6 +10,7 @@ import { TableModule } from 'primeng/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { _Event } from '../../../types/models';
 import { AddEventComponent } from '../add-event/add-event.component';
+import { AddCategoryComponent } from '../add-category/add-category.component';
 
 @Component({
   selector: 'app-event-table',
@@ -22,7 +23,8 @@ import { AddEventComponent } from '../add-event/add-event.component';
     MultiSelectModule, 
     SelectModule, 
     CommonModule,
-    AddEventComponent
+    AddEventComponent,
+    AddCategoryComponent
   ],
   templateUrl: './event-table.component.html',
   styleUrl: './event-table.component.scss'
@@ -30,8 +32,12 @@ import { AddEventComponent } from '../add-event/add-event.component';
 export class EventTableComponent {
 
   events: _Event [] = [
-    { id: 1, name: 'Basketball - Men', category: 'Men' },
-    { id: 2, name: 'Basketball - Women', category: 'Women' },
+    { id: 1, name: 'Basketball - Men', categories: [] },
+    { id: 2, name: 'Basketball - Women', categories: [1, 2] },
+  ]
+
+  categories = [
+    { id: 1, name: 'Under 18' },
   ]
 
   selectedEvent!: _Event;
@@ -44,6 +50,7 @@ export class EventTableComponent {
   ) {}
 
   newEventVisible = false;
+  newCategoryVisible = false;
 
   onGlobalFilter(event: Event, dt2: any) {
     const inputValue = (event.target as HTMLInputElement).value;
@@ -63,7 +70,15 @@ export class EventTableComponent {
     this.newEventVisible = true;
   }
 
+  toggleNewCategory(): void {
+    this.newCategoryVisible = true;
+  }
+
   addEvent(event: _Event): void {
     this.events = [...this.events, event];
+  }
+
+  addCategory(category: any): void {
+    this.categories = [...this.categories, category];
   }
 }

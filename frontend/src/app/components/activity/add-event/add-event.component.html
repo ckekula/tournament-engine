@@ -1,7 +1,7 @@
 <p-dialog 
   [(visible)]="visible" 
   (visibleChange)="visibleChange.emit($event)"
-  header="Create Organization" 
+  header="Create Event" 
   [modal]="true" 
   [style]="{ width: '450px' }">
   <form [formGroup]="eventForm" (ngSubmit)="submit()">
@@ -17,22 +17,22 @@
       </div>
   
       <div class="p-field mb-4">
-        <label for="category" class="block mb-2">Category</label>
+        <label for="categories" class="block mb-2">Categories</label>
         <input 
-          id="category" 
+          id="categories" 
           pInputText 
-          formControlName="category" 
-          placeholder="Enter category (2-5 characters)"
-          [class.ng-invalid]="eventForm.get('category')?.invalid && eventForm.get('category')?.touched"
+          formControlName="categories" 
+          placeholder="Enter categories (2-5 characters)"
+          [class.ng-invalid]="eventForm.get('categories')?.invalid && eventForm.get('categories')?.touched"
         />
-        @if (eventForm.get('category')?.invalid && eventForm.get('category')?.touched) {
+        @if (eventForm.get('categories')?.invalid && eventForm.get('categories')?.touched) {
           <small class="p-error block">
-            @if (eventForm.get('category')?.errors?.['required']) {
-              category is required
-            } @else if (eventForm.get('category')?.errors?.['minlength']) {
-              category must be at least 2 characters
-            } @else if (eventForm.get('category')?.errors?.['maxlength']) {
-              category cannot exceed 5 characters
+            @if (eventForm.get('categories')?.errors?.['required']) {
+              categories is required
+            } @else if (eventForm.get('categories')?.errors?.['minlength']) {
+              categories must be at least 2 characters
+            } @else if (eventForm.get('categories')?.errors?.['maxlength']) {
+              categories cannot exceed 5 characters
             }
           </small>
         }

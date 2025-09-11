@@ -5,12 +5,13 @@ import { Organization } from '../entities/organization.entity';
 import { Tournament } from 'src/entities/tournament.entity';
 import { Activity } from 'src/entities/activity.entity';
 import { Event } from 'src/entities/event.entity';
+import { Category } from 'src/entities/category.entity';
 
 export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
   url: config.get('DATABASE_URL'),
   synchronize: config.get('TYPEORM_SYNC'),
   ssl: true,
-  entities: [User, Organization, Tournament, Activity, Event],
+  entities: [User, Organization, Tournament, Activity, Event, Category],
   connectTimeoutMS: 30000,
 });

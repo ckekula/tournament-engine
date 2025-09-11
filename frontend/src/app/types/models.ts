@@ -20,7 +20,12 @@ export interface Activity {
 export interface _Event {
     id: number;
     name: string;
-    category: string;
+    categories: number[];
+}
+
+export interface Category {
+    id: number;
+    name: string;
 }
 
 export interface Stage {

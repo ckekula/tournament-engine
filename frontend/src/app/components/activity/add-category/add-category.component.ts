@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { _Event } from '../../../types/models';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { Category } from '../../../types/models';
 
 @Component({
-  selector: 'app-add-event',
+  selector: 'app-add-category',
   imports: [
     CommonModule,
     DialogModule,
@@ -15,13 +15,13 @@ import { CommonModule } from '@angular/common';
     ReactiveFormsModule,
     ButtonModule
   ],
-  templateUrl: './add-event.component.html',
-  styleUrl: './add-event.component.scss'
+  templateUrl: './add-category.component.html',
+  styleUrl: './add-category.component.scss'
 })
-export class AddEventComponent {
+export class AddCategoryComponent {
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() eventCreated = new EventEmitter<_Event>();
+  @Output() categoryCreated = new EventEmitter<Category>();
 
   eventForm: FormGroup;
 
@@ -29,13 +29,12 @@ export class AddEventComponent {
     this.eventForm = this.fb.group({
       id: [''],
       name: [''],
-      categories: ['', [Validators.required, Validators.minLength(2)]],
     });
   }
 
   submit(): void {
     if (this.eventForm.valid) {
-      this.eventCreated.emit(this.eventForm.value);
+      this.categoryCreated.emit(this.eventForm.value);
       this.resetForm();
       this.closeDialog();
     }
@@ -45,7 +44,6 @@ export class AddEventComponent {
     this.eventForm.reset({
       id: '',
       name: '',
-      categories: ''
     });
   }
 

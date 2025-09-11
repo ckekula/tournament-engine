@@ -1,9 +1,9 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Activity } from './activity.entity';
-import { Category } from './category.entity';
+import { Event } from './event.entity';
 
 @Entity()
-export class Event {
+export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -13,9 +13,8 @@ export class Event {
   @ManyToOne(() => Activity, activity => activity.events)
   activity: Activity;
 
-  @JoinTable()
-  @ManyToMany(() => Category, category => category.events)
-  categories: Category[];
+  @ManyToMany(() => Event, event => event.categories)
+  events: Event[];
 
   @CreateDateColumn()
   createdAt: Date;

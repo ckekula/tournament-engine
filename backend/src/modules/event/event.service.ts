@@ -5,12 +5,13 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Event } from "src/entities/event.entity";
 import { Activity } from "src/entities/activity.entity";
 import { User } from "src/entities/user.entity";
 import { CreateEventInput } from "./dto/createEvent.input";
 import { UpdateEventInput } from "./dto/updateEvent.input";
+import { Category } from "src/entities/category.entity";
 
 @Injectable()
 export class EventService {
@@ -66,11 +67,60 @@ export class EventService {
     }
   }
 
+  async addCategories(eventId: number, categoryIds: number[]): Promise<Event> {
+    try {
+      const event = await this.eventRepository.findOne({
+        where: { id: eventId },
+        relations: ["categories"],
+      });
+
+      if (!event) {
+        throw new NotFoundException(`Event with ID ${eventId} not found`);
+      }
+
+      const categories = await this.eventRepository.manager.find(Category, {
+        where: { id: In(categoryIds) },
+      });
+
+      if (categories.length !== categoryIds.length) {
+        const foundIds = categories.map((c) => c.id);
+        const missingIds = categoryIds.filter((id) => !foundIds.includes(id));
+        throw new NotFoundException(
+          `Categories with IDs [${missingIds.join(", ")}] not found`,
+        );
+      }
+
+      // Filter out already associated categories
+      const existingIds = event.categories.map((cat) => cat.id);
+      const newCategories = categories.filter(
+        (cat) => !existingIds.includes(cat.id),
+      );
+
+      if (newCategories.length === 0) {
+        throw new ConflictException(
+          `All provided categories are already associated with Event ID ${eventId}`,
+        );
+      }
+
+      event.categories.push(...newCategories);
+      return await this.eventRepository.save(event);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException || error instanceof ConflictException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Failed to add categories to event`,
+      );
+    }
+  }
+
   async create(
     createEventInput: CreateEventInput,
     userId: number,
   ): Promise<Event> {
-    const { name, activityId } = createEventInput;
+    const { name, activityId, categoryIds } = createEventInput;
 
     try {
       const activity = await this.activityRepository.findOne({
@@ -104,12 +154,16 @@ export class EventService {
       }
 
       const event = this.eventRepository.create({ name, activity });
-      return await this.eventRepository.save(event);
+      await this.eventRepository.save(event);
+
+      // Add categories
+      if (categoryIds && categoryIds.length > 0) {
+        await this.addCategories(event.id, categoryIds);
+      }
+
+      return event;
     } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof ConflictException
-      )
+      if (error instanceof NotFoundException || error instanceof ConflictException)
         throw error;
       throw new InternalServerErrorException("Failed to create event");
     }
