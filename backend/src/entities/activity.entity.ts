@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Organization } from './organization.entity';
 import { Tournament } from './tournament.entity';
+import { Event } from './event.entity';
 
 @Entity()
 export class Activity {
@@ -12,6 +13,9 @@ export class Activity {
 
   @ManyToOne(() => Tournament, tourna => tourna.activities)
   tournament: Tournament;
+
+  @OneToMany(() => Event, event => event.activity)
+  events: Event[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException, ConflictException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Activity } from "src/entities/activity.entity";
-import { Organization } from "src/entities/organization.entity";
 import { Tournament } from "src/entities/tournament.entity";
 import { User } from "src/entities/user.entity";
 import { Repository } from "typeorm";

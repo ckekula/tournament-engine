@@ -6,6 +6,7 @@ import { CreateTournamentInput } from "./dto/createTournament.input";
 import { UpdateTournamentInput } from "./dto/updateTournament.input";
 import { ErrorResponseDto } from "src/utils/types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
+import { TournamentResponse } from "./dto/tournament-response";
 
 @ApiTags('Tournament')
 @Controller('tournament')
@@ -25,7 +26,7 @@ export class TournamentController {
   })
   @ApiCreatedResponse({
     description: 'Tournament successfully created',
-    type: Tournament,
+    type: TournamentResponse,
   })
   @ApiConflictResponse({
     description: 'Tournament slug already exists',
@@ -64,7 +65,7 @@ export class TournamentController {
   })
   @ApiOkResponse({
     description: 'List of tournaments retrieved successfully',
-    type: [Tournament],
+    type: [TournamentResponse],
   })
   @ApiInternalServerErrorResponse({
     description: 'Failed to fetch tournaments',
@@ -92,7 +93,7 @@ export class TournamentController {
   })
   @ApiOkResponse({
     description: 'Tournament retrieved successfully',
-    type: Tournament,
+    type: TournamentResponse,
   })
   @ApiNotFoundResponse({
     description: 'Tournament not found',
@@ -123,7 +124,7 @@ export class TournamentController {
   })
   @ApiOkResponse({
     description: 'Tournament retrieved successfully',
-    type: Tournament,
+    type: TournamentResponse,
   })
   @ApiNotFoundResponse({
     description: 'Tournament not found',
@@ -150,7 +151,7 @@ export class TournamentController {
   })
   @ApiOkResponse({
     description: 'Tournaments retrieved successfully',
-    type: [Tournament],
+    type: [TournamentResponse],
   })
   @ApiBadRequestResponse({
     description: 'Invalid organization ID format',
@@ -183,7 +184,7 @@ export class TournamentController {
   })
   @ApiOkResponse({
     description: 'Tournament updated successfully',
-    type: Tournament,
+    type: TournamentResponse,
   })
   @ApiNotFoundResponse({
     description: 'Tournament not found',

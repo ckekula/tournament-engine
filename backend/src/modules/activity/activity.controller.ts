@@ -6,6 +6,7 @@ import { CreateActivityInput } from "./dto/createActivity.input";
 import { UpdateActivityInput } from "./dto/updateActivity.input";
 import { ErrorResponseDto } from "src/utils/types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
+import { ActivityResponse } from "./dto/activity-response";
 
 @ApiTags('Activity')
 @Controller('activity')
@@ -25,7 +26,7 @@ export class ActivityController {
   })
   @ApiCreatedResponse({
     description: 'Activity successfully created',
-    type: Activity,
+    type: ActivityResponse
   })
   @ApiNotFoundResponse({
     description: 'Tournament not found',
@@ -53,7 +54,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: 'List of activities retrieved successfully',
-    type: [Activity],
+    type: [ActivityResponse],
   })
   @ApiInternalServerErrorResponse({
     description: 'Failed to fetch activities',
@@ -76,7 +77,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: 'Activity retrieved successfully',
-    type: Activity,
+    type: ActivityResponse
   })
   @ApiNotFoundResponse({
     description: 'Activity not found',
@@ -107,7 +108,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: 'Activities retrieved successfully',
-    type: [Activity],
+    type: [ActivityResponse],
   })
   @ApiBadRequestResponse({
     description: 'Invalid tournament ID format',
@@ -140,7 +141,7 @@ export class ActivityController {
   })
   @ApiOkResponse({
     description: 'Activity updated successfully',
-    type: Activity,
+    type: ActivityResponse
   })
   @ApiNotFoundResponse({
     description: 'Activity not found',

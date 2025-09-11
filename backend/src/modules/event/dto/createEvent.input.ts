@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsNumber, MaxLength, MinLength, Matches } from 'class-validator';
 
-export class UpdateActivityInput {
+export class CreateEventInput {
   @IsNotEmpty({ message: 'Name is required' })
   @IsString({ message: 'Name must be a string' })
   @MinLength(2, { message: 'Name must be at least 2 characters' })
