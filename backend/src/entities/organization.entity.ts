@@ -7,12 +7,10 @@ export class Organization {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @Column({ length: 20 })
-  @Column()
+  @Column({ length: 20 })
   slug: string;
 
-  // @Column({ length: 100 })
-  @Column()
+  @Column({ length: 100 })
   name: string;
 
   @ManyToOne(() => User, user => user.ownedOrganizations)

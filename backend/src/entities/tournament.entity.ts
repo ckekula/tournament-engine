@@ -7,8 +7,8 @@ export class Tournament {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 20, nullable: true })
-  slug?: string;
+  @Column({ length: 20 })
+  slug: string;
 
   @Column({ length: 100 })
   name: string;

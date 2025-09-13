@@ -4,7 +4,6 @@ import { Category } from './category.entity';
 import { Matches } from 'class-validator';
 
 @Entity()
-@Unique(['tournament', 'name'])
 export class Event {
   @PrimaryGeneratedColumn()
   id: number;
