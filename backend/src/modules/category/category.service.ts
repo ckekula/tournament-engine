@@ -24,9 +24,7 @@ export class CategoryService {
 
   async findAll(): Promise<Category[]> {
     try {
-      return await this.categoryRepository.find({
-        relations: ["activity", "activity.tournament"],
-      });
+      return await this.categoryRepository.find();
     } catch (error) {
       throw new InternalServerErrorException("Failed to fetch categories");
     }
@@ -36,7 +34,6 @@ export class CategoryService {
     try {
       const category = await this.categoryRepository.findOne({
         where: { id },
-        relations: ["activity", "activity.tournament"],
       });
 
       if (!category) {
@@ -56,7 +53,7 @@ export class CategoryService {
     try {
       return await this.categoryRepository.find({
         where: { activity: { id: activityId } },
-        relations: ["activity", "activity.tournament"],
+        relations: ["activity"],
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -69,17 +66,19 @@ export class CategoryService {
     createCategoryInput: CreateCategoryInput,
     userId: number,
   ): Promise<Category> {
-    const { name, activityId } = createCategoryInput;
+    const { name, activitySlug, tournamentId } = createCategoryInput;
 
     try {
-      const activity = await this.activityRepository.findOne({
-        where: { id: activityId },
-        relations: ["tournament", "tournament.organizer"],
-      });
+      const activity = await this.activityRepository
+        .createQueryBuilder('activity')
+        .leftJoin('activity.tournament', 'tournament')
+        .where('activity.slug = :slug', { slug: activitySlug })
+        .andWhere('tournament.id = :tournamentId', { tournamentId })
+        .getOne();
 
       if (!activity) {
         throw new NotFoundException(
-          `Activity with ID ${activityId} not found`,
+          `Activity with slug ${activitySlug} not found`,
         );
       }
 

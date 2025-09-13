@@ -26,9 +26,7 @@ export class EventService {
 
   async findAll(): Promise<Event[]> {
     try {
-      return await this.eventRepository.find({
-        relations: ["activity", "activity.tournament"],
-      });
+      return await this.eventRepository.find();
     } catch (error) {
       throw new InternalServerErrorException("Failed to fetch events");
     }
@@ -38,7 +36,6 @@ export class EventService {
     try {
       const event = await this.eventRepository.findOne({
         where: { id },
-        relations: ["activity", "activity.tournament"],
       });
 
       if (!event) {
@@ -58,7 +55,7 @@ export class EventService {
     try {
       return await this.eventRepository.find({
         where: { activity: { id: activityId } },
-        relations: ["activity", "activity.tournament"],
+        relations: ["activity"],
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -71,7 +68,6 @@ export class EventService {
     try {
       const event = await this.eventRepository.findOne({
         where: { id: eventId },
-        relations: ["categories"],
       });
 
       if (!event) {
@@ -120,17 +116,19 @@ export class EventService {
     createEventInput: CreateEventInput,
     userId: number,
   ): Promise<Event> {
-    const { name, activityId, categoryIds } = createEventInput;
+    const { name, activitySlug, tournamentId, categoryIds } = createEventInput;
 
     try {
-      const activity = await this.activityRepository.findOne({
-        where: { id: activityId },
-        relations: ["tournament", "tournament.organizer"],
-      });
+      const activity = await this.activityRepository
+        .createQueryBuilder('activity')
+        .leftJoin('activity.tournament', 'tournament')
+        .where('activity.slug = :slug', { slug: activitySlug })
+        .andWhere('tournament.id = :tournamentId', { tournamentId })
+        .getOne();
 
       if (!activity) {
         throw new NotFoundException(
-          `Activity with ID ${activityId} not found`,
+          `Activity with slug ${activitySlug} not found`,
         );
       }
 
@@ -173,7 +171,6 @@ export class EventService {
     try {
       const event = await this.eventRepository.findOne({
         where: { id },
-        relations: ["activity", "activity.tournament"],
       });
 
       if (!event) {

@@ -34,8 +34,8 @@ export class CategoryService {
       );
   }
 
-  create(category: Partial<Category>, userId: number): Observable<Category> {
-    return this.http.post<Category>(`${this.API_URL}?userId=${userId}`, category)
+  create(category: Partial<Category>): Observable<Category> {
+    return this.http.post<Category>(this.API_URL, category)
       .pipe(
         catchError(error => throwError(() => new Error(error.error?.message || 'Failed to create category')))
       );

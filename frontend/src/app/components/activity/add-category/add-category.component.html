@@ -4,7 +4,7 @@
   header="Create Category" 
   [modal]="true" 
   [style]="{ width: '450px' }">
-  <form [formGroup]="eventForm" (ngSubmit)="submit()">
+  <form [formGroup]="categoryForm" (ngSubmit)="submit()">
     <div class="p-fluid">
       <div class="p-field mb-4">
         <label for="name" class="block mb-2">Category Name</label>
@@ -12,7 +12,7 @@
           id="name" 
           pInputText 
           formControlName="name" 
-          placeholder="Enter event name (optional)"
+          placeholder="Enter category name (optional)"
         />
       </div>
   
@@ -21,7 +21,7 @@
           pButton 
           type="submit" 
           label="Create" 
-          [disabled]="eventForm.invalid" 
+          [disabled]="categoryForm.invalid" 
           class="p-button-primary">
         </button>
         <button 

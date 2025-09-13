@@ -34,15 +34,8 @@ export class EventService {
       );
   }
 
-  addCategories(eventId: number, categoryIds: number[]): Observable<_Event> {
-    return this.http.post<_Event>(`${this.API_URL}/${eventId}/categories`, { categoryIds })
-      .pipe(
-        catchError(error => throwError(() => new Error(error.error?.message || `Failed to add categories to event ID ${eventId}`)))
-      );
-  }
-
-  create(event: Partial<_Event>, userId: number): Observable<_Event> {
-    return this.http.post<_Event>(`${this.API_URL}?userId=${userId}`, event)
+  create(event: Partial<_Event>): Observable<_Event> {
+    return this.http.post<_Event>(this.API_URL, event)
       .pipe(
         catchError(error => throwError(() => new Error(error.error?.message || 'Failed to create event')))
       );
