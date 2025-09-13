@@ -58,12 +58,12 @@ export class EventTableComponent {
   }
 
   navigateToEvent(category: string) {
-    const tournaSlug = this.route.snapshot.paramMap.get('tournaSlug');
-    const tournaId = this.route.snapshot.paramMap.get('id');
-    const actSlug = this.route.snapshot.paramMap.get('actSlug');
+    const tournamentSlug = this.route.snapshot.paramMap.get('tournamentSlug');
+    const tournamentId = this.route.snapshot.paramMap.get('id');
+    const activitySlug = this.route.snapshot.paramMap.get('activitySlug');
     const categorySlug = category.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
-    this.router.navigate([tournaSlug, tournaId, actSlug, categorySlug], { relativeTo: this.route.root });
+    this.router.navigate([tournamentSlug, tournamentId, activitySlug, categorySlug], { relativeTo: this.route.root });
   }
 
   toggleNewEvent(): void {

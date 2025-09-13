@@ -5,6 +5,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { Category } from '../../../types/models';
+import { CategoryService } from '../../../services/category.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-add-category',
@@ -23,25 +25,45 @@ export class AddCategoryComponent {
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() categoryCreated = new EventEmitter<Category>();
 
-  eventForm: FormGroup;
+  categoryForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
-    this.eventForm = this.fb.group({
+  constructor(
+    private fb: FormBuilder,
+    private categoryService: CategoryService,
+    private route: ActivatedRoute
+  ) {
+    this.categoryForm = this.fb.group({
       id: [''],
       name: [''],
     });
   }
 
   submit(): void {
-    if (this.eventForm.valid) {
-      this.categoryCreated.emit(this.eventForm.value);
-      this.resetForm();
-      this.closeDialog();
+    if (this.categoryForm.valid) {
+      const formValue = this.categoryForm.value;
+      const tournamentId = Number(this.route.snapshot.paramMap.get('id'));
+      const activityId = this.route.snapshot.paramMap.get('activitySlug');
+      
+      this.categoryService.create({
+        ...formValue,
+        tournamentId,
+        activityId
+      }).subscribe({
+        next: (category) => {
+          this.categoryCreated.emit(category);
+          this.resetForm();
+          this.closeDialog();
+        },
+        error: (error) => {
+          console.error('Error creating category:', error);
+        }
+      });
+
     }
   }
 
   resetForm(): void {
-    this.eventForm.reset({
+    this.categoryForm.reset({
       id: '',
       name: '',
     });
