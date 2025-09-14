@@ -10,7 +10,7 @@ import { Category } from 'src/entities/category.entity';
 export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
   url: config.get('DATABASE_URL'),
-  synchronize: config.get('TYPEORM_SYNC'),
+  synchronize: false,
   ssl: true,
   entities: [User, Organization, Tournament, Activity, Event, Category],
   connectTimeoutMS: 30000,

@@ -48,6 +48,6 @@ export class OrgSectionComponent implements OnInit {
   }
 
   navigateToOrg(slug: string, orgId: number): void {
-    this.router.navigate(['/org', slug, orgId]);
+    this.router.navigate([`org/${orgId}-${slug}`]);
   }
 }

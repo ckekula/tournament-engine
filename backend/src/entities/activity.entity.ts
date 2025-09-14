@@ -1,10 +1,10 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Organization } from './organization.entity';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Tournament } from './tournament.entity';
 import { Event } from './event.entity';
 import { Matches } from 'class-validator';
 
 @Entity()
+@Unique(['name', 'tournament'])
 export class Activity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -17,8 +17,6 @@ export class Activity {
 
   @ManyToOne(() => Tournament, tourna => tourna.activities)
   tournament: Tournament;
-
-  tournamentId: number;
 
   @OneToMany(() => Event, event => event.activity)
   events: Event[];

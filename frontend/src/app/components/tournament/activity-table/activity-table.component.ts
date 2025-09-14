@@ -59,12 +59,10 @@ export class ActivityTableComponent implements OnInit {
     dt2.filterGlobal(inputValue, 'contains');
   }
 
-  navigateToActivity(activityName: string) {
-    const tournaSlug = this.route.snapshot.paramMap.get('slug');
-    const tournaId = this.route.snapshot.paramMap.get('id');
-    const actName = activityName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+  navigateToActivity(activityId: number, activityName: string) {
+    const activitySlug = activityName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
-    this.router.navigate([tournaSlug, tournaId, actName], { relativeTo: this.route.root });
+    this.router.navigate([`${activityId}-${activitySlug}`], { relativeTo: this.route });
   }
 
   toggleNewActivity(): void {

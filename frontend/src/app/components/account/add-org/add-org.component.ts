@@ -30,7 +30,6 @@ export class AddOrgComponent {
     private organizationService: OrganizationService
   ) {
     this.organizationForm = this.fb.group({
-      id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
       abbreviation: ['', [
         Validators.required, 
@@ -70,7 +69,6 @@ export class AddOrgComponent {
 
   resetForm(): void {
     this.organizationForm.reset({
-      id: '',
       name: '',
       abbreviation: ''
     });

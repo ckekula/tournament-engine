@@ -7,19 +7,27 @@ import { OrganizationComponent } from './pages/organization/organization.compone
 import { TournamentComponent } from './pages/tournament/tournament.component';
 import { ActivityComponent } from './pages/activity/activity.component';
 import { EventComponent } from './pages/event/event.component';
+import { AuthGuard } from './services/auth/auth.guard';
+
+export const organizationPath = 'org/:organizationId-:organizationSlug';
+export const tournamentPath = ':tournamentId-:tournamentSlug';
+export const activityPath = ':activityId-:activitySlug';
+export const eventPath = ':eventId-:eventSlug';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent },
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
-    { 
-        path: 'account',
-        component: AccountComponent,
-        // canActivate: [AuthGuard]
-    },
-    { path: 'org/:slug/:id', component: OrganizationComponent },
-    { path: ':slug/:id', component: TournamentComponent },
-    { path: ':tournamentSlug/:id/:activitySlug', component: ActivityComponent },
-    { path: ':tournamentSlug/:id/:activitySlug/:eventSlug', component: EventComponent },
-    // { path: ':tournaSlug/:tournaId/:actSlug/:catSlug/:matchSlug/:matchId', component: MatchComponent },
+  { path: '', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  {
+    path: 'account',
+    component: AccountComponent,
+    canActivate: [AuthGuard],
+  },
+  { path: organizationPath, component: OrganizationComponent },
+
+  // Tournament hierarchy
+  { path: tournamentPath, component: TournamentComponent },
+  { path: `${tournamentPath}/${activityPath}`, component: ActivityComponent },
+  { path: `${tournamentPath}/${activityPath}/${eventPath}`, component: EventComponent },
+  // { path: `${tournamentPath}/${activityPath}/${eventPath}/${matchPath}`, component: MatchComponent },
 ];

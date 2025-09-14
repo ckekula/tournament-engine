@@ -33,7 +33,6 @@ export class AddCategoryComponent {
     private route: ActivatedRoute
   ) {
     this.categoryForm = this.fb.group({
-      id: [''],
       name: [''],
     });
   }
@@ -42,12 +41,12 @@ export class AddCategoryComponent {
     if (this.categoryForm.valid) {
       const formValue = this.categoryForm.value;
       const tournamentId = Number(this.route.snapshot.paramMap.get('id'));
-      const activityId = this.route.snapshot.paramMap.get('activitySlug');
+      const activitySlug = this.route.snapshot.paramMap.get('activitySlug');
       
       this.categoryService.create({
         ...formValue,
         tournamentId,
-        activityId
+        activitySlug
       }).subscribe({
         next: (category) => {
           this.categoryCreated.emit(category);
@@ -64,7 +63,6 @@ export class AddCategoryComponent {
 
   resetForm(): void {
     this.categoryForm.reset({
-      id: '',
       name: '',
     });
   }

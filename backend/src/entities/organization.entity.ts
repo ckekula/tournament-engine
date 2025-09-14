@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { Tournament } from './tournament.entity';
+import { Matches } from 'class-validator';
 
 @Entity()
 export class Organization {
@@ -11,6 +12,9 @@ export class Organization {
   slug: string;
 
   @Column({ length: 100 })
+  @Matches(/^[A-Za-z0-9 ]+$/, {
+    message: 'Organization name can only contain letters, numbers, and spaces',
+  })
   name: string;
 
   @ManyToOne(() => User, user => user.ownedOrganizations)

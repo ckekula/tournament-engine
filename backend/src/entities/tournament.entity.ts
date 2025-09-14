@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Organization } from './organization.entity';
 import { Activity } from './activity.entity';
+import { Matches } from 'class-validator';
 
 @Entity()
 export class Tournament {
@@ -11,6 +12,9 @@ export class Tournament {
   slug: string;
 
   @Column({ length: 100 })
+  @Matches(/^[A-Za-z0-9 ]+$/, {
+    message: 'Tournament name can only contain letters, numbers, and spaces',
+  })
   name: string;
 
   @Column({ length: 20 })

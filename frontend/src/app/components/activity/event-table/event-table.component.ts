@@ -57,13 +57,10 @@ export class EventTableComponent {
     dt2.filterGlobal(inputValue, 'contains');
   }
 
-  navigateToEvent(category: string) {
-    const tournamentSlug = this.route.snapshot.paramMap.get('tournamentSlug');
-    const tournamentId = this.route.snapshot.paramMap.get('id');
-    const activitySlug = this.route.snapshot.paramMap.get('activitySlug');
-    const categorySlug = category.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+  navigateToEvent(eventId: number, eventName: string) {
+    const eventSlug = eventName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
-    this.router.navigate([tournamentSlug, tournamentId, activitySlug, categorySlug], { relativeTo: this.route.root });
+    this.router.navigate([`${eventId}-${eventSlug}`], { relativeTo: this.route });
   }
 
   toggleNewEvent(): void {

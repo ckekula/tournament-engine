@@ -33,7 +33,6 @@ export class AddActivityComponent {
     private route: ActivatedRoute
   ) {
     this.activityForm = this.fb.group({
-      id: [''],
       name: ['', [Validators.required, Validators.minLength(2)]],
     });
   }

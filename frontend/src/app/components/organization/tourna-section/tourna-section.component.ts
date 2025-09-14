@@ -51,6 +51,6 @@ export class TournaSectionComponent implements OnInit {
   }
 
   navigateToTourna(tournaAbb: string, tournaId: number) {
-    this.router.navigate([`${tournaAbb}/${tournaId}`]);
+    this.router.navigate([`${tournaId}-${tournaAbb}`]);
   }
 }
