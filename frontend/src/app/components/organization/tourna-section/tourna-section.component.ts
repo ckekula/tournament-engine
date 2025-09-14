@@ -29,7 +29,8 @@ export class TournaSectionComponent implements OnInit {
   tournaments: Tournament[] = [];
 
   ngOnInit(): void {
-    const organizerId = Number(this.route.snapshot.paramMap.get('id'));
+    const organizerId = Number(this.route.snapshot.paramMap.get('organizationId'));
+    
     this.tournamentService.getByOrganization(organizerId).subscribe({
       next: (tournaments) => {
         this.tournaments = tournaments;
@@ -51,6 +52,6 @@ export class TournaSectionComponent implements OnInit {
   }
 
   navigateToTourna(tournaAbb: string, tournaId: number) {
-    this.router.navigate([`${tournaId}-${tournaAbb}`]);
+    this.router.navigate([`${tournaId}/${tournaAbb}`]);
   }
 }

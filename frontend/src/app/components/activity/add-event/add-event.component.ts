@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { EventService } from '../../../services/event.service';
 import { CategoryService } from '../../../services/category.service';
-import { ActivityService } from '../../../services/activity.service';
 
 @Component({
   selector: 'app-add-event',
@@ -32,14 +31,10 @@ export class AddEventComponent implements OnInit {
   eventForm: FormGroup;
   categories: Category[] = [];
   loading: boolean = false;
-  activity!: Activity;
-  tournamentId = Number(this.route.snapshot.paramMap.get('id')!);
-  activitySlug = this.route.snapshot.paramMap.get('activitySlug')!;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private activityService: ActivityService,
     private eventService: EventService,
     private categoryService: CategoryService
   ) {
@@ -50,23 +45,16 @@ export class AddEventComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activityService.getByTournamentAndSlug(this.tournamentId, this.activitySlug).subscribe({
-      next: (activity) => {
-        this.activity = activity;
-        this.loading = true;
-        this.categoryService.getByActivity(activity.id).subscribe({
-          next: (categories) => {
-            this.categories = categories;
-            this.loading = false;
-          },
-          error: (err) => {
-            console.error('Error fetching categories:', err);
-            this.loading = false;
-          }
-        });
+    const activityId = Number(this.route.snapshot.paramMap.get('activityId'));
+    this.loading = true;
+    this.categoryService.getByActivity(activityId).subscribe({
+      next: (categories) => {
+        this.categories = categories;
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Error fetching activity:', err);
+        console.error('Error fetching categories:', err);
+        this.loading = false;
       }
     });
   }
@@ -74,12 +62,11 @@ export class AddEventComponent implements OnInit {
   submit(): void {
     if (this.eventForm.valid) {
       const formValue = this.eventForm.value;
+      const activityId = Number(this.route.snapshot.paramMap.get('activityId'));
 
       this.eventService.create({
         ...formValue,
-        tournamentId: this.tournamentId,
-        activitySlug: this.activitySlug,
-        categoryIds: formValue.categories.map((cat: Category) => cat.id)
+        activityId,
       }).subscribe({
         next: (event) => {
           this.eventCreated.emit(event);

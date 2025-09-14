@@ -10,13 +10,9 @@ export class CreateEventInput {
   })
   name: string;
 
-  @IsNotEmpty({ message: 'Activity slug is required' })
-  @IsString({ message: 'Activity slug must be a string' })
-  activitySlug: string;
-
-  @IsNotEmpty({ message: 'Tournament ID is required' })
-  @IsNumber({}, { message: 'Tournament ID must be a number' })
-  tournamentId: number;
+  @IsNotEmpty({ message: 'Activity ID is required' })
+  @IsNumber({}, { message: 'Activity ID must be a number' })
+  activityId: number;
 
   @IsArray({ message: 'Category IDs must be an array' })
   @IsNumber({}, { each: true, message: 'Each Category ID must be a number' })

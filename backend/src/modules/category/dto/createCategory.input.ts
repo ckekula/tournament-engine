@@ -10,11 +10,7 @@ export class CreateCategoryInput {
   })
   name: string;
 
-  @IsNotEmpty({ message: 'Activity slug is required' })
-  @IsString({ message: 'Activity slug must be a string' })
-  activitySlug: string;
-
-  @IsNotEmpty({ message: 'Tournament ID is required' })
-  @IsNumber({}, { message: 'Tournament ID must be a number' })
-  tournamentId: number;
+  @IsNotEmpty({ message: 'Activity ID is required' })
+  @IsString({ message: 'Activity ID must be a string' })
+  activityId: number;
 }

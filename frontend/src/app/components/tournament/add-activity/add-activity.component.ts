@@ -40,7 +40,7 @@ export class AddActivityComponent {
   submit(): void {
     if (this.activityForm.valid) {
       const formValue = this.activityForm.value;
-      const tournamentId = Number(this.route.snapshot.paramMap.get('id'));
+      const tournamentId = Number(this.route.snapshot.paramMap.get('tournamentId'));
       
       this.activityService.create({
         ...formValue,

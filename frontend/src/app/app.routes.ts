@@ -9,10 +9,10 @@ import { ActivityComponent } from './pages/activity/activity.component';
 import { EventComponent } from './pages/event/event.component';
 import { AuthGuard } from './services/auth/auth.guard';
 
-export const organizationPath = 'org/:organizationId-:organizationSlug';
-export const tournamentPath = ':tournamentId-:tournamentSlug';
-export const activityPath = ':activityId-:activitySlug';
-export const eventPath = ':eventId-:eventSlug';
+const organizationPath = 'org/:organizationId/:organizationSlug';
+const tournamentPath = ':tournamentId/:tournamentSlug';
+const activityPath = ':activityId/:activitySlug';
+const eventPath = ':eventId/:eventSlug';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

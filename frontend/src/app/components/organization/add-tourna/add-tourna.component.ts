@@ -49,7 +49,7 @@ export class AddTournaComponent {
   submit(): void {
     if (this.tournamentForm.valid) {
       const formValue = this.tournamentForm.value;
-      const organizerId = Number(this.route.snapshot.paramMap.get('id'));
+      const organizerId = Number(this.route.snapshot.paramMap.get('organizationId'));
 
       // Convert abbreviation to slug
       const slug = formValue.abbreviation

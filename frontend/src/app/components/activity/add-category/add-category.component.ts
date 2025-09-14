@@ -40,13 +40,11 @@ export class AddCategoryComponent {
   submit(): void {
     if (this.categoryForm.valid) {
       const formValue = this.categoryForm.value;
-      const tournamentId = Number(this.route.snapshot.paramMap.get('id'));
-      const activitySlug = this.route.snapshot.paramMap.get('activitySlug');
+      const activityId = this.route.snapshot.paramMap.get('activityId');
       
       this.categoryService.create({
         ...formValue,
-        tournamentId,
-        activitySlug
+        activityId
       }).subscribe({
         next: (category) => {
           this.categoryCreated.emit(category);

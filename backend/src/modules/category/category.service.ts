@@ -66,19 +66,19 @@ export class CategoryService {
     createCategoryInput: CreateCategoryInput,
     userId: number,
   ): Promise<Category> {
-    const { name, activitySlug, tournamentId } = createCategoryInput;
+    const { name, activityId } = createCategoryInput;
 
     try {
-      const activity = await this.activityRepository
-        .createQueryBuilder('activity')
-        .leftJoin('activity.tournament', 'tournament')
-        .where('activity.slug = :slug', { slug: activitySlug })
-        .andWhere('tournament.id = :tournamentId', { tournamentId })
-        .getOne();
+      const activity = await this.activityRepository.findOne({
+        where: { id: activityId },
+        relations: ["tournament", "tournament.organizer"],
+      });
+
+      console.log('Activity fetched:', activity);
 
       if (!activity) {
         throw new NotFoundException(
-          `Activity with slug ${activitySlug} not found`,
+          `Activity with ID ${activityId} not found`,
         );
       }
 
@@ -104,6 +104,7 @@ export class CategoryService {
       const category = this.categoryRepository.create({ name, activity });
       return await this.categoryRepository.save(category);
     } catch (error) {
+      console.error('Error in category creation:', error);
       if (
         error instanceof NotFoundException || error instanceof ConflictException
       )

@@ -34,7 +34,7 @@
         </div>
     </ng-template>
 
-    <ng-template *ngFor="let event of events" pTemplate="body" let-event>
+    <ng-template pTemplate="body" let-event>
         <tr [pSelectableRow]="event">
             <td>
                 {{ event.name }}

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -8,9 +8,10 @@ import { SelectModule } from 'primeng/select';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ActivatedRoute, Router } from '@angular/router';
-import { _Event } from '../../../types/models';
+import { _Event, Category } from '../../../types/models';
 import { AddEventComponent } from '../add-event/add-event.component';
 import { AddCategoryComponent } from '../add-category/add-category.component';
+import { EventService } from '../../../services/event.service';
 
 @Component({
   selector: 'app-event-table',
@@ -29,28 +30,34 @@ import { AddCategoryComponent } from '../add-category/add-category.component';
   templateUrl: './event-table.component.html',
   styleUrl: './event-table.component.scss'
 })
-export class EventTableComponent {
-
-  events: _Event [] = [
-    { id: 1, name: 'Basketball - Men', categories: [] },
-    { id: 2, name: 'Basketball - Women', categories: [1, 2] },
-  ]
-
-  categories = [
-    { id: 1, name: 'Under 18' },
-  ]
-
+export class EventTableComponent implements OnInit {
+  categories: Category[] = [];
+  events: _Event[] = [];
   selectedEvent!: _Event;
-
   loading: boolean = false; //set to true later
+  newEventVisible = false;
+  newCategoryVisible = false;
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private eventService: EventService
   ) {}
 
-  newEventVisible = false;
-  newCategoryVisible = false;
+  ngOnInit(): void {
+    const activityId = Number(this.route.snapshot.paramMap.get('activityId'));
+    this.loading = true;
+    this.eventService.getByActivity(activityId).subscribe({
+      next: (events) => {
+        this.events = events;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching events:', err);
+        this.loading = false;
+      }
+    });
+  }
 
   onGlobalFilter(event: Event, dt2: any) {
     const inputValue = (event.target as HTMLInputElement).value;
@@ -60,7 +67,7 @@ export class EventTableComponent {
   navigateToEvent(eventId: number, eventName: string) {
     const eventSlug = eventName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
-    this.router.navigate([`${eventId}-${eventSlug}`], { relativeTo: this.route });
+    this.router.navigate([`${eventId}/${eventSlug}`], { relativeTo: this.route });
   }
 
   toggleNewEvent(): void {

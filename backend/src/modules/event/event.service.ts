@@ -116,19 +116,17 @@ export class EventService {
     createEventInput: CreateEventInput,
     userId: number,
   ): Promise<Event> {
-    const { name, activitySlug, tournamentId, categoryIds } = createEventInput;
+    const { name, activityId, categoryIds } = createEventInput;
 
     try {
-      const activity = await this.activityRepository
-        .createQueryBuilder('activity')
-        .leftJoin('activity.tournament', 'tournament')
-        .where('activity.slug = :slug', { slug: activitySlug })
-        .andWhere('tournament.id = :tournamentId', { tournamentId })
-        .getOne();
+      const activity = await this.activityRepository.findOne({
+        where: { id: activityId },
+        relations: ["tournament", "tournament.organizer"],
+      });
 
       if (!activity) {
         throw new NotFoundException(
-          `Activity with slug ${activitySlug} not found`,
+          `Activity with slug ${activityId} not found`,
         );
       }
 

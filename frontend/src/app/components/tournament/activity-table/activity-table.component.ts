@@ -62,7 +62,7 @@ export class ActivityTableComponent implements OnInit {
   navigateToActivity(activityId: number, activityName: string) {
     const activitySlug = activityName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
-    this.router.navigate([`${activityId}-${activitySlug}`], { relativeTo: this.route });
+    this.router.navigate([`${activityId}/${activitySlug}`], { relativeTo: this.route });
   }
 
   toggleNewActivity(): void {
