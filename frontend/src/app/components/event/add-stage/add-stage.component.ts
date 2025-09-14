@@ -6,6 +6,8 @@ import { Stage } from '../../../types/models';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
+import { StageService } from '../../../services/stage.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-add-stage',
@@ -36,9 +38,12 @@ export class AddStageComponent {
     { name: 'Ladder System', value: 'Ladder System' },
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private stageService: StageService
+  ) {
     this.stageForm = this.fb.group({
-      id: [''],
       name: [''],
       format: ['', [Validators.required, Validators.minLength(2)]],
     });
@@ -46,15 +51,27 @@ export class AddStageComponent {
 
   submit(): void {
     if (this.stageForm.valid) {
-      this.stageCreated.emit(this.stageForm.value);
-      this.resetForm();
-      this.closeDialog();
+      const formValue = this.stageForm.value;
+      const eventId = Number(this.route.snapshot.paramMap.get('eventId'));
+
+      this.stageService.create({
+        ...formValue,
+        eventId: eventId
+      }).subscribe({
+        next: (stage) => {
+          this.stageCreated.emit(stage);
+          this.resetForm();
+          this.closeDialog();
+        },
+        error: (err) => {
+          console.error('Error creating stage:', err);
+        }
+      });
     }
   }
 
   resetForm(): void {
     this.stageForm.reset({
-      id: '',
       name: '',
       format: ''
     });

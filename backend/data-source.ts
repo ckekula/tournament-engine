@@ -7,6 +7,7 @@ import { Activity } from './src/entities/activity.entity';
 import { Event } from './src/entities/event.entity';
 import { Category } from './src/entities/category.entity';
 import * as dotenv from 'dotenv';
+import { Stage } from 'src/entities/stage.entity';
 
 dotenv.config();
 
@@ -15,6 +16,6 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
   synchronize: false,
-  entities: [User, Organization, Tournament, Activity, Event, Category],
+  entities: [User, Organization, Tournament, Activity, Event, Category, Stage],
   migrations: ['src/migrations/*.ts'],
 });

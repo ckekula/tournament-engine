@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Activity } from './activity.entity';
 import { Category } from './category.entity';
 import { Matches } from 'class-validator';
+import { Stage } from './stage.entity';
 
 @Entity()
 export class Event {
@@ -16,6 +17,9 @@ export class Event {
 
   @ManyToOne(() => Activity, activity => activity.events)
   activity: Activity;
+
+  @OneToMany(() => Stage, stage => stage.event)
+  stages: Stage[];
 
   @JoinTable()
   @ManyToMany(() => Category, category => category.events)
