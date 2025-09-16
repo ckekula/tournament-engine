@@ -1,10 +1,12 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
 import { Matches } from 'class-validator';
 import { Event } from './event.entity';
 import { Format } from './format.enum';
+import { Round } from './round.entity';
 
 @Entity()
-export class Stage {
+@TableInheritance({ column: { type: 'varchar', name: 'type' } })
+export abstract class Stage {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -14,11 +16,14 @@ export class Stage {
   })
   name: string;
 
+  @Column({ type: 'enum', enum: Format })
+  format: Format;
+
   @ManyToOne(() => Event, (event) => event.stages)
   event: Event;
 
-  @Column({ length: 50 })
-  format: Format;
+  @OneToMany(() => Round, (round) => round.stage)
+  rounds: Round[];
 
   @CreateDateColumn()
   createdAt: Date;

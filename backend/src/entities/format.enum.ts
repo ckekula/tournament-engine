@@ -4,5 +4,4 @@ export enum Format {
   ROUND_ROBIN = 'Round Robin',
   SWISS_SYSTEM = 'Swiss System',
   LADDER_SYSTEM = 'Ladder System',
-  GROUP_SYSTEM = 'Group System',
 }

@@ -8,6 +8,9 @@ import { Event } from './src/entities/event.entity';
 import { Category } from './src/entities/category.entity';
 import * as dotenv from 'dotenv';
 import { Stage } from 'src/entities/stage.entity';
+import { Round } from 'src/entities/round.entity';
+import { Group } from 'src/entities/group.entity';
+import { GroupStage } from 'src/entities/group-stage.entity';
 
 dotenv.config();
 
@@ -16,6 +19,6 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
   synchronize: false,
-  entities: [User, Organization, Tournament, Activity, Event, Category, Stage],
+  entities: [User, Organization, Tournament, Activity, Event, Category, Stage, GroupStage, Group, Round],
   migrations: ['src/migrations/*.ts'],
 });
