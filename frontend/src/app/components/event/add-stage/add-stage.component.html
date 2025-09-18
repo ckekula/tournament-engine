@@ -12,7 +12,7 @@
           id="name" 
           pInputText 
           formControlName="name" 
-          placeholder="Enter stage name (optional)"
+          placeholder="Enter stage name"
         />
       </div>
   
@@ -28,6 +28,16 @@
           optionValue="value"
           appendTo="body">
         </p-select>
+      </div>
+
+      <div class="p-field mb-4">
+        <label for="isGroupStage" class="block mb-2">Is this a Group Stage?</label>
+        <p-toggleSwitch 
+          id="isGroupStage" 
+          formControlName="isGroupStage" 
+          onLabel="Yes" 
+          offLabel="No">
+        </p-toggleSwitch>
       </div>
   
       <div class="p-field">

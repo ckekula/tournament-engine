@@ -32,6 +32,7 @@ export interface Stage {
     id: number;
     name: string;
     format: string;
+    isGroupStage: boolean;
 }
 
 export interface Group {

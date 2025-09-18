@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Stage } from 'src/entities/stage.entity';
 import { Event } from 'src/entities/event.entity';
+import { GroupStage } from 'src/entities/group-stage.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Stage, Event, User])],
+    imports: [TypeOrmModule.forFeature([Stage, GroupStage, Event, User])],
     controllers: [StageController],
     providers: [StageService],
     exports: [StageService],

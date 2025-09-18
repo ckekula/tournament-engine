@@ -26,20 +26,22 @@ import { StageService } from "./stage.service";
 import { CreateStageInput } from "./dto/createStage.input";
 import { ErrorResponseDto } from "src/utils/types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { StageResponse } from "./dto/stage-response";
+import { GroupStageResponse, StageResponse } from "./dto/stage-response";
 import { UpdateStageInput } from "./dto/updateStage.input";
 
 @ApiTags("Stage")
 @Controller("stage")
 @ApiBearerAuth()
 export class StageController {
-  constructor(private readonly stageService: StageService) {}
+  constructor(
+    private readonly stageService: StageService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: "Create a new stage",
-    description: "Creates a new stage under a category or event",
+    description: "Creates a new stage under event",
   })
   @ApiBody({
     type: CreateStageInput,
@@ -50,7 +52,7 @@ export class StageController {
     type: StageResponse,
   })
   @ApiNotFoundResponse({
-    description: "Category or event not found",
+    description: "Event not found",
     type: ErrorResponseDto,
   })
   @ApiBadRequestResponse({
@@ -66,6 +68,39 @@ export class StageController {
     @CurrentUser("id") userId: number,
   ): Promise<StageResponse> {
     return await this.stageService.create(createStageInput, userId);
+  }
+
+  @Post('group-stage')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: "Create a new stage",
+    description: "Creates a new stage under event",
+  })
+  @ApiBody({
+    type: CreateStageInput,
+    description: "Stage creation data",
+  })
+  @ApiCreatedResponse({
+    description: "Stage successfully created",
+    type: GroupStageResponse,
+  })
+  @ApiNotFoundResponse({
+    description: "Event not found",
+    type: ErrorResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid input data",
+    type: ErrorResponseDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: "Failed to create stage",
+    type: ErrorResponseDto,
+  })
+  async createGroupStage(
+    @Body() createStageInput: CreateStageInput,
+    @CurrentUser("id") userId: number,
+  ): Promise<StageResponse> {
+    return await this.stageService.createGroupStage(createStageInput, userId);
   }
 
   @Get()

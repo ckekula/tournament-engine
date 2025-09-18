@@ -6,6 +6,7 @@ import { Stage } from '../../../types/models';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { StageService } from '../../../services/stage.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,7 +18,8 @@ import { ActivatedRoute } from '@angular/router';
     InputTextModule,
     ReactiveFormsModule,
     ButtonModule,
-    SelectModule
+    SelectModule,
+    ToggleSwitchModule
   ],
   templateUrl: './add-stage.component.html',
   styleUrl: './add-stage.component.scss'
@@ -32,7 +34,6 @@ export class AddStageComponent {
   formats = [
     { name: 'Single Elimination', value: 'Single Elimination' },
     { name: 'Double Elimination', value: 'Double Elimination' },
-    { name: 'Group System', value: 'Group System' },
     { name: 'Round Robin', value: 'Round Robin' },
     { name: 'Swiss System', value: 'Swiss System' },
     { name: 'Ladder System', value: 'Ladder System' },
@@ -44,8 +45,9 @@ export class AddStageComponent {
     private stageService: StageService
   ) {
     this.stageForm = this.fb.group({
-      name: [''],
-      format: ['', [Validators.required, Validators.minLength(2)]],
+      name: ['', [Validators.required, Validators.maxLength(50)]],
+      format: ['', [Validators.required]],
+      isGroupStage: [false]
     });
   }
 
@@ -53,27 +55,45 @@ export class AddStageComponent {
     if (this.stageForm.valid) {
       const formValue = this.stageForm.value;
       const eventId = Number(this.route.snapshot.paramMap.get('eventId'));
+      const isGroupStage: boolean = this.stageForm.value.isGroupStage;
 
-      this.stageService.create({
-        ...formValue,
-        eventId: eventId
-      }).subscribe({
-        next: (stage) => {
-          this.stageCreated.emit(stage);
-          this.resetForm();
-          this.closeDialog();
-        },
-        error: (err) => {
-          console.error('Error creating stage:', err);
-        }
-      });
+      if(isGroupStage) {
+        this.stageService.createGroupStage(
+          {...formValue, eventId}).subscribe({
+          next: (stage) => {
+            console.log("creating group stage:", stage)
+            console.log(" is group stage:", isGroupStage)
+            this.stageCreated.emit(stage);
+            this.resetForm();
+            this.closeDialog();
+          },
+          error: (err) => {
+            console.error('Error creating stage:', err);
+          }
+        });
+      } else {
+        this.stageService.create(
+          {...formValue, eventId}).subscribe({
+          next: (stage) => {
+            console.log("creating stage:", stage)
+            console.log("group stage:", isGroupStage)
+            this.stageCreated.emit(stage);
+            this.resetForm();
+            this.closeDialog();
+          },
+          error: (err) => {
+            console.error('Error creating stage:', err);
+          }
+        });
+      }
     }
   }
 
   resetForm(): void {
     this.stageForm.reset({
       name: '',
-      format: ''
+      format: '',
+      isGroupStage: false
     });
   }
 

@@ -40,7 +40,7 @@ export class ActivityTableComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const tournaId = Number(this.route.snapshot.paramMap.get('id'));
+    const tournaId = Number(this.route.snapshot.paramMap.get('tournamentId'));
     this.loading = true;
     this.activityService.getByTournament(tournaId).subscribe({
       next: (activities) => {

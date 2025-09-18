@@ -45,6 +45,14 @@ export class StageService {
     );
   }
 
+  createGroupStage(stage: Partial<Stage>): Observable<Stage> {
+    return this.http.post<Stage>(`${this.API_URL}/group-stage`, stage).pipe(
+      catchError(error =>
+        throwError(() => new Error(error.error?.message || 'Failed to create group stage'))
+      )
+    );
+  }
+
   update(id: number, stage: Partial<Stage>): Observable<Stage> {
     return this.http.patch<Stage>(`${this.API_URL}/${id}`, stage).pipe(
       catchError(error =>

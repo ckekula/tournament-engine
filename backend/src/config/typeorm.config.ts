@@ -9,6 +9,7 @@ import { Category } from 'src/entities/category.entity';
 import { Stage } from 'src/entities/stage.entity';
 import { Group } from 'src/entities/group.entity';
 import { Round } from 'src/entities/round.entity';
+import { GroupStage } from 'src/entities/group-stage.entity';
 
 export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -16,6 +17,6 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   synchronize: false,
   ssl: true,
   entities: [
-    User, Organization, Tournament, Activity, Event, Category, Stage, Group, Round],
+    User, Organization, Tournament, Activity, Event, Category, Stage, GroupStage, Group, Round],
   connectTimeoutMS: 30000,
 });

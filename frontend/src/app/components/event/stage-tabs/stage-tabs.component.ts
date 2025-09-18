@@ -15,6 +15,7 @@ import { StageService } from '../../../services/stage.service';
     CommonModule,
     TabsComponent,
     AddStageComponent,
+    StandingsTableComponent,
     GroupSystemComponent,
     SingleEliminationComponent
 ],
@@ -35,6 +36,7 @@ export class StageTabsComponent implements OnInit {
     this.stageService.getByEvent(eventId).subscribe({
       next: (stages) => {
         this.stages = stages;
+        console.log("stage: ", stages)
       },
       error: (err) => {
         console.error('Error fetching stages:', err);
@@ -42,21 +44,24 @@ export class StageTabsComponent implements OnInit {
     });
   }
 
-  private getComponentForFormat(format: string) {
+  private getComponent(isGroupStage: boolean, format: string) {
+    if (isGroupStage) {
+      return GroupSystemComponent;
+    } else if (format) {
     const componentMap: { [key: string]: any } = {
-      'Group System': GroupSystemComponent,
       'Single Elimination': SingleEliminationComponent,
       'Double Elimination': StandingsTableComponent,
       'Round Robin': StandingsTableComponent,
     };
     return componentMap[format] || StandingsTableComponent;
+    }
   }
 
   get tabs() {
     return this.stages.map((stage, index) => ({
       title: stage.name,
       value: index,
-      component: this.getComponentForFormat(stage.format)
+      component: this.getComponent(stage.isGroupStage, stage.format)
     }));
   }
 
