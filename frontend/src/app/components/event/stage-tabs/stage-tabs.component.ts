@@ -4,10 +4,10 @@ import { StandingsTableComponent } from '../../shared/standings-table/standings-
 import { TabsComponent } from '../../shared/tabs/tabs.component';
 import { AddStageComponent } from '../add-stage/add-stage.component';
 import { Stage } from '../../../types/models';
-import { GroupSystemComponent } from '../../format/group-system/group-system.component';
 import { SingleEliminationComponent } from '../../format/single-elimination/single-elimination.component';
 import { ActivatedRoute } from '@angular/router';
 import { StageService } from '../../../services/stage.service';
+import { GroupStageComponent } from '../../group-stage/group-stage.component';
 
 @Component({
   selector: 'app-stage-tabs',
@@ -16,7 +16,7 @@ import { StageService } from '../../../services/stage.service';
     TabsComponent,
     AddStageComponent,
     StandingsTableComponent,
-    GroupSystemComponent,
+    GroupStageComponent,
     SingleEliminationComponent
 ],
   templateUrl: './stage-tabs.component.html',
@@ -36,7 +36,6 @@ export class StageTabsComponent implements OnInit {
     this.stageService.getByEvent(eventId).subscribe({
       next: (stages) => {
         this.stages = stages;
-        console.log("stage: ", stages)
       },
       error: (err) => {
         console.error('Error fetching stages:', err);
@@ -46,7 +45,7 @@ export class StageTabsComponent implements OnInit {
 
   private getComponent(isGroupStage: boolean, format: string) {
     if (isGroupStage) {
-      return GroupSystemComponent;
+      return GroupStageComponent;
     } else if (format) {
     const componentMap: { [key: string]: any } = {
       'Single Elimination': SingleEliminationComponent,
@@ -61,7 +60,8 @@ export class StageTabsComponent implements OnInit {
     return this.stages.map((stage, index) => ({
       title: stage.name,
       value: index,
-      component: this.getComponent(stage.isGroupStage, stage.format)
+      component: this.getComponent(stage.isGroupStage, stage.format),
+      inputs: stage.isGroupStage ? { groupStageId: stage.id } : {}
     }));
   }
 

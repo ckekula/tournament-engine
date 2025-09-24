@@ -12,6 +12,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { EventModule } from './modules/event/event.module';
 import { CategoryModule } from './modules/category/category.module';
 import { StageModule } from './modules/stage/stage.module';
+import { GroupModule } from './modules/group/group.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { StageModule } from './modules/stage/stage.module';
     ActivityModule,
     EventModule,
     CategoryModule,
-    StageModule
+    StageModule,
+    GroupModule
   ],
   providers: [],
 })

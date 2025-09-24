@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsNumber, MaxLength, MinLength, Matches, IsEnum } from 'class-validator';
-import { Format } from 'src/entities/format.enum';
+import { Format } from 'src/entities/enums';
 
 export class CreateStageInput {
   @IsNotEmpty({ message: 'Name is required' })

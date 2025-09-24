@@ -1,8 +1,8 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
 import { Matches } from 'class-validator';
 import { Event } from './event.entity';
-import { Format } from './format.enum';
-import { Round } from './round.entity';
+import { Format } from './enums';
+import { StageParticipant } from './stageParticipant.entity';
 
 @Entity()
 @TableInheritance({ column: { type: 'varchar', name: 'type' } })
@@ -22,8 +22,8 @@ export abstract class Stage {
   @ManyToOne(() => Event, (event) => event.stages)
   event: Event;
 
-  @OneToMany(() => Round, (round) => round.stage)
-  rounds: Round[];
+  @OneToMany(() => StageParticipant, (sp) => sp.stage)
+  stageParticipants: StageParticipant[];
 
   @CreateDateColumn()
   createdAt: Date;

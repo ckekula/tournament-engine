@@ -1,7 +1,7 @@
-import { Format } from "src/entities/format.enum";
+import { Format } from "src/entities/enums";
 import { EventResponse } from "src/modules/event/dto/event-response";
 import { Stage } from "src/entities/stage.entity";
-import { GroupStage } from "src/entities/group-stage.entity";
+import { GroupStage } from "src/entities/groupStage.entity";
 
 export class StageResponse {
   id: number;

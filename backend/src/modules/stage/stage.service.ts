@@ -11,7 +11,7 @@ import { Stage } from "src/entities/stage.entity";
 import { CreateStageInput } from "./dto/createStage.input";
 import { UpdateStageInput } from "./dto/updateStage.input";
 import { Event } from "src/entities/event.entity";
-import { GroupStage } from "src/entities/group-stage.entity";
+import { GroupStage } from "src/entities/groupStage.entity";
 import { StageResponse } from "./dto/stage-response";
 import { GroupStageResponse } from "./dto/stage-response";
 

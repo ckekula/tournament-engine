@@ -1,7 +1,6 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Matches } from 'class-validator';
-import { Round } from './round.entity';
-import { GroupStage } from './group-stage.entity';
+import { GroupStage } from './groupStage.entity';
 
 @Entity()
 export class Group {
