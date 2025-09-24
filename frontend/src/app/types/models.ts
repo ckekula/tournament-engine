@@ -38,7 +38,8 @@ export interface Stage {
 export interface Group {
     id: number,
     name: string,
-    teams: Team[]
+    teams: Team[],
+    groupStage: Stage,
 }
 
 export interface Team {

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GroupComponent } from './group.component';
+import { RoundRobinComponent } from './round-robin.component';
 
-describe('GroupComponent', () => {
-  let component: GroupComponent;
-  let fixture: ComponentFixture<GroupComponent>;
+describe('RoundRobinComponent', () => {
+  let component: RoundRobinComponent;
+  let fixture: ComponentFixture<RoundRobinComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GroupComponent]
+      imports: [RoundRobinComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GroupComponent);
+    fixture = TestBed.createComponent(RoundRobinComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
