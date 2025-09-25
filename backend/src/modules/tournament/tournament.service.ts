@@ -21,9 +21,10 @@ export class TournamentService {
   async findAll(): Promise<Tournament[]> {
     try {
       return await this.tournamentRepository.find({
-        relations: ['organization'],
+        relations: ['organizer'],
       });
     } catch (error) {
+      console.log("error fetching tournaments: ", error)
       throw new InternalServerErrorException('Failed to fetch tournaments');
     }
   }

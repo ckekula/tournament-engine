@@ -1,0 +1,22 @@
+<div>
+  <div class="surface-section px-4 py-2 md:px-6 lg:px-8">
+    <div class="text-blue-900 text-center font-bold text-5xl mb-3">TOURNAMENTS</div>
+  </div>
+
+  <div class="surface-section px-4 py-4 md:px-6 lg:px-8">
+      @if (tournaments.length === 0) {
+        <div class="text-center">    
+          <div class="text-700 text-2xl mb-5">No tournaments yet!</div>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-8 gap-4 justify-center">
+          <app-tourna-card 
+            *ngFor="let tourna of tournaments" 
+            [tournament]="tourna" 
+            (view)="navigateToTourna(tourna.slug, tourna.id)">
+          </app-tourna-card>
+        </div>
+      }
+  </div>
+
+</div>

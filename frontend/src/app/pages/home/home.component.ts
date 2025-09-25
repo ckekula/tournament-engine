@@ -3,6 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { HeaderComponent } from '../../components/shared/header/header.component';
 import { FooterComponent } from '../../components/shared/footer/footer.component';
+import { TournaSectionComponent } from '../../components/home/tourna-section/tourna-section.component';
 
 @Component({
     selector: 'app-home',
@@ -10,7 +11,8 @@ import { FooterComponent } from '../../components/shared/footer/footer.component
         RippleModule,
         ButtonModule,
         HeaderComponent,
-        FooterComponent
+        FooterComponent,
+        TournaSectionComponent
     ],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'
