@@ -25,6 +25,9 @@ export abstract class Stage {
   @OneToMany(() => StageParticipant, (sp) => sp.stage)
   stageParticipants: StageParticipant[];
 
+  @Column({ default: false })
+  isGroupStage: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
