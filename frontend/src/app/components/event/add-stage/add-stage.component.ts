@@ -73,8 +73,7 @@ export class AddStageComponent {
         this.stageService.create(
           {...formValue, eventId}).subscribe({
           next: (stage) => {
-            console.log("creating stage:", stage)
-            console.log("group stage:", isGroupStage)
+
             this.stageCreated.emit(stage);
             this.resetForm();
             this.closeDialog();

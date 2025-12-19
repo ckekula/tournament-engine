@@ -29,5 +29,4 @@ export const routes: Routes = [
   { path: tournamentPath, component: TournamentComponent },
   { path: `${tournamentPath}/${activityPath}`, component: ActivityComponent },
   { path: `${tournamentPath}/${activityPath}/${eventPath}`, component: EventComponent },
-  // { path: `${tournamentPath}/${activityPath}/${eventPath}/${matchPath}`, component: MatchComponent },
 ];

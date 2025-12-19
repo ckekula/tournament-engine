@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, catchError, filter, finalize, Observable, switchMap, take, tap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
+import { isDevMode } from '@angular/core';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -20,11 +21,11 @@ export class AuthInterceptor implements HttpInterceptor {
       console.log('No token found');
     }
 
-    console.log('Request:', request);
     return next.handle(request).pipe(
       tap(event => {
-        console.log('Response received:', event);
-      }),
+        if (isDevMode() && event instanceof HttpResponse) {
+          console.log('HTTP response:', event);
+        }}),
       catchError(error => {
         if (error instanceof HttpErrorResponse && error.status === 401) {
           return this.handle401Error(request, next);
@@ -59,7 +60,6 @@ export class AuthInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }),
         finalize(() => {
-          console.log('Refresh token process complete');
           this.isRefreshing = false;
         })
       );

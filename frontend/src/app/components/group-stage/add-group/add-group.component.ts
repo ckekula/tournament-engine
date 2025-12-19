@@ -43,7 +43,6 @@ export class AddGroupComponent {
     if (this.groupForm.valid) {
       const formValue = this.groupForm.value;
       const groupStageId = this.groupStageId
-      console.log("groupStageId:", groupStageId)
 
       this.groupService.create(
         {...formValue, groupStageId: groupStageId}).subscribe({

@@ -74,7 +74,6 @@ export class CategoryService {
         relations: ["tournament", "tournament.organizer"],
       });
 
-      console.log('Activity fetched:', activity);
 
       if (!activity) {
         throw new NotFoundException(

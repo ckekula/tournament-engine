@@ -56,7 +56,6 @@ export class LoginComponent implements OnDestroy {
 
   onLogin() {
     if (this.loginForm.invalid) {
-      console.log('Form is invalid');
       this.loginForm.markAllAsTouched();
       return;
     }
