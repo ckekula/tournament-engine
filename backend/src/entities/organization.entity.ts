@@ -26,6 +26,9 @@ export class Organization {
   @OneToMany(() => Tournament, tournament => tournament.organizer)
   organizedTournaments: Tournament[];
 
+  @ManyToMany(() => Tournament, tournament => tournament.registeredOrganizations)
+  registeredTournaments: Tournament[];
+
   @CreateDateColumn()
   createdAt: Date;
 

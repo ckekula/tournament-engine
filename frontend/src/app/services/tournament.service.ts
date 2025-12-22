@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environment';
 import { Tournament } from '../types/models';
+import { RegisterOrgInput } from '../types/dto';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,13 @@ export class TournamentService {
     return this.http.get<Tournament[]>(`${this.API_URL}/organization/${organizationId}`)
       .pipe(
         catchError(error => throwError(() => new Error(error.error?.message || 'Failed to fetch organization tournaments')))
+      );
+  }
+
+  registerOrganization(tournamentId: number, registerOrgInput: RegisterOrgInput): Observable<Tournament> {
+    return this.http.post<Tournament>(`${this.API_URL}/${tournamentId}/register-organization`, registerOrgInput)
+      .pipe(
+        catchError(error => throwError(() => new Error(error.error?.message || 'Failed to register organization to tournament')))
       );
   }
 

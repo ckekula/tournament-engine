@@ -6,6 +6,7 @@ import { Repository } from "typeorm";
 import { CreateTournamentInput } from "./dto/createTournament.input";
 import { UpdateTournamentInput } from "./dto/updateTournament.input";
 import { User } from "src/entities/user.entity";
+import { RegisterOrganizationInput } from "./dto/registerOrganization.input";
 
 @Injectable()
 export class TournamentService {
@@ -81,6 +82,54 @@ export class TournamentService {
       );
     }
   }
+
+  async registerOrganization(
+    tournamentId: number,
+    registeredOrganizationInput: RegisterOrganizationInput
+  ): Promise<Tournament> {
+    const { organizationId } = registeredOrganizationInput;
+
+    const tournament = await this.tournamentRepository.findOne({
+      where: { id: tournamentId },
+      relations: ['registeredOrganizations', 'organizer'],
+    });
+
+    if (!tournament) {
+      throw new NotFoundException(
+        `Tournament with ID ${tournamentId} not found`
+      );
+    }
+
+    const organization = await this.organizationRepository.findOne({
+      where: { id: organizationId },
+    });
+
+    if (!organization) {
+      throw new NotFoundException(
+        `Organization with ID ${organizationId} not found`
+      );
+    }
+
+    if (tournament.organizer.id === organizationId) {
+      throw new ConflictException(
+        `Organization ${organizationId} is the organizer and cannot register`
+      );
+    }
+
+    const alreadyRegistered = tournament.registeredOrganizations.some(
+      org => org.id === organizationId
+    );
+
+    if (alreadyRegistered) {
+      throw new ConflictException(
+        `Organization ${organizationId} is already registered`
+      );
+    }
+
+    tournament.registeredOrganizations.push(organization);
+    return this.tournamentRepository.save(tournament);
+  }
+
 
   async create(createTournamentInput: CreateTournamentInput, userId: number): Promise<Tournament> {
     const { slug, name, season } = createTournamentInput;

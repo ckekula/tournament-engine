@@ -4,8 +4,13 @@
     <div class="surface-section px-4 pt-8 md:px-6 lg:px-8">
       <div class="text-700 text-center">
         <div class="text-blue-600 font-bold mb-3">WELCOME TO</div>
-        <div class="text-900 font-bold text-5xl mb-8">Tournament Name</div>
-
+        <div class="text-900 font-bold text-5xl mb-4">Tournament Name</div>
+        <p-button
+          pButton
+          pRipple
+          (click)="toggleRegister()" 
+          label="Register for Tournament" 
+          class="font-bold px-5 mb-4 p-button-raised p-button-rounded white-space-nowrap" />
         <app-top-three></app-top-three>
       </div>
     </div>
@@ -16,3 +21,5 @@
 
     <app-footer></app-footer>
 </div>
+
+<app-tourna-register [(visible)]="tournaRegisterVisible"></app-tourna-register>

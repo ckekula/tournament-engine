@@ -7,6 +7,7 @@ import { UpdateTournamentInput } from "./dto/updateTournament.input";
 import { ErrorResponseDto } from "src/utils/types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { TournamentResponse } from "./dto/tournament-response";
+import { RegisterOrganizationInput } from "./dto/registerOrganization.input";
 
 @ApiTags('Tournament')
 @Controller('tournament')
@@ -49,6 +50,48 @@ export class TournamentController {
     @CurrentUser('id') userId: number,
   ): Promise<Tournament> {
     return await this.tournamentService.create(createTournamentInput, userId);
+  }
+
+  @Post(':id/register-organization')
+  @ApiOperation({
+    summary: 'Register organization to tournament',
+    description: 'Updates tournament information. Only provided fields will be updated.'
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Tournament ID',
+    type: 'integer',
+    example: 1,
+  })
+  @ApiBody({
+    type: RegisterOrganizationInput,
+    description: 'Organization registration data'
+  })
+  @ApiOkResponse({
+    description: 'Organization registered successfully',
+    type: TournamentResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Tournament not found',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Organization is already registered for the tournament',
+    type: ErrorResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid input data or tournament ID format',
+    type: ErrorResponseDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Failed to register organization for tournament',
+    type: ErrorResponseDto,
+  })
+  async registerOrganization(
+    @Param('id', ParseIntPipe) tournamentId: number,
+    @Body() registerOrganizationInput: RegisterOrganizationInput,
+  ): Promise<Tournament> {
+    return await this.tournamentService.registerOrganization(tournamentId, registerOrganizationInput);
   }
 
   @Get()

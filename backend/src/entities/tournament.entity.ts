@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Organization } from './organization.entity';
 import { Activity } from './activity.entity';
 import { Matches } from 'class-validator';
@@ -22,6 +22,10 @@ export class Tournament {
 
   @ManyToOne(() => Organization, org => org.organizedTournaments)
   organizer: Organization;
+
+  @JoinTable()
+  @ManyToMany(() => Organization, org => org.registeredTournaments)
+  registeredOrganizations: Organization[];
 
   @OneToMany(() => Activity, activity => activity.tournament)
   activities: Activity[];

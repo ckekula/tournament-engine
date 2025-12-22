@@ -1,0 +1,74 @@
+<div class="card flex justify-center">
+    <p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '25rem' }" (closeDialog)="closeDialog()">
+        <ng-template #header>
+            <div class="inline-flex items-center justify-center gap-2">
+                <span class="font-bold whitespace-nowrap">Tournament Registration</span>
+            </div>
+        </ng-template>
+        
+        <span class="text-surface-500 dark:text-surface-400 block mb-4">
+            Are you sure you want to register for this tournament?
+        </span>
+        
+        <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+            <div class="flex flex-col gap-2 mb-4">
+                <p-select 
+                    [options]="organizations" 
+                    formControlName="organizationId"
+                    optionLabel="name" 
+                    optionValue="id"
+                    placeholder="Select an organization" 
+                    class="w-full"
+                    appendTo="body"
+                    [showClear]="true">
+                    <ng-template #selectedItem let-selectedOption>
+                        <div class="flex items-center gap-2" *ngIf="selectedOption">
+                            <img
+                                src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                                [class]="'flag flag-' + selectedOption.slug"
+                                style="width: 18px"
+                            />
+                            <div>{{ selectedOption.name }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template let-organization #item>
+                        <div class="flex items-center gap-2">
+                            <img
+                                src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                                [class]="'flag flag-' + organization.slug"
+                                style="width: 18px"
+                            />
+                            <div>{{ organization.name }}</div>
+                        </div>
+                    </ng-template>
+                    <ng-template #dropdownicon>
+                        <i class="pi pi-map"></i>
+                    </ng-template>
+                    <ng-template #header>
+                        <div class="font-medium p-3">Your Organizations</div>
+                    </ng-template>
+                </p-select>
+                
+                <small 
+                    *ngIf="organizationIdControl?.invalid && organizationIdControl?.touched" 
+                    class="text-red-500">
+                    Please select an organization
+                </small>
+            </div>
+        </form>
+
+        <ng-template #footer>
+            <p-button 
+                label="Cancel" 
+                [text]="true" 
+                severity="secondary" 
+                (click)="closeDialog()" />
+            <p-button 
+                label="Register" 
+                [outlined]="true" 
+                severity="primary"
+                [disabled]="!registrationForm.valid"
+                (click)="onSubmit()" />
+        </ng-template>
+    </p-dialog>
+</div>
