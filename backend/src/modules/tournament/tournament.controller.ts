@@ -8,6 +8,7 @@ import { ErrorResponseDto } from "src/utils/types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { TournamentResponse } from "./dto/tournament-response";
 import { RegisterOrganizationInput } from "./dto/registerOrganization.input";
+import { Organization } from "src/entities/organization.entity";
 
 @ApiTags('Tournament')
 @Controller('tournament')
@@ -92,6 +93,30 @@ export class TournamentController {
     @Body() registerOrganizationInput: RegisterOrganizationInput,
   ): Promise<Tournament> {
     return await this.tournamentService.registerOrganization(tournamentId, registerOrganizationInput);
+  }
+
+  @Get(':id/registered-organizations')
+  @ApiOperation({
+    summary: 'Get all registered organizations of a tournament',
+    description: 'Retrieves a list of all organizations registered for the tournament'
+  })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    type: 'integer',
+    description: 'Filter tournaments by organization ID',
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: 'List of tournaments retrieved successfully',
+    type: [TournamentResponse],
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Failed to fetch tournaments',
+    type: ErrorResponseDto,
+  })
+  async findRegisteredOrganizations(@Param('id', ParseIntPipe) id: number): Promise<Organization[]> {
+    return await this.tournamentService.findRegisteredOrganizations(id);
   }
 
   @Get()

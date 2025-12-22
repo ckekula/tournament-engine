@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environment';
-import { Tournament } from '../types/models';
+import { Organization, Tournament } from '../types/models';
 import { RegisterOrgInput } from '../types/dto';
 
 @Injectable({
@@ -39,6 +39,13 @@ export class TournamentService {
     return this.http.get<Tournament[]>(`${this.API_URL}/organization/${organizationId}`)
       .pipe(
         catchError(error => throwError(() => new Error(error.error?.message || 'Failed to fetch organization tournaments')))
+      );
+  }
+
+  getRegisteredOrgs(tournamentId: number): Observable<Organization[]> {
+    return this.http.get<Organization[]>(`${this.API_URL}/${tournamentId}/registered-organizations`)
+      .pipe(
+        catchError(error => throwError(() => new Error(error.error?.message || 'Failed to fetch registered organizations for tournament')))
       );
   }
 

@@ -10,6 +10,7 @@ export interface Tournament {
     name: string;
     season?: string;
     slug: string;
+    registeredOrganizations: Organization[];
 }
 
 export interface Activity {

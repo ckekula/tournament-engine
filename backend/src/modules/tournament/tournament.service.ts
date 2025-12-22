@@ -83,6 +83,25 @@ export class TournamentService {
     }
   }
 
+  async findRegisteredOrganizations(tournamentId: number): Promise<Organization[]> {
+      const tournament = await this.tournamentRepository.findOne({
+        where: { id: tournamentId },
+        relations: ['registeredOrganizations'],
+      });
+
+      if (!tournament) {
+        throw new NotFoundException(`Tournament with ID ${tournamentId} not found`);
+      }
+
+    try {
+      return tournament.registeredOrganizations;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to fetch registered organizations for tournament with ID ${tournamentId}`,
+      );
+    }
+  }
+
   async registerOrganization(
     tournamentId: number,
     registeredOrganizationInput: RegisterOrganizationInput
@@ -126,15 +145,20 @@ export class TournamentService {
       );
     }
 
-    tournament.registeredOrganizations.push(organization);
-    return this.tournamentRepository.save(tournament);
+    try {
+      tournament.registeredOrganizations.push(organization);
+      return this.tournamentRepository.save(tournament);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to register organization with ID ${organizationId} for tournament with ID ${tournamentId}`,
+      );
+    }
   }
 
 
   async create(createTournamentInput: CreateTournamentInput, userId: number): Promise<Tournament> {
     const { slug, name, season } = createTournamentInput;
 
-    try {
       // Check if current user is an admin of the organization
       const organizerId = createTournamentInput.organizerId;
       
@@ -158,6 +182,7 @@ export class TournamentService {
         throw new NotFoundException(`Organization with ID ${organizerId} not found`);
       }
 
+    try {
       // Create new tournament
       const tournament = this.tournamentRepository.create({
         slug,
@@ -178,7 +203,6 @@ export class TournamentService {
     id: number,
     updateTournamentInput: UpdateTournamentInput,
   ): Promise<Tournament> {
-    try {
       const tournament = await this.tournamentRepository.findOne({
         where: { id },
         relations: ['organization'],
@@ -205,6 +229,7 @@ export class TournamentService {
         tournament.name = name;
       }
 
+    try {
       return await this.tournamentRepository.save(tournament);
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof ConflictException)

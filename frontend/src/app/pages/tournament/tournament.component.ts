@@ -10,6 +10,7 @@ import { TopThreeComponent } from '../../components/shared/top-three/top-three.c
 import { DialogModule } from 'primeng/dialog';
 import { RippleModule } from 'primeng/ripple';
 import { TournaRegisterComponent } from '../../components/tournament/tourna-register/tourna-register.component';
+import { RegisteredOrgTableComponent } from '../../components/tournament/registered-org-table/registered-org-table.component';
 
 @Component({
   selector: 'app-tournament',
@@ -24,7 +25,9 @@ import { TournaRegisterComponent } from '../../components/tournament/tourna-regi
     StandingsTableComponent,
     ActivityTableComponent,
     TournaRegisterComponent,
-    TopThreeComponent],
+    TopThreeComponent,
+    RegisteredOrgTableComponent
+  ],
   templateUrl: './tournament.component.html',
   styleUrl: './tournament.component.scss',
 })
@@ -34,6 +37,7 @@ export class TournamentComponent {
   tabs = [
     { title: 'Standings', value: 0, component: StandingsTableComponent },
     { title: 'Sports', value: 1, component: ActivityTableComponent },
+    { title: 'Registered Organizations', value: 2, component: RegisteredOrgTableComponent },
   ];
 
   toggleRegister() {

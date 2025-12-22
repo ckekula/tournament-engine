@@ -17,6 +17,12 @@ export class Organization {
   })
   name: string;
 
+  @Column({ length: 100 })
+  @Matches(/^[A-Za-z0-9 ]+$/, {
+    message: 'Organization display name can only contain letters, numbers, and spaces',
+  })
+  displayName: string;
+
   @ManyToOne(() => User, user => user.ownedOrganizations)
   owner: User;
 
