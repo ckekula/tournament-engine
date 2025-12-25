@@ -9,6 +9,8 @@
     [globalFilterFields]="['name']"
     [tableStyle]="{ 'min-width': '75rem' }"
     selectionMode="single"
+    [(selection)]="selectedOrg"
+    (onRowSelect)="navigateToOrg($event.data.slug)"
     >
 
     <ng-template pTemplate="caption">
@@ -27,7 +29,7 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-org>
-        <tr>
+        <tr [pSelectableRow]="org">
             <td>
                 {{ org.name }}
             </td>

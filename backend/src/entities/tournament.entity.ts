@@ -20,6 +20,9 @@ export class Tournament {
   @Column({ length: 20 })
   season: string;
 
+  @Column({ nullable: true })
+  maxOrgs: number;
+
   @ManyToOne(() => Organization, org => org.organizedTournaments)
   organizer: Organization;
 

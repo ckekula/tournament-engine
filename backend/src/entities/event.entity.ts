@@ -16,6 +16,9 @@ export class Event {
   })
   name: string;
 
+  @Column({ nullable: true })
+  maxTeamsPerOrg: number;
+
   @ManyToOne(() => Activity, activity => activity.events)
   activity: Activity;
 

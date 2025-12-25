@@ -8,7 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { Organization } from '../../../types/models';
 import { TournamentService } from '../../../services/tournament.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-registered-org-table',
@@ -25,11 +25,13 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './registered-org-table.component.scss'
 })
 export class RegisteredOrgTableComponent implements OnInit {
+  selectedOrg!: Organization;
   registeredOrgs: Organization[] =  []
   loading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private tournamentService: TournamentService
   ) {}
 
@@ -40,7 +42,6 @@ export class RegisteredOrgTableComponent implements OnInit {
       next: (organization) => {
         this.registeredOrgs = organization;
         this.loading = false;
-        console.log("registered orgs: ", this.registeredOrgs);
       },
       error: (err) => {
         console.error('Error fetching organizations:', err);
@@ -52,5 +53,9 @@ export class RegisteredOrgTableComponent implements OnInit {
   onGlobalFilter(event: Event, dt2: any) {
     const inputValue = (event.target as HTMLInputElement).value;
     dt2.filterGlobal(inputValue, 'contains');
+  }
+
+  navigateToOrg(orgSlug: string) {
+    this.router.navigate([orgSlug], { relativeTo: this.route });
   }
 }
