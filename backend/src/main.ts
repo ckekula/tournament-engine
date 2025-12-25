@@ -7,8 +7,10 @@ import { swaggerConfig } from './config/swagger.config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api');
+
   const corsOptions: CorsOptions = {
-    origin: ['http://localhost:4200'],
+    origin: ['http://localhost:4200', 'https://tournament.theicore.org'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Allow cookies to be sent with requests
     optionsSuccessStatus: 204, // Some legacy browsers choke on 204

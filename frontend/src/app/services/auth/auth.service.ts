@@ -5,7 +5,7 @@ import { tap, catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthResponse, LoginInput, RegisterInput, User } from '../../types/auth';
-import { environment } from '../../environment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
