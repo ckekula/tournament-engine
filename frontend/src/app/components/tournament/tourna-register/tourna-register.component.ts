@@ -3,11 +3,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
-import { IconField, IconFieldModule } from 'primeng/iconfield';
-import { InputIcon, InputIconModule } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { Organization } from '../../../types/models';
 import { OrganizationService } from '../../../services/organization.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TournamentService } from '../../../services/tournament.service';
 import { RegisterOrgInput } from '../../../types/dto';
@@ -31,10 +31,10 @@ export class TournaRegisterComponent implements OnInit {
   @Output() visibleChange = new EventEmitter<boolean>();
 
   organizations: Organization[] = [];
+
   registrationForm: FormGroup;
 
   constructor(
-    private router: Router,
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
     private tournamentService: TournamentService,
@@ -46,10 +46,21 @@ export class TournaRegisterComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.organizationService.getMyOrganizations().subscribe({
-      next: (orgs) => this.organizations = orgs,
-      error: (error) => console.error('Failed to load organizations:', error)
-    });
+    const tournamentId = Number(this.route.snapshot.paramMap.get('tournamentId'));
+    if (tournamentId) {
+      this.tournamentService.getOrganizer(tournamentId).subscribe({
+        next: (organizer) => {
+          // Remove the organizer from the list of organizations
+          this.organizationService.getMyOrganizations().subscribe({
+            next: (orgs) => this.organizations = orgs.filter(org => org.id !== organizer.id),
+            error: (error) => console.error('Failed to load organizations:', error)
+          });
+        },
+        error: (error) => console.error('Failed to fetch organizer:', error)
+      });
+    } else {
+      console.error('Tournament ID is missing in route parameters.');
+    } 
   }
 
   closeDialog() {

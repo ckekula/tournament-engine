@@ -35,6 +35,13 @@ export class TournamentService {
       );
   }
 
+  getOrganizer(tournamentId: number): Observable<Organization> {
+    return this.http.get<Organization>(`${this.API_URL}/${tournamentId}/organizer`)
+      .pipe(
+        catchError(error => throwError(() => new Error(error.error?.message || 'Failed to fetch organizer of tournament')))
+      );
+  }
+
   getByOrganization(organizationId: number): Observable<Tournament[]> {
     return this.http.get<Tournament[]>(`${this.API_URL}/organization/${organizationId}`)
       .pipe(

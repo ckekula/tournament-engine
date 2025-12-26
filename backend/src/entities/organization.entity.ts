@@ -17,7 +17,7 @@ export class Organization {
   })
   name: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: true })
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Organization display name can only contain letters, numbers, and spaces',
   })
