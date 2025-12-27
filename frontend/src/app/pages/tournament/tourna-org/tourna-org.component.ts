@@ -3,6 +3,8 @@ import { HeaderComponent } from '../../../components/shared/header/header.compon
 import { FooterComponent } from '../../../components/shared/footer/footer.component';
 import { TabsComponent } from '../../../components/shared/tabs/tabs.component';
 import { ButtonModule } from 'primeng/button';
+import { OrgTeamTableComponent } from '../../../components/tournament/tourna-org/org-team-table/org-team-table.component';
+import { OrgParticipantTableComponent } from '../../../components/tournament/tourna-org/org-participant-table/org-participant-table.component';
 
 @Component({
   selector: 'app-tourna-org',
@@ -17,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
 })
 export class TournaOrgComponent {
   tabs = [
-    { title: 'Teams', value: 0, component: null },
+    { title: 'Teams', value: 0, component: OrgTeamTableComponent },
+    { title: 'Participants', value: 1, component: OrgParticipantTableComponent }
   ];
 }

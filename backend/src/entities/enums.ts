@@ -5,3 +5,8 @@ export enum Format {
   SWISS_SYSTEM = 'Swiss System',
   LADDER_SYSTEM = 'Ladder System',
 }
+
+export enum EventType {
+  INDIVIDUAL = 'INDIVIDUAL',
+  TEAM = 'TEAM',
+}

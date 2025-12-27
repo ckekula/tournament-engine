@@ -28,7 +28,8 @@
           [filter]="true"
           [loading]="loading"
           [virtualScroll]="true" 
-          [virtualScrollItemSize]="43">
+          [virtualScrollItemSize]="43"
+          appendTo="body">
             <ng-template let-category #item>
                 <div class="flex items-center gap-2">
                     <div>{{ category.name }}</div>

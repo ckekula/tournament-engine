@@ -16,6 +16,7 @@ export interface Tournament {
 export interface Activity {
     id: number;
     name: string;
+    events: _Event[];
 }
 
 export interface _Event {
@@ -45,7 +46,8 @@ export interface Group {
 
 export interface Team {
     id: number,
-    name: string
+    name: string,
+    event: _Event
 }
 
 export interface Round {
@@ -66,4 +68,9 @@ export interface TeamStats {
     scoreDiff: number;
     goalsFor: number;
     goalsAgainst: number;
+}
+
+export interface Participant {
+    id: number,
+    name: string
 }

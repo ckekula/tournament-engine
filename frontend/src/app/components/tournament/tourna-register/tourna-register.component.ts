@@ -69,33 +69,33 @@ export class TournaRegisterComponent implements OnInit {
     this.registrationForm.reset();
   }
 
-onSubmit() {
-  if (this.registrationForm.valid) {
-    const organizationId = this.registrationForm.value.organizationId;
-    const tournamentIdParam = this.route.snapshot.paramMap.get('tournamentId');
-    if (!tournamentIdParam) {
-      console.error('Tournament ID is missing in route parameters.');
-      return;
+  onSubmit() {
+    if (this.registrationForm.valid) {
+      const organizationId = this.registrationForm.value.organizationId;
+      const tournamentIdParam = this.route.snapshot.paramMap.get('tournamentId');
+      if (!tournamentIdParam) {
+        console.error('Tournament ID is missing in route parameters.');
+        return;
+      }
+      
+      // Wrap organizationId in an object matching RegisterOrgInput
+      const registerOrgInput: RegisterOrgInput = { organizationId };
+      
+      this.tournamentService.registerOrganization(Number(tournamentIdParam), registerOrgInput).subscribe({
+        next: () => {
+          // Handle success
+          this.closeDialog();
+        },
+        error: (error) => console.error('Registration failed:', error)
+      });
+      
+      // Don't close dialog here - only close on success in the next() callback
+      // this.closeDialog(); // REMOVE THIS
+    } else {
+      // Mark all fields as touched to show validation errors
+      this.registrationForm.markAllAsTouched();
     }
-    
-    // Wrap organizationId in an object matching RegisterOrgInput
-    const registerOrgInput: RegisterOrgInput = { organizationId };
-    
-    this.tournamentService.registerOrganization(Number(tournamentIdParam), registerOrgInput).subscribe({
-      next: () => {
-        // Handle success
-        this.closeDialog();
-      },
-      error: (error) => console.error('Registration failed:', error)
-    });
-    
-    // Don't close dialog here - only close on success in the next() callback
-    // this.closeDialog(); // REMOVE THIS
-  } else {
-    // Mark all fields as touched to show validation errors
-    this.registrationForm.markAllAsTouched();
   }
-}
 
   get organizationIdControl() {
     return this.registrationForm.get('organizationId');

@@ -55,7 +55,7 @@ export class RegisteredOrgTableComponent implements OnInit {
     dt2.filterGlobal(inputValue, 'contains');
   }
 
-  navigateToOrg(orgSlug: string) {
-    this.router.navigate([orgSlug], { relativeTo: this.route });
+  navigateToOrg(orgSlug: string, orgId: number) {
+    this.router.navigate([orgId, orgSlug], { relativeTo: this.route });
   }
 }
