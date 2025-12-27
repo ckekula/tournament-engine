@@ -14,8 +14,7 @@ const organizationPath = 'org/:organizationId/:organizationSlug';
 const tournamentPath = ':tournamentId/:tournamentSlug';
 const activityPath = ':activityId/:activitySlug';
 const eventPath = ':eventId/:eventSlug';
-const tournaOrgPath = ':tournamentId/:tournamentSlug/:organizationSlug';
-const orgTournaDashboardPath = ':tournamentId/:tournamentSlug/:organizationSlug';
+const tournaOrgPath = ':tournamentId/:tournamentSlug/:organizationId/:organizationSlug';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,7 +27,6 @@ export const routes: Routes = [
   },
   { path: organizationPath, component: OrganizationComponent },
   { path: tournaOrgPath, component: TournaOrgComponent },
-  { path: orgTournaDashboardPath, component: TournaOrgComponent },
 
   // Tournament hierarchy
   { path: tournamentPath, component: TournamentComponent },

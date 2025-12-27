@@ -6,6 +6,7 @@ import { User } from "src/entities/user.entity";
 import { Repository } from "typeorm";
 import { CreateActivityInput } from "./dto/createActivity.input";
 import { UpdateActivityInput } from "./dto/updateActivity.input";
+import { ActivityResponse } from "./dto/activity-response";
 
 @Injectable()
 export class ActivityService {
@@ -48,11 +49,11 @@ export class ActivityService {
     }
   }
 
-  async findByTournament(tournamentId: number): Promise<Activity[]> {
+  async findByTournament(tournamentId: number): Promise<ActivityResponse[]> {
     try {
       return await this.activityRepository.find({
         where: { tournament: { id: tournamentId } },
-        relations: ['tournament'],
+        relations: ['tournament', 'events'],
       });
     } catch (error) {
       throw new InternalServerErrorException(

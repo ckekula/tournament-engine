@@ -1,0 +1,64 @@
+<p-dialog 
+  [(visible)]="visible" 
+  (visibleChange)="visibleChange.emit($event)"
+  header="Add Team" 
+  [modal]="true" 
+  [style]="{ width: '450px' }">
+  <form [formGroup]="teamForm" (ngSubmit)="submit()">
+    <div class="p-fluid">
+      <div class="p-field mb-4">
+        <label for="name" class="block mb-2">Team Name</label>
+        <input 
+          id="name" 
+          pInputText 
+          formControlName="name" 
+          placeholder="Enter team name (optional)"
+        />
+      </div>
+
+      <div class="p-field mb-4">
+        <label for="events" class="block mb-2">Events</label>
+        <p-select 
+        [options]="groupedEvents" 
+        formControlName="events"
+        placeholder="Select Event" 
+        optionLabel="label" 
+        class="w-full md:w-80" 
+        [filter]="true"
+        [loading]="loading"
+        [virtualScroll]="true" 
+        [virtualScrollItemSize]="43"
+        [group]="true"
+        appendTo="body">
+            <ng-template let-activity #group>
+                <div class="flex items-center gap-2 font-semibold">
+                    <span>{{ activity.label }}</span>
+                </div>
+            </ng-template>
+            <ng-template let-event #item>
+                <div class="flex items-center gap-2">
+                    <div>{{ event.label }}</div>
+                </div>
+            </ng-template>
+        </p-select>
+      </div>
+  
+      <div class="p-field">
+        <button 
+          pButton 
+          type="submit" 
+          label="Create" 
+          [disabled]="teamForm.invalid" 
+          class="p-button-primary">
+        </button>
+        <button 
+          pButton 
+          type="button" 
+          label="Cancel" 
+          (click)="closeDialog()" 
+          class="p-button-secondary ml-2">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>

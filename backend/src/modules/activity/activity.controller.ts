@@ -120,7 +120,7 @@ export class ActivityController {
   })
   async findByTournament(
     @Param('tournamentId', ParseIntPipe) tournamentId: number,
-  ): Promise<Activity[]> {
+  ): Promise<ActivityResponse[]> {
     return await this.activityService.findByTournament(tournamentId);
   }
 

@@ -4,6 +4,7 @@ import { Category } from './category.entity';
 import { Matches } from 'class-validator';
 import { Stage } from './stage.entity';
 import { Participant } from './participant.entity';
+import { EventType } from './enums';
 
 @Entity()
 export class Event {
@@ -15,6 +16,9 @@ export class Event {
     message: 'Event name can only contain letters, numbers, and spaces',
   })
   name: string;
+
+  @Column({ type: "enum", enum: EventType, nullable: true })
+  type: EventType;
 
   @Column({ nullable: true })
   maxTeamsPerOrg: number;

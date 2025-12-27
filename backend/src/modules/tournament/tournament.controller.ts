@@ -119,6 +119,37 @@ export class TournamentController {
     return await this.tournamentService.findRegisteredOrganizations(id);
   }
 
+  @Get(':tournamentId/organizer')
+  @ApiOperation({
+    summary: 'Get organizer by tournament ID',
+    description: 'Retrieves the organizer of a specific tournament by its unique identifier'
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Tournament ID',
+    type: 'integer',
+    example: 1,
+  })
+  @ApiOkResponse({
+    description: 'Tournament retrieved successfully',
+    type: TournamentResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Tournament not found',
+    type: ErrorResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid tournament ID format',
+    type: ErrorResponseDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Failed to fetch organizer of tournament',
+    type: ErrorResponseDto,
+  })
+  async findOrganizer(@Param('tournamentId', ParseIntPipe) tournamentId: number): Promise<Organization> {
+    return await this.tournamentService.findOrganizer(tournamentId);
+  }
+
   @Get()
   @ApiOperation({
     summary: 'Get all tournaments',

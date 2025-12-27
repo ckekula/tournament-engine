@@ -70,6 +70,25 @@ export class TournamentService {
     }
   }
 
+  async findOrganizer(tournamentId: number): Promise<Organization> {
+    const tournament = await this.tournamentRepository.findOne({
+      where: { id: tournamentId },
+      relations: ['organizer'],
+    });
+
+    if (!tournament) {
+      throw new NotFoundException(`Tournament with ID ${tournamentId} not found`);
+    }
+    
+    try {
+      return tournament.organizer;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to fetch organizer for tournament with ID ${tournamentId}: ${error}`,
+      );
+    }
+  }
+
   async findByOrganization(organizationId: number): Promise<Tournament[]> {
     try {
       return await this.tournamentRepository.find({

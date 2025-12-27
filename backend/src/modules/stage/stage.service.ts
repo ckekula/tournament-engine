@@ -79,7 +79,6 @@ export class StageService {
   async create(createStageInput: CreateStageInput, userId: number): Promise<StageResponse> {
     const { name, format, eventId } = createStageInput;
 
-    try {
       const event = await this.eventRepository.findOne({
         where: { id: eventId },
         relations: ['activity', 'activity.tournament', 'activity.tournament.organizer'],
@@ -105,13 +104,12 @@ export class StageService {
         throw new ConflictException(`User does not have permission to create activities for this tournament`);
       }
 
+    try {
       const stage = this.stageRepository.create({name, format, event});
       const saved = await this.stageRepository.save(stage);
       return StageResponse.fromEntity(saved);
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof ConflictException)
-        throw error;
-      throw new InternalServerErrorException('Failed to create stage');
+      throw new InternalServerErrorException(`Failed to create stage: ${error.message}`);
     }
   }
 
