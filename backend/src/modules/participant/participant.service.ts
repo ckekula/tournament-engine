@@ -41,6 +41,26 @@ export class ParticipantService {
     }
   }
 
+  async getTeamsByOrganizationAndTournament(
+    organizationId: number,
+    tournamentId: number
+  ): Promise<Team[]> {
+    try {
+      return await this.teamRepository
+        .createQueryBuilder("team")
+        .leftJoinAndSelect("team.organization", "organization")
+        .leftJoinAndSelect("team.events", "event")
+        .leftJoinAndSelect("event.activity", "activity")
+        .leftJoinAndSelect("activity.tournament", "tournament")
+        .where("organization.id = :organizationId", { organizationId })
+        .andWhere("tournament.id = :tournamentId", { tournamentId })
+        .getMany();
+    } catch (error) {
+      console.error("error fetching teams by organization and tournament:", error);
+      throw new InternalServerErrorException("Failed to fetch teams");
+    }
+  }
+
   async create(
     createParticipantInput: CreateParticipantInput,
     userId: number,

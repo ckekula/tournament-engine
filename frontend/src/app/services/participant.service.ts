@@ -31,6 +31,15 @@ export class ParticipantService {
       );
   }
 
+  getTeamByOrgAndTourna(organizationId: number, tournamentId: number): Observable<Team[]> {
+    return this.http.get<Team[]>(`${this.API_URL}/teams/${organizationId}/${tournamentId}`)
+      .pipe(
+        catchError(error =>
+          throwError(() => new Error(error.error?.message || 'Failed to fetch teams'))
+        )
+      );
+  }
+
   create(participant: Partial<Participant>): Observable<Participant> {
     return this.http.post<Participant>(this.API_URL, participant)
       .pipe(

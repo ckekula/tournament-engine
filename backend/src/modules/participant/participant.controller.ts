@@ -33,12 +33,44 @@ import { CreateParticipantInput } from "./dto/createParticipant.input";
 import { ParticipantResponse } from "./dto/participant-response";
 import { UpdateParticipantInput } from "./dto/updateParticipant.input";
 import { CreateTeamInput } from "./dto/createTeam.input";
+import { Team } from "src/entities/team.entity";
 
 @ApiTags("Participant")
 @Controller("participant")
 @ApiBearerAuth()
 export class ParticipantController {
   constructor(private readonly participantService: ParticipantService) {}
+
+  @Get("teams/:organizationId/:tournamentId")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Get teams by organization and tournament",
+    description:
+      "Retrieves all teams associated with a specific organization and tournament.",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "ID of the organization",
+    type: Number,
+  })
+  @ApiParam({
+    name: "tournamentId",
+    description: "ID of the tournament",
+    type: Number,
+  })
+  @ApiOkResponse({
+    description: "Teams retrieved successfully",
+    type: [Team],
+  })
+  async getTeamsByOrganizationAndTournament(
+    @Param("organizationId", ParseIntPipe) organizationId: number,
+    @Param("tournamentId", ParseIntPipe) tournamentId: number
+  ): Promise<Team[]> {
+    return await this.participantService.getTeamsByOrganizationAndTournament(
+      organizationId,
+      tournamentId
+    );
+  }
 
   @Post("individual")
   @HttpCode(HttpStatus.CREATED)
@@ -107,7 +139,7 @@ export class ParticipantController {
   async createTeam(
     @Body() createTeamInput: CreateTeamInput,
     @CurrentUser("id") userId: number,
-  ): Promise<Participant> {
+  ): Promise<Team> {
     return await this.participantService.createTeam(createTeamInput, userId);
   }
 

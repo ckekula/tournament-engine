@@ -40,17 +40,18 @@ export class OrgTeamTableComponent implements OnInit {
 
   ngOnInit(): void {
     const tournaId = Number(this.route.snapshot.paramMap.get('tournamentId'));
-    // this.loading = true;
-    // this.participantService.getByOrgTourna(tournaId).subscribe({
-    //   next: (activities) => {
-    //     this.activities = activities;
-    //     this.loading = false;
-    //   },
-    //   error: (err) => {
-    //     console.error('Error fetching activities:', err);
-    //     this.loading = false;
-    //   }
-    // });
+    const orgId = Number(this.route.snapshot.paramMap.get('organizationId'));
+    this.loading = true;
+    this.participantService.getTeamByOrgAndTourna(orgId, tournaId).subscribe({
+      next: (teams) => {
+        this.teams = teams;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching teams:', err);
+        this.loading = false;
+      }
+    });
   }
 
   onGlobalFilter(event: Event, dt2: any) {
