@@ -74,3 +74,8 @@ export interface Participant {
     id: number,
     name: string
 }
+
+export interface Person {
+    id: number,
+    name: string
+}
