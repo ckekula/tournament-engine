@@ -71,42 +71,42 @@ export class ParticipantController {
     );
   }
 
-  @Post("individual")
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: "Create a new individual participant",
-    description:
-      "Creates a new individual participant with the provided information.",
-  })
-  @ApiBody({
-    type: CreateIndividualInput,
-    description: "Participant creation data",
-  })
-  @ApiCreatedResponse({
-    description: "Participant successfully created",
-    type: ParticipantResponse,
-  })
-  @ApiConflictResponse({
-    description: "Participant slug already exists",
-    type: ErrorResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: "Organization not found",
-    type: ErrorResponseDto,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Failed to create participant",
-    type: ErrorResponseDto,
-  })
-  async createIndividual(
-    @Body() createIndividualInput: CreateIndividualInput,
-    @CurrentUser("id") userId: number,
-  ): Promise<Individual> {
-    return await this.participantService.createIndividual(
-      createIndividualInput,
-      userId,
-    );
-  }
+  // @Post("individual")
+  // @HttpCode(HttpStatus.CREATED)
+  // @ApiOperation({
+  //   summary: "Create a new individual participant",
+  //   description:
+  //     "Creates a new individual participant with the provided information.",
+  // })
+  // @ApiBody({
+  //   type: CreateIndividualInput,
+  //   description: "Participant creation data",
+  // })
+  // @ApiCreatedResponse({
+  //   description: "Participant successfully created",
+  //   type: ParticipantResponse,
+  // })
+  // @ApiConflictResponse({
+  //   description: "Participant slug already exists",
+  //   type: ErrorResponseDto,
+  // })
+  // @ApiNotFoundResponse({
+  //   description: "Organization not found",
+  //   type: ErrorResponseDto,
+  // })
+  // @ApiInternalServerErrorResponse({
+  //   description: "Failed to create participant",
+  //   type: ErrorResponseDto,
+  // })
+  // async createIndividual(
+  //   @Body() createIndividualInput: CreateIndividualInput,
+  //   @CurrentUser("id") userId: number,
+  // ): Promise<Individual> {
+  //   return await this.participantService.createIndividual(
+  //     createIndividualInput,
+  //     userId,
+  //   );
+  // }
 
   @Post("team")
   @HttpCode(HttpStatus.CREATED)

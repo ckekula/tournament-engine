@@ -7,9 +7,10 @@ import { ParticipantService } from './participant.service';
 import { Participant } from 'src/entities/participant.entity';
 import { Event } from 'src/entities/event.entity';
 import { Team } from 'src/entities/team.entity';
+import { Individual } from 'src/entities/Individual.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Participant, Event, Team, Organization, User])],
+    imports: [TypeOrmModule.forFeature([Participant, Event, Team, Individual, Organization, User])],
     controllers: [ParticipantController],
     providers: [ParticipantService],
     exports: [ParticipantService],

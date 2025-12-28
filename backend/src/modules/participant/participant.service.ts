@@ -29,51 +29,51 @@ export class ParticipantService {
     private readonly individualRepository: Repository<Individual>,
   ) {}
 
-  async createIndividual(
-    createIndividualInput: CreateIndividualInput,
-    userId: number,
-  ): Promise<Individual> {
-    const { name, organizationId } = createIndividualInput;
+  // async createIndividual(
+  //   createIndividualInput: CreateIndividualInput,
+  //   userId: number,
+  // ): Promise<Individual> {
+  //   const { name, organizationId } = createIndividualInput;
 
-    // Check if user is admin of organization
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: ["adminOrganizations"],
-    });
+  //   // Check if user is admin of organization
+  //   const user = await this.userRepository.findOne({
+  //     where: { id: userId },
+  //     relations: ["adminOrganizations"],
+  //   });
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
+  //   if (!user) {
+  //     throw new NotFoundException(`User with ID ${userId} not found`);
+  //   }
 
-    const isUserAdmin = user.adminOrganizations.find(
-      (org) => org.id === organizationId,
-    );
+  //   const isUserAdmin = user.adminOrganizations.find(
+  //     (org) => org.id === organizationId,
+  //   );
 
-    if (!isUserAdmin) {
-      throw new ConflictException(
-        `User does not have permission to create a participant for organization with ID ${organizationId}`,
-      );
-    }
+  //   if (!isUserAdmin) {
+  //     throw new ConflictException(
+  //       `User does not have permission to create a participant for organization with ID ${organizationId}`,
+  //     );
+  //   }
 
-    // Get organization
-    const organization = await this.organizationRepository.findOne({
-      where: { id: organizationId },
-    });
+  //   // Get organization
+  //   const organization = await this.organizationRepository.findOne({
+  //     where: { id: organizationId },
+  //   });
 
-    if (!organization) {
-      throw new NotFoundException(`Organization with ID ${organizationId} not found`);
-    }
+  //   if (!organization) {
+  //     throw new NotFoundException(`Organization with ID ${organizationId} not found`);
+  //   }
 
-    try {
-      const individual = this.individualRepository.create({name, organization});
+  //   try {
+  //     const individual = this.individualRepository.create({name, organization});
 
-      return await this.individualRepository.save(individual);
-    } catch (error) {
-      if (error instanceof NotFoundException || error instanceof ConflictException)
-        throw error;
-      throw new InternalServerErrorException("Failed to create individual participant");
-    }
-  }
+  //     return await this.individualRepository.save(individual);
+  //   } catch (error) {
+  //     if (error instanceof NotFoundException || error instanceof ConflictException)
+  //       throw error;
+  //     throw new InternalServerErrorException("Failed to create individual participant");
+  //   }
+  // }
 
   async assignIndividualToEvents(
     individualId: number,
