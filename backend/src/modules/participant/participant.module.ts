@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Tournament } from 'src/entities/tournament.entity';
 import { Organization } from 'src/entities/organization.entity';
 import { User } from 'src/entities/user.entity';
 import { ParticipantController } from './participant.controller';

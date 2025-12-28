@@ -12,6 +12,6 @@ export class CreateTeamInput {
   organizationId: number;
 
   @IsNotEmpty({ message: 'Event ID is required' })
-  @IsString({ message: 'Event ID must be a string' })
+  @IsNumber({}, { message: 'Event ID must be a number' })
   eventId: number;
 }

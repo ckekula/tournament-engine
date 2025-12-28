@@ -26,14 +26,13 @@ import {
   ApiQuery,
 } from "@nestjs/swagger";
 import { ParticipantService } from "./participant.service";
-import { Participant } from "src/entities/participant.entity";
 import { ErrorResponseDto } from "src/utils/types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { CreateParticipantInput } from "./dto/createParticipant.input";
 import { ParticipantResponse } from "./dto/participant-response";
-import { UpdateParticipantInput } from "./dto/updateParticipant.input";
 import { CreateTeamInput } from "./dto/createTeam.input";
 import { Team } from "src/entities/team.entity";
+import { CreateIndividualInput } from "./dto/createIndividual.input";
+import { Individual } from "src/entities/Individual.entity";
 
 @ApiTags("Participant")
 @Controller("participant")
@@ -80,7 +79,7 @@ export class ParticipantController {
       "Creates a new individual participant with the provided information.",
   })
   @ApiBody({
-    type: CreateParticipantInput,
+    type: CreateIndividualInput,
     description: "Participant creation data",
   })
   @ApiCreatedResponse({
@@ -99,12 +98,12 @@ export class ParticipantController {
     description: "Failed to create participant",
     type: ErrorResponseDto,
   })
-  async create(
-    @Body() createParticipantInput: CreateParticipantInput,
+  async createIndividual(
+    @Body() createIndividualInput: CreateIndividualInput,
     @CurrentUser("id") userId: number,
-  ): Promise<Participant> {
-    return await this.participantService.create(
-      createParticipantInput,
+  ): Promise<Individual> {
+    return await this.participantService.createIndividual(
+      createIndividualInput,
       userId,
     );
   }

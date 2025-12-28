@@ -2,6 +2,8 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 import { User } from './user.entity';
 import { Tournament } from './tournament.entity';
 import { Matches } from 'class-validator';
+import { Team } from './team.entity';
+import { Person } from './person.entity';
 
 @Entity()
 export class Organization {
@@ -34,6 +36,12 @@ export class Organization {
 
   @ManyToMany(() => Tournament, tournament => tournament.registeredOrganizations)
   registeredTournaments: Tournament[];
+
+  @OneToMany(() => Team, team => team.organization)
+  teams: Team[];
+
+  @OneToMany(() => Person, person => person.organization)
+  persons: Person[];
 
   @CreateDateColumn()
   createdAt: Date;

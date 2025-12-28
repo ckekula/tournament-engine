@@ -1,6 +1,5 @@
 import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
 import { Event } from './event.entity';
-import { Organization } from './organization.entity';
 import { Matches } from 'class-validator';
 
 @Entity()
@@ -15,11 +14,8 @@ export abstract class Participant {
   })
   name: string;
 
-  @ManyToMany(() => Event, (event) => event.participants)
+  @ManyToMany(() => Event, (event) => event.participants, { onDelete: 'CASCADE' })
   events: Event[];
-
-  @ManyToOne(() => Organization)
-  organization: Organization;
 
   @CreateDateColumn()
   createdAt: Date;

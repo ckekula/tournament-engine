@@ -6,20 +6,17 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Repository } from "typeorm";
-import { Participant } from "src/entities/participant.entity";
 import { Organization } from "src/entities/organization.entity";
 import { User } from "src/entities/user.entity";
-import { CreateParticipantInput } from "./dto/createParticipant.input";
-import { UpdateParticipantInput } from "./dto/updateParticipant.input";
+import { CreateIndividualInput } from "./dto/createIndividual.input";
 import { Event } from "src/entities/event.entity";
 import { Team } from "src/entities/team.entity";
 import { CreateTeamInput } from "./dto/createTeam.input";
+import { Individual } from "src/entities/Individual.entity";
 
 @Injectable()
 export class ParticipantService {
   constructor(
-    @InjectRepository(Participant)
-    private readonly participantRepository: Repository<Participant>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(User)
@@ -28,44 +25,15 @@ export class ParticipantService {
     private readonly eventRepository: Repository<Event>,
     @InjectRepository(Team)
     private readonly teamRepository: Repository<Team>,
+    @InjectRepository(Individual)
+    private readonly individualRepository: Repository<Individual>,
   ) {}
 
-  async findAll(): Promise<Participant[]> {
-    try {
-      return await this.participantRepository.find({
-        relations: ["organizer"],
-      });
-    } catch (error) {
-      console.log("error fetching participants: ", error);
-      throw new InternalServerErrorException("Failed to fetch participants");
-    }
-  }
-
-  async getTeamsByOrganizationAndTournament(
-    organizationId: number,
-    tournamentId: number
-  ): Promise<Team[]> {
-    try {
-      return await this.teamRepository
-        .createQueryBuilder("team")
-        .leftJoinAndSelect("team.organization", "organization")
-        .leftJoinAndSelect("team.events", "event")
-        .leftJoinAndSelect("event.activity", "activity")
-        .leftJoinAndSelect("activity.tournament", "tournament")
-        .where("organization.id = :organizationId", { organizationId })
-        .andWhere("tournament.id = :tournamentId", { tournamentId })
-        .getMany();
-    } catch (error) {
-      console.error("error fetching teams by organization and tournament:", error);
-      throw new InternalServerErrorException("Failed to fetch teams");
-    }
-  }
-
-  async create(
-    createParticipantInput: CreateParticipantInput,
+  async createIndividual(
+    createIndividualInput: CreateIndividualInput,
     userId: number,
-  ): Promise<Participant> {
-    const { name, organizationId } = createParticipantInput;
+  ): Promise<Individual> {
+    const { name, organizationId } = createIndividualInput;
 
     // Check if user is admin of organization
     const user = await this.userRepository.findOne({
@@ -97,15 +65,43 @@ export class ParticipantService {
     }
 
     try {
-      const participant = this.participantRepository.create({name, organization});
+      const individual = this.individualRepository.create({name, organization});
 
-      return await this.participantRepository.save(participant);
+      return await this.individualRepository.save(individual);
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof ConflictException)
         throw error;
-      throw new InternalServerErrorException("Failed to create participant");
+      throw new InternalServerErrorException("Failed to create individual participant");
     }
   }
+
+  async assignIndividualToEvents(
+    individualId: number,
+    eventIds: number[],
+    userId: number,
+  ): Promise<void> {
+    const individual = await this.individualRepository.findOne({
+      where: { id: individualId },
+      relations: ["events"],
+    });
+
+    if (!individual) {
+      throw new NotFoundException(`Individual with ID ${individualId} not found`);
+    }
+
+    const events = await this.eventRepository.find({
+      where: { id: In(eventIds) },
+    });
+
+    if (events.length !== eventIds.length) {
+      throw new NotFoundException("One or more events not found");
+    }
+
+    individual.events = [...individual.events, ...events];
+    await this.individualRepository.save(individual);
+  }
+
+
 
   async createTeam(
     createTeamInput: CreateTeamInput,
@@ -159,6 +155,26 @@ export class ParticipantService {
       if (error instanceof NotFoundException || error instanceof ConflictException)
         throw error;
       throw new InternalServerErrorException("Failed to create team");
+    }
+  }
+
+  async getTeamsByOrganizationAndTournament(
+    organizationId: number,
+    tournamentId: number
+  ): Promise<Team[]> {
+    try {
+      return await this.teamRepository
+        .createQueryBuilder("team")
+        .leftJoinAndSelect("team.organization", "organization")
+        .leftJoinAndSelect("team.events", "event")
+        .leftJoinAndSelect("event.activity", "activity")
+        .leftJoinAndSelect("activity.tournament", "tournament")
+        .where("organization.id = :organizationId", { organizationId })
+        .andWhere("tournament.id = :tournamentId", { tournamentId })
+        .getMany();
+    } catch (error) {
+      console.error("error fetching teams by organization and tournament:", error);
+      throw new InternalServerErrorException("Failed to fetch teams");
     }
   }
 
