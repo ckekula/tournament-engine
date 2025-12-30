@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { TableModule } from 'primeng/table';
-import { Round, Team } from '../../../../types/models';
-import { GroupTableComponent } from '../group-table/group-table.component';
+import { Round, Team } from '../../../types/models';
 
 @Component({
   selector: 'app-group-matchups',
   imports: [
     TableModule,
     CommonModule,
-    GroupTableComponent
   ],
   templateUrl: './group-matchups.component.html',
   styleUrl: './group-matchups.component.scss'

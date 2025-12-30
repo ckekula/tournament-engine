@@ -1,18 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { TableModule } from 'primeng/table';
-import { Round, Team, TeamStats } from '../../../../types/models';
+import { Round, Team, TeamStats } from '../../../types/models';
 
 @Component({
-  selector: 'app-group-table',
+  selector: 'app-group-standings-table',
   imports: [
     TableModule,
     CommonModule
   ],
-  templateUrl: './group-table.component.html',
-  styleUrl: './group-table.component.scss'
+  templateUrl: './group-standings-table.component.html',
+  styleUrl: './group-standings-table.component.scss'
 })
-export class GroupTableComponent implements OnChanges {
+export class GroupStandingsTableComponent {
   @Input() teams: Team[] = [];
   @Input() rounds: Round[] = [];
   @Input() loading = false;
