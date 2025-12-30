@@ -40,42 +40,55 @@ export interface Stage {
 export interface Group {
     id: number,
     name: string,
-    teams: Team[],
+    participants?: Participant[];
     groupStage: Stage,
-}
-
-export interface Team {
-    id: number,
-    name: string,
-    event: _Event
-}
-
-export interface Round {
-    team1Id: number;
-    team1Score: number;
-    team2Id: number;
-    team2Score: number;
-}
-
-export interface TeamStats {
-    teamId: number;
-    teamName: string;
-    played: number;
-    wins: number;
-    losses: number;
-    ties: number;
-    points: number;
-    scoreDiff: number;
-    goalsFor: number;
-    goalsAgainst: number;
 }
 
 export interface Participant {
     id: number,
-    name: string
+    events: _Event[]
+}
+
+export interface Team extends Participant {
+    name: string,
+    organization: Organization,
+    members?: TeamMember[]
+}
+
+export interface TeamMember {
+    id: number,
+    person: Person,
+    team: Team
+}
+
+export interface Individual extends Participant {
+    person: Person,
 }
 
 export interface Person {
     id: number,
-    name: string
+    name: string,
+    individualParticipations: Individual[],
+    teamMemberships: TeamMember[],
+}
+
+export interface Round {
+  participant1Id: number;
+  participant1Score: number;
+  participant2Id: number;
+  participant2Score: number;
+}
+
+// Update ParticipantStats (formerly TeamStats)
+export interface ParticipantStats {
+  participantId: number;
+  participantName: string;
+  wins: number;
+  losses: number;
+  ties: number;
+  points: number;
+  scoreDiff: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  played: number;
 }

@@ -9,16 +9,16 @@
         [tableStyle]="{ 'min-width': '50rem' }">
         <ng-template pTemplate="header">
             <tr>
-            <th class="text-left">Team 1</th>
+            <th class="text-left">Pariticipant 1</th>
             <th class="text-center">Score</th>
-            <th class="text-right">Team 2</th>
+            <th class="text-right">Pariticipant 2</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-groupRounds>
             <tr>
-            <td class="text-left">{{getTeamName(groupRounds.team1Id)}}</td>
-            <td class="text-center">{{ groupRounds.team1Score }} - {{ groupRounds.team2Score }}</td>
-            <td class="text-right">{{getTeamName(groupRounds.team2Id)}}</td>
+            <td class="text-left">{{getParticipantName(groupRounds.participant1Id)}}</td>
+            <td class="text-center">{{ groupRounds.participant1Score }} - {{ groupRounds.participant2Score }}</td>
+            <td class="text-right">{{getParticipantName(groupRounds.participant2Id)}}</td>
             </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">

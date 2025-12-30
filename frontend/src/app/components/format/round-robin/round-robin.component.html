@@ -1,11 +1,12 @@
 <div class="w-full">
     <app-group-standings-table 
-        [teams]="teams"
+        [participants]="participants"
         [loading]="loadingStandings"
         [rounds]="rounds">
     </app-group-standings-table>
+
     <app-group-matchups 
-        [teams]="group?.teams || []"
+        [participants]="group?.participants || []"
         [loading]="loadingMatchups">
     </app-group-matchups>
 </div>
