@@ -56,6 +56,8 @@ export class RegisteredOrgTableComponent implements OnInit {
   }
 
   navigateToOrg(orgSlug: string, orgId: number) {
-    this.router.navigate([orgId, orgSlug], { relativeTo: this.route });
+    const tournaId = Number(this.route.snapshot.paramMap.get('tournamentId'));
+    const tournaSlug = this.route.snapshot.paramMap.get('tournamentSlug');
+    this.router.navigate([`org/${orgId}/${orgSlug}/${tournaId}/${tournaSlug}`]);
   }
 }

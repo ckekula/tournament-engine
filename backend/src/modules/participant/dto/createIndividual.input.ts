@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsString, IsNumber, MaxLength, MinLength, Matches, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, MaxLength, MinLength, Matches, IsEnum, IsArray } from 'class-validator';
 
-export class CreateParticipantInput {
+export class CreateIndividualInput {
   @IsNotEmpty({ message: 'Name is required' })
   @IsString({ message: 'Name must be a string' })
   @MinLength(2, { message: 'Name must be at least 2 characters' })
@@ -10,8 +10,4 @@ export class CreateParticipantInput {
   @IsNotEmpty({ message: 'Organization ID is required' })
   @IsNumber({}, { message: 'Organization ID must be a number' })
   organizationId: number;
-
-  @IsNotEmpty({ message: 'Event ID is required' })
-  @IsString({ message: 'Event ID must be a string' })
-  eventId: number;
 }

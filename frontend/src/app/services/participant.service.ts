@@ -40,6 +40,15 @@ export class ParticipantService {
       );
   }
 
+  getParticipantsByEvent(eventId: number): Observable<Participant[]> {
+    return this.http.get<Participant[]>(`${this.API_URL}/participants/${eventId}`)
+      .pipe(
+        catchError(error =>
+          throwError(() => new Error(error.error?.message || 'Failed to fetch participants'))
+        )
+      );
+  }
+
   create(participant: Partial<Participant>): Observable<Participant> {
     return this.http.post<Participant>(this.API_URL, participant)
       .pipe(

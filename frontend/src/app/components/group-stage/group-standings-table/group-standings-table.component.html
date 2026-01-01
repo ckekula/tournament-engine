@@ -6,14 +6,21 @@
         </div>
 
         <p-table
-            [value]="teamsStats" 
+            [value]="participantsStats" 
             [loading]="loading" 
             styleClass="p-datatable-gridlines p-datatable-striped" 
             [tableStyle]="{'min-width': '50rem'}">
+            <ng-template pTemplate="caption">
+              <div class="flex justify-between items-center">
+                <span (click)="toggleAssignParticipant()" class="text-blue-600 font-semibold mt-3 text-left cursor-pointer">
+                  Assign Participants
+                </span>
+              </div>
+            </ng-template>  
             <ng-template pTemplate="header">
               <tr>
                 <th>Position</th>
-                <th>Team</th>
+                <th>Pariticipant</th>
                 <th>P</th>
                 <th>W</th>
                 <th>D</th>
@@ -27,7 +34,7 @@
             <ng-template pTemplate="body" let-stats let-i="rowIndex">
               <tr>
                 <td>{{ i + 1 }}</td>
-                <td>{{ stats.teamName }}</td>
+                <td>{{ stats.pariticipantName }}</td>
                 <td>{{ stats.played }}</td>
                 <td>{{ stats.wins }}</td>
                 <td>{{ stats.ties }}</td>
@@ -42,7 +49,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="10" class="text-center">No team stats available.</td>
+                <td colspan="10" class="text-center">No pariticipant stats available.</td>
               </tr>
             </ng-template>
         </p-table>
@@ -50,4 +57,9 @@
     </div>
   </div>
   
-  
+<app-assign-group-participants
+  [groupId]="groupId"
+  [stageId]="stageId"
+  [(visible)]="assignGroupParticipantsVisible" 
+  (participantAssigned)="assignGroupParticipants($event)">
+</app-assign-group-participants>

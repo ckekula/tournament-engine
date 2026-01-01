@@ -6,7 +6,6 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { User } from "src/entities/user.entity";
 import { CreateGroupInput } from "./dto/createGroup.input";
 import { UpdateGroupInput } from "./dto/updateGroup.input";
 import { Group } from "src/entities/group.entity";
@@ -19,19 +18,7 @@ export class GroupService {
     private readonly groupRepository: Repository<Group>,
     @InjectRepository(GroupStage)
     private readonly groupStageRepository: Repository<GroupStage>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
   ) {}
-
-  async findAll(): Promise<Group[]> {
-    try {
-      return await this.groupRepository.find({
-        relations: ['groupStage'],
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to fetch groups');
-    }
-  }
 
   async findOne(id: number): Promise<Group> {
     try {

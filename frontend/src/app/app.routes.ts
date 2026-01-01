@@ -14,7 +14,7 @@ const organizationPath = 'org/:organizationId/:organizationSlug';
 const tournamentPath = ':tournamentId/:tournamentSlug';
 const activityPath = ':activityId/:activitySlug';
 const eventPath = ':eventId/:eventSlug';
-const tournaOrgPath = ':tournamentId/:tournamentSlug/:organizationId/:organizationSlug';
+const tournaOrgPath = 'org/:tournamentId/:tournamentSlug/:organizationId/:organizationSlug';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -26,7 +26,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   { path: organizationPath, component: OrganizationComponent },
-  { path: tournaOrgPath, component: TournaOrgComponent },
+  { path: `${organizationPath}/${tournamentPath}`, component: TournaOrgComponent },
 
   // Tournament hierarchy
   { path: tournamentPath, component: TournamentComponent },

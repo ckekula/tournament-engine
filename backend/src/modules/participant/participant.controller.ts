@@ -26,14 +26,14 @@ import {
   ApiQuery,
 } from "@nestjs/swagger";
 import { ParticipantService } from "./participant.service";
-import { Participant } from "src/entities/participant.entity";
 import { ErrorResponseDto } from "src/utils/types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { CreateParticipantInput } from "./dto/createParticipant.input";
 import { ParticipantResponse } from "./dto/participant-response";
-import { UpdateParticipantInput } from "./dto/updateParticipant.input";
 import { CreateTeamInput } from "./dto/createTeam.input";
 import { Team } from "src/entities/team.entity";
+import { CreateIndividualInput } from "./dto/createIndividual.input";
+import { Individual } from "src/entities/Individual.entity";
+import { Participant } from "src/entities/participant.entity";
 
 @ApiTags("Participant")
 @Controller("participant")
@@ -72,41 +72,11 @@ export class ParticipantController {
     );
   }
 
-  @Post("individual")
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: "Create a new individual participant",
-    description:
-      "Creates a new individual participant with the provided information.",
-  })
-  @ApiBody({
-    type: CreateParticipantInput,
-    description: "Participant creation data",
-  })
-  @ApiCreatedResponse({
-    description: "Participant successfully created",
-    type: ParticipantResponse,
-  })
-  @ApiConflictResponse({
-    description: "Participant slug already exists",
-    type: ErrorResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: "Organization not found",
-    type: ErrorResponseDto,
-  })
-  @ApiInternalServerErrorResponse({
-    description: "Failed to create participant",
-    type: ErrorResponseDto,
-  })
-  async create(
-    @Body() createParticipantInput: CreateParticipantInput,
-    @CurrentUser("id") userId: number,
-  ): Promise<Participant> {
-    return await this.participantService.create(
-      createParticipantInput,
-      userId,
-    );
+  @Get("participants/:eventId")
+  async getParticipantsByEvent(
+    @Param("eventId", ParseIntPipe) eventId: number
+  ): Promise<Participant[]> {
+    return await this.participantService.getParticipantsByEvent(eventId);
   }
 
   @Post("team")

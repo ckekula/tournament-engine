@@ -1,26 +1,41 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
-import { Group, Round, Participant, ParticipantStats, StageParticipant, GroupStageParticipant } from '../../../types/models';
-import { GroupMatchupsComponent } from '../../group-stage/group-matchups/group-matchups.component';
-import { GroupStandingsTableComponent } from '../../group-stage/group-standings-table/group-standings-table.component';
+import { CommonModule } from '@angular/common';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { TagModule } from 'primeng/tag';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
+import { Round, ParticipantStats, GroupStageParticipant, StageParticipant } from '../../../types/models';
+import { AssignGroupParticipantsComponent } from '../assign-group-participants/assign-group-participants.component';
 
 @Component({
-  selector: 'app-round-robin',
+  selector: 'app-group-standings-table',
   imports: [
-    GroupStandingsTableComponent,
-    GroupMatchupsComponent
+    TableModule, 
+    TagModule, 
+    IconFieldModule, 
+    InputTextModule, 
+    InputIconModule, 
+    MultiSelectModule, 
+    SelectModule, 
+    CommonModule,
+    AssignGroupParticipantsComponent
   ],
-  templateUrl: './round-robin.component.html',
-  styleUrl: './round-robin.component.scss'
+  templateUrl: './group-standings-table.component.html',
+  styleUrl: './group-standings-table.component.scss'
 })
-export class RoundRobinComponent {
-  @Input() group?: Group;
+export class GroupStandingsTableComponent implements OnChanges {
   @Input() participants: GroupStageParticipant[] = [];
   @Input() rounds: Round[] = [];
+  @Input() loading = false;
 
-  loadingMatchups = false;
-  loadingStandings = false;
-
+  stageId: number = 1
+  groupId: number = 1
+  
   participantsStats: ParticipantStats[] = [];
+  assignGroupParticipantsVisible = false;
   
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['participants'] || changes['rounds']) && 
@@ -112,4 +127,12 @@ export class RoundRobinComponent {
     }
     return 'Unknown Participant';
   }
+
+  toggleAssignParticipant(): void {
+    this.assignGroupParticipantsVisible = true;
+  }
+
+assignGroupParticipants(newParticipants: GroupStageParticipant[]): void {
+  this.participants = [...this.participants, ...newParticipants];
+}
 }
