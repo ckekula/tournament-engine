@@ -5,21 +5,21 @@
                 <fa-icon class="text-gray-600" [icon]="faTrophy"></fa-icon>
             </span>
             <div class="text-900 text-xl mb-3 font-medium">First Runners-Up</div>
-            <span class="text-700 line-height-3">USA</span>
+            <span class="text-700 line-height-3">{{ podium.firstRunnerUp }}</span>
         </div>
         <div class="col-12 md:col-4 px-5">
             <span class="p-3 shadow-2 mb-3 inline-block surface-card" style="border-radius: 10px">
                 <fa-icon class="text-yellow-600" [icon]="faTrophy"></fa-icon>
             </span>
             <div class="text-900 text-xl mb-3 font-medium">Champions</div>
-            <span class="text-700 line-height-3">China</span>
+            <span class="text-700 line-height-3">{{ podium.champion }}</span>
         </div>
         <div class="col-12 md:col-4 px-5">
             <span class="p-3 shadow-2 mb-3 inline-block surface-card" style="border-radius: 10px">
                 <fa-icon class="text-orange-500" [icon]="faTrophy"></fa-icon>
             </span>
             <div class="text-900 text-xl mb-3 font-medium">Second Runners up</div>
-            <span class="text-700 line-height-3">France</span>
+            <span class="text-700 line-height-3">{{ podium.secondRunnerUp }}</span>
         </div>
     </div>
 </div>

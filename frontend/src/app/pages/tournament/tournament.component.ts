@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from "../../components/shared/header/header.component";
@@ -11,6 +11,8 @@ import { DialogModule } from 'primeng/dialog';
 import { RippleModule } from 'primeng/ripple';
 import { TournaRegisterComponent } from '../../components/tournament/tourna-register/tourna-register.component';
 import { RegisteredOrgTableComponent } from '../../components/tournament/registered-org-table/registered-org-table.component';
+import { ActivatedRoute } from '@angular/router';
+import { TournamentService } from '../../services/tournament.service';
 
 @Component({
   selector: 'app-tournament',
@@ -31,8 +33,26 @@ import { RegisteredOrgTableComponent } from '../../components/tournament/registe
   templateUrl: './tournament.component.html',
   styleUrl: './tournament.component.scss',
 })
-export class TournamentComponent {
+export class TournamentComponent implements OnInit {
+  constructor(
+    private route: ActivatedRoute,
+    private tournamentService: TournamentService
+  ) {}
   tournaRegisterVisible = false;
+  tournamentName!: string
+
+  ngOnInit(): void {
+    const tournamentId = Number(this.route.snapshot.paramMap.get('tournamentId'));
+    this.tournamentService.getOne(tournamentId).subscribe({
+      next: (tournament) => {
+        tournament = tournament;
+        this.tournamentName = tournament.name
+      },
+      error: (err) => {
+        console.error('Failed to load tournament', err);
+      }
+    });
+  }
 
   tabs = [
     { title: 'Standings', value: 0, component: StandingsTableComponent },
