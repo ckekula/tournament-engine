@@ -1,23 +1,41 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { TagModule } from 'primeng/tag';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
-import { Round, Participant, ParticipantStats } from '../../../types/models';
+import { Round, ParticipantStats, GroupStageParticipant, StageParticipant } from '../../../types/models';
+import { AssignGroupParticipantsComponent } from '../assign-group-participants/assign-group-participants.component';
 
 @Component({
   selector: 'app-group-standings-table',
   imports: [
-    TableModule,
-    CommonModule
+    TableModule, 
+    TagModule, 
+    IconFieldModule, 
+    InputTextModule, 
+    InputIconModule, 
+    MultiSelectModule, 
+    SelectModule, 
+    CommonModule,
+    AssignGroupParticipantsComponent
   ],
   templateUrl: './group-standings-table.component.html',
   styleUrl: './group-standings-table.component.scss'
 })
 export class GroupStandingsTableComponent implements OnChanges {
-  @Input() participants: Participant[] = [];
+  @Input() participants: GroupStageParticipant[] = [];
   @Input() rounds: Round[] = [];
   @Input() loading = false;
+
+  stageId: number = 1
+  groupId: number = 1
   
   participantsStats: ParticipantStats[] = [];
+  assignGroupParticipantsVisible = false;
   
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['participants'] || changes['rounds']) && 
@@ -98,7 +116,7 @@ export class GroupStandingsTableComponent implements OnChanges {
     });
   }
 
-  private getParticipantName(participant: Participant): string {
+  private getParticipantName(participant: GroupStageParticipant): string {
     // Type guard to check if it's a Team
     if ('name' in participant) {
       return (participant as any).name;
@@ -109,4 +127,12 @@ export class GroupStandingsTableComponent implements OnChanges {
     }
     return 'Unknown Participant';
   }
+
+  toggleAssignParticipant(): void {
+    this.assignGroupParticipantsVisible = true;
+  }
+
+assignGroupParticipants(newParticipants: GroupStageParticipant[]): void {
+  this.participants = [...this.participants, ...newParticipants];
+}
 }

@@ -5,5 +5,5 @@ import { Group } from "./group.entity";
 @Entity()
 export class GroupStageParticipant extends StageParticipant {
   @ManyToOne(() => Group, { nullable: true, onDelete: 'CASCADE' })
-  group?: Group;
+  group: Group;
 }

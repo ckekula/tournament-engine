@@ -72,6 +72,16 @@ export interface Person {
     teamMemberships: TeamMember[],
 }
 
+export interface StageParticipant {
+    id: number,
+    stage: Stage,
+    participant: Participant
+}
+
+export interface GroupStageParticipant extends StageParticipant{
+    group: Group
+}
+
 export interface Round {
   participant1Id: number;
   participant1Score: number;

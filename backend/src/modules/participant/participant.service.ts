@@ -13,6 +13,8 @@ import { Event } from "src/entities/event.entity";
 import { Team } from "src/entities/team.entity";
 import { CreateTeamInput } from "./dto/createTeam.input";
 import { Individual } from "src/entities/Individual.entity";
+import { Participant } from "src/entities/participant.entity";
+import { ParticipantResponse } from "./dto/participant-response";
 
 @Injectable()
 export class ParticipantService {
@@ -23,85 +25,13 @@ export class ParticipantService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Participant)
+    private readonly participantRepository: Repository<Participant>,
     @InjectRepository(Team)
     private readonly teamRepository: Repository<Team>,
     @InjectRepository(Individual)
     private readonly individualRepository: Repository<Individual>,
   ) {}
-
-  // async createIndividual(
-  //   createIndividualInput: CreateIndividualInput,
-  //   userId: number,
-  // ): Promise<Individual> {
-  //   const { name, organizationId } = createIndividualInput;
-
-  //   // Check if user is admin of organization
-  //   const user = await this.userRepository.findOne({
-  //     where: { id: userId },
-  //     relations: ["adminOrganizations"],
-  //   });
-
-  //   if (!user) {
-  //     throw new NotFoundException(`User with ID ${userId} not found`);
-  //   }
-
-  //   const isUserAdmin = user.adminOrganizations.find(
-  //     (org) => org.id === organizationId,
-  //   );
-
-  //   if (!isUserAdmin) {
-  //     throw new ConflictException(
-  //       `User does not have permission to create a participant for organization with ID ${organizationId}`,
-  //     );
-  //   }
-
-  //   // Get organization
-  //   const organization = await this.organizationRepository.findOne({
-  //     where: { id: organizationId },
-  //   });
-
-  //   if (!organization) {
-  //     throw new NotFoundException(`Organization with ID ${organizationId} not found`);
-  //   }
-
-  //   try {
-  //     const individual = this.individualRepository.create({name, organization});
-
-  //     return await this.individualRepository.save(individual);
-  //   } catch (error) {
-  //     if (error instanceof NotFoundException || error instanceof ConflictException)
-  //       throw error;
-  //     throw new InternalServerErrorException("Failed to create individual participant");
-  //   }
-  // }
-
-  async assignIndividualToEvents(
-    individualId: number,
-    eventIds: number[],
-    userId: number,
-  ): Promise<void> {
-    const individual = await this.individualRepository.findOne({
-      where: { id: individualId },
-      relations: ["events"],
-    });
-
-    if (!individual) {
-      throw new NotFoundException(`Individual with ID ${individualId} not found`);
-    }
-
-    const events = await this.eventRepository.find({
-      where: { id: In(eventIds) },
-    });
-
-    if (events.length !== eventIds.length) {
-      throw new NotFoundException("One or more events not found");
-    }
-
-    individual.events = [...individual.events, ...events];
-    await this.individualRepository.save(individual);
-  }
-
-
 
   async createTeam(
     createTeamInput: CreateTeamInput,
@@ -174,6 +104,24 @@ export class ParticipantService {
         .getMany();
     } catch (error) {
       console.error("error fetching teams by organization and tournament:", error);
+      throw new InternalServerErrorException("Failed to fetch teams");
+    }
+  }
+
+  async getParticipantsByEvent(eventId: number): Promise<Participant[]> {
+    const event = await this.eventRepository.findOne({
+      where: {id: eventId,},
+      relations: ["participants"]
+    })
+
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${eventId} not found`);
+    }
+
+    try {
+      return event.participants;
+    } catch(error) {
+      console.error("error fetching participants by event:", error);
       throw new InternalServerErrorException("Failed to fetch teams");
     }
   }

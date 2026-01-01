@@ -1,5 +1,5 @@
 import { Component, Input, SimpleChanges } from '@angular/core';
-import { Group, Round, Participant, ParticipantStats } from '../../../types/models';
+import { Group, Round, Participant, ParticipantStats, StageParticipant, GroupStageParticipant } from '../../../types/models';
 import { GroupMatchupsComponent } from '../../group-stage/group-matchups/group-matchups.component';
 import { GroupStandingsTableComponent } from '../../group-stage/group-standings-table/group-standings-table.component';
 
@@ -14,7 +14,7 @@ import { GroupStandingsTableComponent } from '../../group-stage/group-standings-
 })
 export class RoundRobinComponent {
   @Input() group?: Group;
-  @Input() participants: Participant[] = [];
+  @Input() participants: GroupStageParticipant[] = [];
   @Input() rounds: Round[] = [];
 
   loadingMatchups = false;
@@ -101,7 +101,7 @@ export class RoundRobinComponent {
     });
   }
 
-  private getParticipantName(participant: Participant): string {
+  private getParticipantName(participant: GroupStageParticipant): string {
     // Type guard to check if it's a Team
     if ('name' in participant) {
       return (participant as any).name;

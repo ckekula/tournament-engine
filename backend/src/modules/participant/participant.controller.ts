@@ -33,6 +33,7 @@ import { CreateTeamInput } from "./dto/createTeam.input";
 import { Team } from "src/entities/team.entity";
 import { CreateIndividualInput } from "./dto/createIndividual.input";
 import { Individual } from "src/entities/Individual.entity";
+import { Participant } from "src/entities/participant.entity";
 
 @ApiTags("Participant")
 @Controller("participant")
@@ -71,42 +72,12 @@ export class ParticipantController {
     );
   }
 
-  // @Post("individual")
-  // @HttpCode(HttpStatus.CREATED)
-  // @ApiOperation({
-  //   summary: "Create a new individual participant",
-  //   description:
-  //     "Creates a new individual participant with the provided information.",
-  // })
-  // @ApiBody({
-  //   type: CreateIndividualInput,
-  //   description: "Participant creation data",
-  // })
-  // @ApiCreatedResponse({
-  //   description: "Participant successfully created",
-  //   type: ParticipantResponse,
-  // })
-  // @ApiConflictResponse({
-  //   description: "Participant slug already exists",
-  //   type: ErrorResponseDto,
-  // })
-  // @ApiNotFoundResponse({
-  //   description: "Organization not found",
-  //   type: ErrorResponseDto,
-  // })
-  // @ApiInternalServerErrorResponse({
-  //   description: "Failed to create participant",
-  //   type: ErrorResponseDto,
-  // })
-  // async createIndividual(
-  //   @Body() createIndividualInput: CreateIndividualInput,
-  //   @CurrentUser("id") userId: number,
-  // ): Promise<Individual> {
-  //   return await this.participantService.createIndividual(
-  //     createIndividualInput,
-  //     userId,
-  //   );
-  // }
+  @Get("participants/:eventId")
+  async getParticipantsByEvent(
+    @Param("eventId", ParseIntPipe) eventId: number
+  ): Promise<Participant[]> {
+    return await this.participantService.getParticipantsByEvent(eventId);
+  }
 
   @Post("team")
   @HttpCode(HttpStatus.CREATED)

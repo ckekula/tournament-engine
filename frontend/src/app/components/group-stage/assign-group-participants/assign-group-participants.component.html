@@ -1,0 +1,65 @@
+<p-dialog 
+  [(visible)]="visible" 
+  (visibleChange)="visibleChange.emit($event)"
+  header="Add Participants" 
+  [modal]="true" 
+  [style]="{ width: '450px' }">
+  <form [formGroup]="groupParticipantForm" (ngSubmit)="submit()">
+    <div class="p-fluid">
+  
+      <div class="p-field mb-4">
+        <label for="participants" class="block mb-2">Participants</label>
+        <p-multiselect 
+          [options]="participants" 
+          formControlName="participants"
+          placeholder="Select Participants" 
+          optionLabel="name" 
+          class="w-full md:w-80" 
+          display="chip"
+          [filter]="true"
+          [loading]="loading"
+          [virtualScroll]="true" 
+          [virtualScrollItemSize]="43"
+          appendTo="body">
+            <ng-template let-participant #item>
+                <div class="flex items-center gap-2">
+                    <div>{{ participant.name }}</div>
+                </div>
+            </ng-template>
+            <ng-template #dropdownicon>
+                <i class="pi pi-map"></i>
+            </ng-template>
+            <ng-template #filtericon>
+                <i class="pi pi-map-marker"></i>
+            </ng-template>
+            <ng-template #header>
+                <div class="font-medium px-3 py-2">Available Participants</div>
+            </ng-template>
+            <ng-template #footer>
+                <div class="p-3 flex justify-between">
+                    <p-button label="Add New" severity="secondary" text size="small" icon="pi pi-plus" />
+                    <p-button label="Remove All" severity="danger" text size="small" icon="pi pi-times" />
+                </div>
+            </ng-template>
+        </p-multiselect>
+      </div>
+  
+      <div class="p-field">
+        <button 
+          pButton 
+          type="submit" 
+          label="Create" 
+          [disabled]="groupParticipantForm.invalid" 
+          class="p-button-primary">
+        </button>
+        <button 
+          pButton 
+          type="button" 
+          label="Cancel" 
+          (click)="closeDialog()" 
+          class="p-button-secondary ml-2">
+        </button>
+      </div>
+    </div>
+  </form>
+</p-dialog>

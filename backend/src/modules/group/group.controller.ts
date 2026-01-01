@@ -69,23 +69,6 @@ export class GroupController {
     return await this.groupService.create(createGroupInput);
   }
 
-  @Get()
-  @ApiOperation({
-    summary: 'Get all groups',
-    description: 'Retrieves a list of all groups in the system',
-  })
-  @ApiOkResponse({
-    description: 'List of groups retrieved successfully',
-    type: [GroupResponse],
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Failed to fetch groups',
-    type: ErrorResponseDto,
-  })
-  async findAll(): Promise<Group[]> {
-    return await this.groupService.findAll();
-  }
-
   @Get(':id')
   @ApiOperation({
     summary: 'Get group by ID',
