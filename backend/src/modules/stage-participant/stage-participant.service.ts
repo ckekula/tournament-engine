@@ -4,31 +4,23 @@ import { Repository } from 'typeorm';
 import { GroupStage } from 'src/entities/groupStage.entity';
 import { Group } from 'src/entities/group.entity';
 import { Participant } from 'src/entities/participant.entity';
-import { GroupStageParticipant } from 'src/entities/groupStageParticipant.entity';
+import { GroupParticipant } from 'src/entities/groupStageParticipant.entity';
 import { CreateGroupStageParticipantInput } from './dto/createGroupStageParticipant.input';
 import { StageParticipant } from 'src/entities/stageParticipant.entity';
 
 @Injectable()
 export class StageParticipantService {
   constructor(
-    @InjectRepository(GroupStageParticipant)
-    private readonly groupStageParticipantRepository: Repository<GroupStageParticipant>,
+    @InjectRepository(GroupParticipant)
+    private readonly groupParticipantRepository: Repository<GroupParticipant>,
     @InjectRepository(GroupStage)
     private readonly groupStageRepository: Repository<GroupStage>,
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
   ) {}
 
-  async createGroupStageParticipants(createGroupStageParticipantInput: CreateGroupStageParticipantInput): Promise<GroupStageParticipant[]> {
-    const { stageId, groupId, participantIds } = createGroupStageParticipantInput
-
-    const stage = await this.groupStageRepository.findOne({
-        where: { id: stageId },
-    });
-
-    if (!stage) {
-    throw new NotFoundException(`Stage with ID ${stageId} not found`);
-    }
+  async createGroupStageParticipants(createGroupStageParticipantInput: CreateGroupStageParticipantInput): Promise<GroupParticipant[]> {
+    const { groupId, participantIds } = createGroupStageParticipantInput
 
     const group = await this.groupRepository.findOne({
         where: { id: groupId },
@@ -40,16 +32,15 @@ export class StageParticipantService {
 
     try {
       const groupStageParticipants = participantIds.map(participantId => 
-        this.groupStageParticipantRepository.create({ 
-          stage, 
+        this.groupParticipantRepository.create({ 
           group, 
           participant: { id: participantId } 
         })
       );
       
-      return await this.groupStageParticipantRepository.save(groupStageParticipants);
+      return await this.groupParticipantRepository.save(groupStageParticipants);
     } catch(error) {
-        throw new InternalServerErrorException('Failed to crate group stage participants',
+        throw new InternalServerErrorException('Failed to create group stage participants',
     );
     }
   }

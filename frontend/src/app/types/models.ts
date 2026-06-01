@@ -40,8 +40,12 @@ export interface Stage {
 export interface Group {
     id: number,
     name: string,
-    participants?: Participant[];
+    groupParticipants?: GroupStageParticipant[];
     groupStage: Stage,
+}
+
+export interface GroupStage extends Stage {
+    groups: Group[];
 }
 
 export interface Participant {
@@ -55,6 +59,13 @@ export interface Team extends Participant {
     members?: TeamMember[]
 }
 
+export interface Person {
+    id: number,
+    name: string,
+    individualParticipations: Individual[],
+    teamMemberships: TeamMember[],
+}
+
 export interface TeamMember {
     id: number,
     person: Person,
@@ -63,13 +74,6 @@ export interface TeamMember {
 
 export interface Individual extends Participant {
     person: Person,
-}
-
-export interface Person {
-    id: number,
-    name: string,
-    individualParticipations: Individual[],
-    teamMemberships: TeamMember[],
 }
 
 export interface StageParticipant {
@@ -104,7 +108,6 @@ export interface ParticipantStats {
 }
 
 export interface CreateGroupStageParticipantRequest {
-  stageId: number;
   groupId: number;
   participantIds: number[];
 }

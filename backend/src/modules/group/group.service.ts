@@ -44,7 +44,7 @@ export class GroupService {
     try {
       return await this.groupRepository.find({
         where: { groupStage: { id: stageId } },
-        relations: ['groupStage'],
+        relations: ['groupStage', 'groupParticipants', 'groupParticipants.participant'],
       });
     } catch (error) {
       throw new InternalServerErrorException(

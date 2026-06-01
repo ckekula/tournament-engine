@@ -1,31 +1,21 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
-  ParseIntPipe,
   HttpStatus,
   HttpCode,
 } from "@nestjs/common";
 import {
-  ApiBearerAuth,
-  ApiTags,
   ApiOperation,
-  ApiParam,
   ApiBody,
   ApiCreatedResponse,
-  ApiOkResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
 } from "@nestjs/swagger";
 import { CreateGroupStageParticipantInput } from "./dto/createGroupStageParticipant.input";
-import { GroupStageParticipant } from "src/entities/groupStageParticipant.entity";
+import { GroupParticipant } from "src/entities/groupStageParticipant.entity";
 import { ErrorResponseDto } from "src/utils/types";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { StageParticipantService } from "./stage-participant.service";
 
 @Controller('stage-participant')
@@ -47,7 +37,7 @@ export class StageParticipantController {
   })
   @ApiCreatedResponse({
     description: "Stage successfully created",
-    type: GroupStageParticipant,
+    type: GroupParticipant,
   })
   @ApiNotFoundResponse({
     description: "Event not found",
@@ -63,8 +53,9 @@ export class StageParticipantController {
   })
   async createGroupStageParticipants(
     @Body() createGroupStageParticipantInput: CreateGroupStageParticipantInput,
-  ): Promise<GroupStageParticipant[]> {
-    console.log("Received input for creating group stage participants:", createGroupStageParticipantInput);
+  ): Promise<GroupParticipant[]> {
     return await this.stageParticipantService.createGroupStageParticipants(createGroupStageParticipantInput);
   }
+
+
 }

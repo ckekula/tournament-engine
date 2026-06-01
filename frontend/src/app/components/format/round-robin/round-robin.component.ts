@@ -15,7 +15,7 @@ import { AssignGroupParticipantsComponent } from '../../group-stage/assign-group
   styleUrl: './round-robin.component.scss'
 })
 export class RoundRobinComponent implements OnInit {
-  @Input() group?: Group;
+  @Input() group!: Group;
   @Input() participants: GroupStageParticipant[] = [];
   @Input() rounds: Round[] = [];
 

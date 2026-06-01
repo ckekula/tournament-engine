@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Matches } from 'class-validator';
 import { GroupStage } from './groupStage.entity';
+import { GroupParticipant } from './groupStageParticipant.entity';
 
 @Entity()
 export class Group {
@@ -15,6 +16,9 @@ export class Group {
 
   @ManyToOne(() => GroupStage, (stage) => stage.groups)
   groupStage: GroupStage;
+
+  @OneToMany(() => GroupParticipant, (participant) => participant.group, { nullable: true })
+  groupParticipants: GroupParticipant[];
 
   @CreateDateColumn()
   createdAt: Date;

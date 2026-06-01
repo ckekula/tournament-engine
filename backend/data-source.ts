@@ -13,7 +13,7 @@ import { Participant } from 'src/entities/participant.entity';
 import { TeamMember } from 'src/entities/teamMember.entity';
 import { Team } from 'src/entities/team.entity';
 import { StageParticipant } from 'src/entities/stageParticipant.entity';
-import { GroupStageParticipant } from 'src/entities/groupStageParticipant.entity';
+import { GroupParticipant } from 'src/entities/groupStageParticipant.entity';
 import * as dotenv from 'dotenv';
 import { Person } from 'src/entities/person.entity';
 import { Individual } from 'src/entities/Individual.entity';
@@ -27,7 +27,7 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   entities: [
     User, Organization, Tournament, Activity, Event, Category, Stage, GroupStage, Group,
-    Person, Participant, TeamMember, Team, Individual, StageParticipant, GroupStageParticipant,
+    Person, Participant, TeamMember, Team, Individual, StageParticipant, GroupParticipant,
   ],
   migrations: ['src/migrations/*.ts'],
 });

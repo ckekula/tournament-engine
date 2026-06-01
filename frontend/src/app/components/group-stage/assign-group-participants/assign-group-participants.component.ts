@@ -25,7 +25,6 @@ import { StageParticipantService } from '../../../services/stage-participant.ser
 })
 export class AssignGroupParticipantsComponent implements OnInit {
   @Input() groupId!: number;
-  @Input() stageId!: number;
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() participantAssigned = new EventEmitter<GroupStageParticipant[]>();
@@ -66,7 +65,6 @@ export class AssignGroupParticipantsComponent implements OnInit {
       const formValue = this.groupParticipantForm.value;
 
       const payload = {
-        stageId: this.stageId,
         groupId: this.groupId,
         participantIds: formValue.participants.map(
           (participant: Participant) => participant.id
