@@ -64,6 +64,7 @@ export class StageParticipantController {
   async createGroupStageParticipants(
     @Body() createGroupStageParticipantInput: CreateGroupStageParticipantInput,
   ): Promise<GroupStageParticipant[]> {
+    console.log("Received input for creating group stage participants:", createGroupStageParticipantInput);
     return await this.stageParticipantService.createGroupStageParticipants(createGroupStageParticipantInput);
   }
 }

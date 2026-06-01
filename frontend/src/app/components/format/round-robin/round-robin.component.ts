@@ -1,18 +1,20 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
-import { Group, Round, Participant, ParticipantStats, StageParticipant, GroupStageParticipant } from '../../../types/models';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Group, Round, ParticipantStats, GroupStageParticipant } from '../../../types/models';
 import { GroupMatchupsComponent } from '../../group-stage/group-matchups/group-matchups.component';
 import { GroupStandingsTableComponent } from '../../group-stage/group-standings-table/group-standings-table.component';
+import { AssignGroupParticipantsComponent } from '../../group-stage/assign-group-participants/assign-group-participants.component';
 
 @Component({
   selector: 'app-round-robin',
   imports: [
     GroupStandingsTableComponent,
-    GroupMatchupsComponent
+    GroupMatchupsComponent,
+    AssignGroupParticipantsComponent,
   ],
   templateUrl: './round-robin.component.html',
   styleUrl: './round-robin.component.scss'
 })
-export class RoundRobinComponent {
+export class RoundRobinComponent implements OnInit {
   @Input() group?: Group;
   @Input() participants: GroupStageParticipant[] = [];
   @Input() rounds: Round[] = [];
@@ -21,7 +23,16 @@ export class RoundRobinComponent {
   loadingStandings = false;
 
   participantsStats: ParticipantStats[] = [];
+  assignGroupParticipantsVisible = false;
+
+  stageId!: number;
+  groupId!: number;
   
+  ngOnInit(): void {
+    this.stageId = this.group!.groupStage.id;
+    this.groupId = this.group!.id;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['participants'] || changes['rounds']) && 
         this.participants.length > 0 && 
@@ -111,5 +122,13 @@ export class RoundRobinComponent {
       return (participant as any).person.name;
     }
     return 'Unknown Participant';
+  }
+
+  toggleAssignParticipant(): void {
+    this.assignGroupParticipantsVisible = true;
+  }
+
+  assignGroupParticipants(newParticipants: GroupStageParticipant[]): void {
+    this.participants = [...this.participants, ...newParticipants];
   }
 }

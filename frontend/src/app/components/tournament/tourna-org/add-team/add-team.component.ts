@@ -56,7 +56,6 @@ export class AddTeamComponent {
     this.activityService.getByTournament(tournamentId).subscribe({
       next: (activities) => {
         this.activities = activities;
-        console.log('Fetched activities:', activities);
         this.groupedEvents = activities
           .filter(activity => activity.events && activity.events.length > 0) // Filter out activities without events
           .map(activity => ({

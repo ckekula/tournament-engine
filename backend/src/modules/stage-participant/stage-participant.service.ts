@@ -11,16 +11,12 @@ import { StageParticipant } from 'src/entities/stageParticipant.entity';
 @Injectable()
 export class StageParticipantService {
   constructor(
-    @InjectRepository(StageParticipant)
-    private readonly stageParticipantRepository: Repository<StageParticipant>,
-    @InjectRepository(GroupStage)
+    @InjectRepository(GroupStageParticipant)
     private readonly groupStageParticipantRepository: Repository<GroupStageParticipant>,
     @InjectRepository(GroupStage)
     private readonly groupStageRepository: Repository<GroupStage>,
     @InjectRepository(Group)
-    private readonly groupRepository: Repository<GroupStage>,
-    @InjectRepository(Participant)
-    private readonly participantRepository: Repository<Participant>,
+    private readonly groupRepository: Repository<Group>,
   ) {}
 
   async createGroupStageParticipants(createGroupStageParticipantInput: CreateGroupStageParticipantInput): Promise<GroupStageParticipant[]> {

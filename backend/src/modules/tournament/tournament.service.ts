@@ -25,7 +25,7 @@ export class TournamentService {
         relations: ['organizer'],
       });
     } catch (error) {
-      console.log("error fetching tournaments: ", error)
+      console.error("error fetching tournaments: ", error)
       throw new InternalServerErrorException('Failed to fetch tournaments');
     }
   }

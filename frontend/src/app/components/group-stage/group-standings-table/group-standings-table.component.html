@@ -10,13 +10,6 @@
             [loading]="loading" 
             styleClass="p-datatable-gridlines p-datatable-striped" 
             [tableStyle]="{'min-width': '50rem'}">
-            <ng-template pTemplate="caption">
-              <div class="flex justify-between items-center">
-                <span (click)="toggleAssignParticipant()" class="text-blue-600 font-semibold mt-3 text-left cursor-pointer">
-                  Assign Participants
-                </span>
-              </div>
-            </ng-template>  
             <ng-template pTemplate="header">
               <tr>
                 <th>Position</th>
@@ -56,10 +49,3 @@
 
     </div>
   </div>
-  
-<app-assign-group-participants
-  [groupId]="groupId"
-  [stageId]="stageId"
-  [(visible)]="assignGroupParticipantsVisible" 
-  (participantAssigned)="assignGroupParticipants($event)">
-</app-assign-group-participants>

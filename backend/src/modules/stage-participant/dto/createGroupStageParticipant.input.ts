@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateGroupStageParticipantInput {
   @IsNotEmpty({ message: 'Stage ID is required' })
@@ -10,6 +10,8 @@ export class CreateGroupStageParticipantInput {
   groupId: number;
 
   @IsNotEmpty({ message: 'Participant ID is required' })
-  @IsNumber()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
   participantIds: number[];
 }

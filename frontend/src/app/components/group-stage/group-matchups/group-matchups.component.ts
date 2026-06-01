@@ -146,7 +146,7 @@ ngOnInit() {
     return `Unknown Participant (${participantId})`;
   }
   
-  updateScore(round: Round): void {
+  updateScore(): void {
     this.roundsChanged.emit(this.rounds);
   }
 }

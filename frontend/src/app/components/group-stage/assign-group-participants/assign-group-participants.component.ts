@@ -64,21 +64,27 @@ export class AssignGroupParticipantsComponent implements OnInit {
   submit(): void {
     if (this.groupParticipantForm.valid) {
       const formValue = this.groupParticipantForm.value;
-      
-      this.stageParticipantService.createGroupStageParticipant({
-        ...formValue,
+
+      const payload = {
+        stageId: this.stageId,
         groupId: this.groupId,
-        stageId: this.stageId
-      }).subscribe({
-        next: (stageParticipant) => {
-          this.participantAssigned.emit(stageParticipant);
-          this.resetForm();
-          this.closeDialog();
-        },
-        error: (error) => {
-          console.error('Error creating event:', error);
-        }
-      });
+        participantIds: formValue.participants.map(
+          (participant: Participant) => participant.id
+        )
+      };
+
+      this.stageParticipantService
+        .createGroupStageParticipant(payload)
+        .subscribe({
+          next: (stageParticipant) => {
+            this.participantAssigned.emit(stageParticipant);
+            this.resetForm();
+            this.closeDialog();
+          },
+          error: (error) => {
+            console.error('Error creating event:', error);
+          }
+        });
     }
   }
 

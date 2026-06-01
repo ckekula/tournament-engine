@@ -102,3 +102,9 @@ export interface ParticipantStats {
   goalsAgainst: number;
   played: number;
 }
+
+export interface CreateGroupStageParticipantRequest {
+  stageId: number;
+  groupId: number;
+  participantIds: number[];
+}

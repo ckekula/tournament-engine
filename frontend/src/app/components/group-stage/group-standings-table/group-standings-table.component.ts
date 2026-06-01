@@ -8,7 +8,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { Round, ParticipantStats, GroupStageParticipant, StageParticipant } from '../../../types/models';
-import { AssignGroupParticipantsComponent } from '../assign-group-participants/assign-group-participants.component';
 
 @Component({
   selector: 'app-group-standings-table',
@@ -20,8 +19,7 @@ import { AssignGroupParticipantsComponent } from '../assign-group-participants/a
     InputIconModule, 
     MultiSelectModule, 
     SelectModule, 
-    CommonModule,
-    AssignGroupParticipantsComponent
+    CommonModule
   ],
   templateUrl: './group-standings-table.component.html',
   styleUrl: './group-standings-table.component.scss'
@@ -30,12 +28,8 @@ export class GroupStandingsTableComponent implements OnChanges {
   @Input() participants: GroupStageParticipant[] = [];
   @Input() rounds: Round[] = [];
   @Input() loading = false;
-
-  stageId: number = 1
-  groupId: number = 1
   
   participantsStats: ParticipantStats[] = [];
-  assignGroupParticipantsVisible = false;
   
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['participants'] || changes['rounds']) && 
@@ -127,12 +121,4 @@ export class GroupStandingsTableComponent implements OnChanges {
     }
     return 'Unknown Participant';
   }
-
-  toggleAssignParticipant(): void {
-    this.assignGroupParticipantsVisible = true;
-  }
-
-assignGroupParticipants(newParticipants: GroupStageParticipant[]): void {
-  this.participants = [...this.participants, ...newParticipants];
-}
 }

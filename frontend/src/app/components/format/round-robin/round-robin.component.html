@@ -1,12 +1,23 @@
-<div class="w-full">
-    <app-group-standings-table 
-        [participants]="participants"
-        [loading]="loadingStandings"
-        [rounds]="rounds">
-    </app-group-standings-table>
+<div>
+    <span (click)="toggleAssignParticipant()" class="text-blue-600 font-bold cursor-pointer">Assign Participants</span>
+    <div class="w-full">
+        <app-group-standings-table 
+            [participants]="participants"
+            [loading]="loadingStandings"
+            [rounds]="rounds">
+        </app-group-standings-table>
 
-    <app-group-matchups 
-        [participants]="group?.participants || []"
-        [loading]="loadingMatchups">
-    </app-group-matchups>
+        <app-group-matchups 
+            [participants]="group?.participants || []"
+            [loading]="loadingMatchups">
+        </app-group-matchups>
+    </div>
 </div>
+
+  
+<app-assign-group-participants
+  [groupId]="groupId"
+  [stageId]="stageId"
+  [(visible)]="assignGroupParticipantsVisible" 
+  (participantAssigned)="assignGroupParticipants($event)">
+</app-assign-group-participants>

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { GroupStageParticipant, Participant, Team } from '../types/models';
+import { CreateGroupStageParticipantRequest, GroupStageParticipant, Participant, Team } from '../types/models';
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +13,15 @@ export class StageParticipantService {
 
   constructor(private http: HttpClient) {}
 
-  createGroupStageParticipant(groupStageParticipant: Partial<GroupStageParticipant>): Observable<GroupStageParticipant[]> {
-    return this.http.post<GroupStageParticipant[]>(this.API_URL, groupStageParticipant)
+  createGroupStageParticipant(
+    payload: CreateGroupStageParticipantRequest
+  ): Observable<GroupStageParticipant[]> {
+    return this.http.post<GroupStageParticipant[]>(this.API_URL, payload)
       .pipe(
         catchError(error =>
-          throwError(() => new Error(error.error?.message || 'Failed to create pgroup stage articipant'))
+          throwError(() =>
+            new Error(error.error?.message || 'Failed to create group stage participant')
+          )
         )
       );
   }

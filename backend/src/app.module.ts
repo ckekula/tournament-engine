@@ -14,6 +14,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { StageModule } from './modules/stage/stage.module';
 import { GroupModule } from './modules/group/group.module';
 import { ParticipantModule } from './modules/participant/participant.module';
+import { StageParticipantModule } from './modules/stage-participant/stage-participant.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ParticipantModule } from './modules/participant/participant.module';
     StageModule,
     GroupModule,
     ParticipantModule,
+    StageParticipantModule,
   ],
   providers: [],
 })
