@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { GroupStage } from 'src/entities/groupStage.entity';
 import { Group } from 'src/entities/group.entity';
 import { Participant } from 'src/entities/participant.entity';
-import { GroupParticipant } from 'src/entities/groupStageParticipant.entity';
+import { GroupParticipant } from 'src/entities/groupParticipant.entity';
 import { CreateGroupStageParticipantInput } from './dto/createGroupStageParticipant.input';
 import { StageParticipant } from 'src/entities/stageParticipant.entity';
 

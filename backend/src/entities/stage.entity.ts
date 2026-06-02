@@ -1,11 +1,12 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
-import { Matches } from 'class-validator';
+import { IsNumber, Matches } from 'class-validator';
 import { Event } from './event.entity';
-import { Format } from './enums';
+import { Format, RoundType } from './enums';
 import { StageParticipant } from './stageParticipant.entity';
+import { Round } from './round.entity';
 
 @Entity()
-@TableInheritance({ column: { type: 'varchar', name: 'type' } })
+@TableInheritance({ column: { type: 'boolean', name: 'type' } })
 export abstract class Stage {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,11 +20,21 @@ export abstract class Stage {
   @Column({ type: 'enum', enum: Format })
   format: Format;
 
+  @Column({ nullable: true })
+  @IsNumber()
+  order?: number;
+
+  @Column({ type: 'enum', enum: RoundType })
+  roundType: RoundType;
+
   @ManyToOne(() => Event, (event) => event.stages)
   event: Event;
 
   @OneToMany(() => StageParticipant, (sp) => sp.stage)
   stageParticipants: StageParticipant[];
+
+  @OneToMany(() => Round, (round) => round.stage)
+  rounds: Round[];
 
   @CreateDateColumn()
   createdAt: Date;

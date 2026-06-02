@@ -10,3 +10,9 @@ export enum EventType {
   INDIVIDUAL = 'INDIVIDUAL',
   TEAM = 'TEAM',
 }
+
+export enum RoundType {
+  SOLO = 'SOLO',
+  HEAD_TO_HEAD = 'HEAD_TO_HEAD',
+  MULTI_COMPETITOR = 'MULTI_COMPETITOR',
+}

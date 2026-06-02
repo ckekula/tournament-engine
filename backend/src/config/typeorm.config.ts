@@ -13,9 +13,11 @@ import { Participant } from 'src/entities/participant.entity';
 import { TeamMember } from 'src/entities/teamMember.entity';
 import { Team } from 'src/entities/team.entity';
 import { StageParticipant } from 'src/entities/stageParticipant.entity';
-import { GroupParticipant } from 'src/entities/groupStageParticipant.entity';
+import { GroupParticipant } from 'src/entities/groupParticipant.entity';
 import { Person } from 'src/entities/person.entity';
 import { Individual } from 'src/entities/Individual.entity';
+import { Round } from 'src/entities/round.entity';
+import { GroupRound } from 'src/entities/groupRound.entity';
 
 export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -23,7 +25,7 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   synchronize: false,
   ssl: true,
   entities: [
-    User, Organization, Tournament, Activity, Event, Category, Stage, GroupStage, Group,
+    User, Organization, Tournament, Activity, Event, Category, Stage, GroupStage, Group, Round, GroupRound,
     Person, Participant, TeamMember, Team, Individual, StageParticipant, GroupParticipant,
   ],
   connectTimeoutMS: 30000,

@@ -14,7 +14,7 @@ import {
   ApiInternalServerErrorResponse,
 } from "@nestjs/swagger";
 import { CreateGroupStageParticipantInput } from "./dto/createGroupStageParticipant.input";
-import { GroupParticipant } from "src/entities/groupStageParticipant.entity";
+import { GroupParticipant } from "src/entities/groupParticipant.entity";
 import { ErrorResponseDto } from "src/utils/types";
 import { StageParticipantService } from "./stage-participant.service";
 
