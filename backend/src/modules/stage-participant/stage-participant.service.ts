@@ -6,7 +6,6 @@ import { Group } from 'src/entities/group.entity';
 import { Participant } from 'src/entities/participant.entity';
 import { GroupParticipant } from 'src/entities/groupParticipant.entity';
 import { CreateGroupStageParticipantInput } from './dto/createGroupStageParticipant.input';
-import { StageParticipant } from 'src/entities/stageParticipant.entity';
 
 @Injectable()
 export class StageParticipantService {

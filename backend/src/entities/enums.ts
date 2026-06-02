@@ -16,3 +16,8 @@ export enum RoundType {
   HEAD_TO_HEAD = 'HEAD_TO_HEAD',
   MULTI_COMPETITOR = 'MULTI_COMPETITOR',
 }
+
+export enum Activity {
+  BASKETBALL = 'BASKETBALL',
+  SOCCER = 'SOCCER',
+}

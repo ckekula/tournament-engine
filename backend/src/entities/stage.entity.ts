@@ -1,13 +1,12 @@
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
-import { IsNumber, Matches } from 'class-validator';
+import { IsInt, Matches } from 'class-validator';
 import { Event } from './event.entity';
 import { Format, RoundType } from './enums';
-import { StageParticipant } from './stageParticipant.entity';
 import { Round } from './round.entity';
 
 @Entity()
-@TableInheritance({ column: { type: 'boolean', name: 'type' } })
-export abstract class Stage {
+@TableInheritance({ column: { type: 'boolean', name: 'isGroupStage' } })
+export class Stage {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,18 +19,15 @@ export abstract class Stage {
   @Column({ type: 'enum', enum: Format })
   format: Format;
 
-  @Column({ nullable: true })
-  @IsNumber()
+  @Column({ nullable: true, type: 'int' })
+  @IsInt()
   order?: number;
 
-  @Column({ type: 'enum', enum: RoundType })
+  @Column({ type: 'enum', enum: RoundType,  default: RoundType.HEAD_TO_HEAD })
   roundType: RoundType;
 
   @ManyToOne(() => Event, (event) => event.stages)
   event: Event;
-
-  @OneToMany(() => StageParticipant, (sp) => sp.stage)
-  stageParticipants: StageParticipant[];
 
   @OneToMany(() => Round, (round) => round.stage)
   rounds: Round[];

@@ -3,7 +3,7 @@ import { Event } from './event.entity';
 
 @Entity()
 @TableInheritance({ column: { type: 'varchar', name: 'type' } })
-export abstract class Participant {
+export class Participant {
   @PrimaryGeneratedColumn()
   id: number;
 

@@ -6,11 +6,10 @@ import { Participant } from 'src/entities/participant.entity';
 import { Event } from 'src/entities/event.entity';
 import { GroupParticipant } from 'src/entities/groupParticipant.entity';
 import { Group } from 'src/entities/group.entity';
-import { StageParticipant } from 'src/entities/stageParticipant.entity';
 import { GroupStage } from 'src/entities/groupStage.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Participant, StageParticipant, GroupStage, GroupParticipant, Group, Event])],
+  imports: [TypeOrmModule.forFeature([Participant, GroupStage, GroupParticipant, Group, Event])],
   controllers: [StageParticipantController],
   providers: [StageParticipantService]
 })

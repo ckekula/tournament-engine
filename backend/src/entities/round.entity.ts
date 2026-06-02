@@ -1,10 +1,10 @@
 import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
-import { Matches } from 'class-validator';
 import { Stage } from './stage.entity';
+import { RoundParticipant } from './roundParticipant.entity';
 
 @Entity()
-@TableInheritance({ column: { type: 'boolean', name: 'groupType' } })
-export abstract class Round {
+@TableInheritance({ column: { type: 'boolean', name: 'isGroupRound' } })
+export class Round {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -13,6 +13,9 @@ export abstract class Round {
 
   @ManyToOne(() => Stage, (stage) => stage.rounds)
   stage: Stage;
+
+  @OneToMany(() => RoundParticipant, (rp) => rp.round)
+  roundParticipants: RoundParticipant[];
 
   @CreateDateColumn()
   createdAt: Date;
