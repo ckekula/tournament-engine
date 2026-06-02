@@ -5,17 +5,17 @@ import { Group } from "./group.entity";
 @Entity()
 export class GroupParticipant {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @ManyToOne(() => Participant, { onDelete: 'CASCADE' })
-  participant: Participant;
+  participant!: Participant;
 
   @ManyToOne(() => Group, { nullable: true, onDelete: 'CASCADE' })
-  group: Group;
+  group!: Group;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

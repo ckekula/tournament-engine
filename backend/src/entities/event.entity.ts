@@ -9,37 +9,37 @@ import { EventType } from './enums';
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 100 })
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Event name can only contain letters, numbers, and spaces',
   })
-  name: string;
+  name!: string;
 
   @Column({ type: "enum", enum: EventType, nullable: true })
-  type: EventType;
+  type!: EventType;
 
   @Column({ nullable: true })
-  maxTeamsPerOrg: number;
+  maxTeamsPerOrg?: number;
 
   @ManyToOne(() => Activity, activity => activity.events)
-  activity: Activity;
+  activity!: Activity;
 
   @OneToMany(() => Stage, stage => stage.event)
-  stages: Stage[];
+  stages!: Stage[];
 
   @JoinTable()
   @ManyToMany(() => Participant, (participant) => participant.events)
-  participants: Participant[];
+  participants!: Participant[];
 
   @JoinTable()
   @ManyToMany(() => Category, category => category.events)
-  categories: Category[];
+  categories?: Category[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

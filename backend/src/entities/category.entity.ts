@@ -6,23 +6,23 @@ import { Matches } from 'class-validator';
 @Entity()
 export class Category {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 100 })
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Category name can only contain letters, numbers, and spaces',
   })
-  name: string;
+  name!: string;
 
   @ManyToOne(() => Activity, activity => activity.events)
-  activity: Activity;
+  activity!: Activity;
 
   @ManyToMany(() => Event, event => event.categories)
-  events: Event[];
+  events?: Event[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

@@ -6,20 +6,20 @@ import { RoundParticipant } from './roundParticipant.entity';
 @TableInheritance({ column: { type: 'boolean', name: 'isGroupRound' } })
 export class Round {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 100 })
-  name: string;
+  name!: string;
 
   @ManyToOne(() => Stage, (stage) => stage.rounds)
-  stage: Stage;
+  stage!: Stage;
 
   @OneToMany(() => RoundParticipant, (rp) => rp.round)
-  roundParticipants: RoundParticipant[];
+  roundParticipants!: RoundParticipant[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

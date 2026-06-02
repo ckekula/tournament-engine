@@ -8,33 +8,33 @@ import { Round } from './round.entity';
 @TableInheritance({ column: { type: 'boolean', name: 'isGroupStage' } })
 export class Stage {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 100 })
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Stage name can only contain letters, numbers, and spaces',
   })
-  name: string;
+  name!: string;
 
   @Column({ type: 'enum', enum: Format })
-  format: Format;
+  format!: Format;
 
   @Column({ nullable: true, type: 'int' })
   @IsInt()
   order?: number;
 
   @Column({ type: 'enum', enum: RoundType,  default: RoundType.HEAD_TO_HEAD })
-  roundType: RoundType;
+  roundType!: RoundType;
 
   @ManyToOne(() => Event, (event) => event.stages)
-  event: Event;
+  event!: Event;
 
   @OneToMany(() => Round, (round) => round.stage)
-  rounds: Round[];
+  rounds!: Round[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

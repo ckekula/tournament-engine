@@ -7,26 +7,26 @@ import { GroupRound } from './groupRound.entity';
 @Entity()
 export class Group {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 100 })
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Group name can only contain letters, numbers, and spaces',
   })
-  name: string;
+  name!: string;
 
   @ManyToOne(() => GroupStage, (stage) => stage.groups)
-  groupStage: GroupStage;
+  groupStage!: GroupStage;
 
   @OneToMany(() => GroupParticipant, (participant) => participant.group, { nullable: true })
-  groupParticipants: GroupParticipant[];
+  groupParticipants!: GroupParticipant[];
 
   @OneToMany(() => GroupRound, (round) => round.group)
-  rounds: GroupRound[];
+  rounds!: GroupRound[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

@@ -6,36 +6,36 @@ import { Matches } from 'class-validator';
 @Entity()
 export class Tournament {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 20 })
-  slug: string;
+  slug!: string;
 
   @Column({ length: 100 })
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Tournament name can only contain letters, numbers, and spaces',
   })
-  name: string;
+  name!: string;
 
   @Column({ length: 20 })
-  season: string;
+  season!: string;
 
   @Column({ nullable: true })
-  maxOrgs: number;
+  maxOrgs?: number;
 
   @ManyToOne(() => Organization, org => org.organizedTournaments)
-  organizer: Organization;
+  organizer!: Organization;
 
   @JoinTable()
   @ManyToMany(() => Organization, org => org.registeredTournaments)
-  registeredOrganizations: Organization[];
+  registeredOrganizations?: Organization[];
 
   @OneToMany(() => Activity, activity => activity.tournament)
-  activities: Activity[];
+  activities?: Activity[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

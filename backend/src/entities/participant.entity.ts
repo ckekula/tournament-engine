@@ -5,14 +5,14 @@ import { Event } from './event.entity';
 @TableInheritance({ column: { type: 'varchar', name: 'type' } })
 export class Participant {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @ManyToMany(() => Event, (event) => event.participants, { onDelete: 'CASCADE' })
-  events: Event[];
+  events!: Event[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

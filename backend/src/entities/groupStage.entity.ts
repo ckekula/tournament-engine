@@ -5,5 +5,5 @@ import { Group } from "./group.entity";
 @ChildEntity(true)
 export class GroupStage extends Stage {
     @OneToMany(() => Group, (group) => group.groupStage)
-    groups: Group[];
+    groups!: Group[];
 }

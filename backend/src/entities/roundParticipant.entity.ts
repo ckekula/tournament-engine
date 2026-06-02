@@ -5,17 +5,17 @@ import { Participant } from "./participant.entity";
 @Entity()
 export class RoundParticipant {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  performance: number;
+  performance!: number;
 
   @ManyToOne(() => Round, (round) => round.roundParticipants)
-  round: Round;
+  round!: Round;
 
   @ManyToOne(() => Participant, { onDelete: 'CASCADE' })
-  participant: Participant;
+  participant!: Participant;
 
   @Column({ type: 'jsonb', nullable: true })
-  stats: Record<string, any>;
+  stats!: Record<string, any>;
 }

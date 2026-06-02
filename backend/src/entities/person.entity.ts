@@ -7,26 +7,26 @@ import { TeamMember } from './teamMember.entity';
 @Entity()
 export class Person {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 100 })
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Name can only contain letters, numbers, and spaces',
   })
-  name: string;
+  name!: string;
 
   @ManyToOne(() => Organization, (org) => org.persons)
-  organization: Organization;
+  organization!: Organization;
 
   @OneToMany(() => Individual, (individual) => individual.person)
-  individualParticipations: Individual[];
+  individualParticipations!: Individual[];
 
   @OneToMany(() => TeamMember, (member) => member.person)
-  teamMemberships: TeamMember[];
+  teamMemberships!: TeamMember[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

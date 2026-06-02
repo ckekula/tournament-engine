@@ -5,17 +5,17 @@ import { Person } from "./person.entity";
 @Entity()
 export class TeamMember {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @ManyToOne(() => Person, (person) => person.teamMemberships)
-  person: Person;
+  person!: Person;
 
   @ManyToOne(() => Team, (team) => team.members)
-  team: Team;
+  team!: Team;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

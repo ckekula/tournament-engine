@@ -5,39 +5,39 @@ import { Matches } from 'class-validator';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 50 })
   @Matches(/^[A-Za-z]+$/, {
     message: 'First name can only contain letters',
   })
-  firstname: string;
+  firstname!: string;
 
   @Column({ length: 50 })
   @Matches(/^[A-Za-z]+$/, {
     message: 'Last name can only contain letters',
   })
-  lastname: string;
+  lastname!: string;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column()
-  password: string;
+  password!: string;
 
   @Column('simple-array', { default: ['user'] })
-  roles: string[];
+  roles!: string[];
 
   @OneToMany(() => Organization, organization => organization.owner)
-  ownedOrganizations: Organization[];
+  ownedOrganizations!: Organization[];
 
   @ManyToMany(() => Organization, organization => organization.admins)
   @JoinTable()
-  adminOrganizations: Organization[];
+  adminOrganizations!: Organization[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

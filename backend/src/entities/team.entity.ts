@@ -10,11 +10,11 @@ export class Team extends Participant {
   @Matches(/^[A-Za-z0-9 ]+$/, {
     message: 'Participant name can only contain letters, numbers, and spaces',
   })
-  name: string;
+  name!: string;
 
   @OneToMany(() => TeamMember, (tm) => tm.team )
   members?: TeamMember[];
 
   @ManyToOne(() => Organization, (org) => org.teams)
-  organization: Organization;
+  organization!: Organization;
 }
