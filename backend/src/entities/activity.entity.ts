@@ -19,7 +19,7 @@ export class Activity {
   tournament!: Tournament;
 
   @OneToMany(() => Event, event => event.activity)
-  events?: Event[];
+  events!: Event[];
 
   @CreateDateColumn()
   createdAt!: Date;

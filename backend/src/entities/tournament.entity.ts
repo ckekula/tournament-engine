@@ -28,7 +28,7 @@ export class Tournament {
 
   @JoinTable()
   @ManyToMany(() => Organization, org => org.registeredTournaments)
-  registeredOrganizations?: Organization[];
+  registeredOrganizations!: Organization[];
 
   @OneToMany(() => Activity, activity => activity.tournament)
   activities?: Activity[];

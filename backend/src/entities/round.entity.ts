@@ -3,7 +3,7 @@ import { Stage } from './stage.entity';
 import { RoundParticipant } from './roundParticipant.entity';
 
 @Entity()
-@TableInheritance({ column: { type: 'boolean', name: 'isGroupRound' } })
+@TableInheritance({ column: { type: 'varchar', name: 'isGroupRound' } })
 export class Round {
   @PrimaryGeneratedColumn()
   id!: number;

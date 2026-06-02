@@ -1,12 +1,12 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
+import { ChildEntity, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, TableInheritance, UpdateDateColumn } from 'typeorm';
 import { IsInt, Matches } from 'class-validator';
 import { Event } from './event.entity';
 import { Format, RoundType } from './enums';
 import { Round } from './round.entity';
 
 @Entity()
-@TableInheritance({ column: { type: 'boolean', name: 'isGroupStage' } })
-export class Stage {
+@TableInheritance({ column: { type: 'varchar', name: 'isGroupStage' } })
+export abstract class Stage {
   @PrimaryGeneratedColumn()
   id!: number;
 

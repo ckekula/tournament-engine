@@ -35,7 +35,7 @@ export class Event {
 
   @JoinTable()
   @ManyToMany(() => Category, category => category.events)
-  categories?: Category[];
+  categories!: Category[];
 
   @CreateDateColumn()
   createdAt!: Date;

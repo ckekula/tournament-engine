@@ -79,37 +79,50 @@ export class StageService {
   async create(createStageInput: CreateStageInput, userId: number): Promise<StageResponse> {
     const { name, format, eventId } = createStageInput;
 
-      const event = await this.eventRepository.findOne({
-        where: { id: eventId },
-        relations: ['activity', 'activity.tournament', 'activity.tournament.organizer'],
-      });
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
+      relations: ['activity', 'activity.tournament', 'activity.tournament.organizer'],
+    });
 
-      if (!event) {
-        throw new NotFoundException(`Event with ID ${createStageInput.eventId} not found`);
-      }
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${createStageInput.eventId} not found`);
+    }
 
-      // Check if user has permission
-      const user = await this.userRepository.findOne({
-        where: { id: userId },
-        relations: ['adminOrganizations'],
-      });
+    // Check if user has permission
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['adminOrganizations'],
+    });
 
-      if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
-      }
-      
-      const isUserAdmin = user.adminOrganizations.find(org => org.id === event.activity.tournament.organizer.id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+    
+    const isUserAdmin = user.adminOrganizations.find(org => org.id === event.activity.tournament.organizer.id);
 
-      if (!isUserAdmin) {
-        throw new ConflictException(`User does not have permission to create activities for this tournament`);
-      }
+    if (!isUserAdmin) {
+      throw new ConflictException(`User does not have permission to create activities for this tournament`);
+    }
+
+    const maxOrder = await this.stageRepository
+      .createQueryBuilder("stage")
+      .select("MAX(stage.order)", "max")
+      .where("stage.eventId = :eventId", { eventId })
+      .getRawOne();
+    
+    const nextOrder = (maxOrder?.max ?? 0) + 1;
 
     try {
-      const stage = this.stageRepository.create({name, format, event});
+      const stage = this.stageRepository.create({
+        name,
+        format,
+        event,
+        order: nextOrder,
+      });
       const saved = await this.stageRepository.save(stage);
       return StageResponse.fromEntity(saved);
     } catch (error) {
-      throw new InternalServerErrorException(`Failed to create stage: ${error.message}`);
+      throw new InternalServerErrorException(`Failed to create stage: ${error}`);
     }
   }
 
@@ -142,7 +155,15 @@ export class StageService {
         throw new ConflictException(`User does not have permission to create activities for this tournament`);
       }
 
-      const groupStage = this.groupStageRepository.create({name, format, event});
+      const maxOrder = await this.stageRepository
+        .createQueryBuilder("stage")
+        .select("MAX(stage.order)", "max")
+        .where("stage.eventId = :eventId", { eventId })
+        .getRawOne();
+      
+      const nextOrder = (maxOrder?.max ?? 0) + 1;
+
+      const groupStage = this.groupStageRepository.create({name, format, event, order: nextOrder});
       const saved = await this.groupStageRepository.save(groupStage);
       return StageResponse.fromEntity(saved);
     } catch (error) {
